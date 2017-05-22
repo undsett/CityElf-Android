@@ -7,10 +7,10 @@ android:
       "android-24",
       "extra-google-google_play_services"
 
-sudo: false
+   licenses:
+      - '.+'
 
-licenses:
-  - '.+'
+sudo: false
 
 script: ./gradlew check
 

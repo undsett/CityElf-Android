@@ -1,7 +1,16 @@
 language: android
 jdk: oraclejdk8
 
+android:
+   components:
+      "build-tools-25.0.1",
+      "android-24",
+      "extra-google-google_play_services"
+
 sudo: false
+
+licenses:
+  - '.+'
 
 script: ./gradlew check
 

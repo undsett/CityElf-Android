@@ -19,6 +19,7 @@ import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.view_pager_activity.PageActivity;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
 import static com.hillelevo.cityelf.Constants.TAG;
 
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
   private Button btnTest;
   private Button btnJsonTest;
+  private Button test_page;
   private static String result;
 
 
@@ -54,6 +56,15 @@ public class MainActivity extends AppCompatActivity {
         toast.show();
       }
     });
+
+//    test_page = (Button) findViewById(R.id.test_page);
+//    test_page.setOnClickListener(new OnClickListener() {
+//      @Override
+//      public void onClick(View view) {
+//        Intent intent = new Intent(MainActivity.this, PageActivity.class);
+//        startActivity(intent);
+//      }
+//    });
 
     // Create LocalBroadcastManager and register it to all actions;
     LocalBroadcastManager messageBroadcastManager = LocalBroadcastManager.getInstance(this);

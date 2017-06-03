@@ -18,8 +18,8 @@ import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
-
 import static com.hillelevo.cityelf.Constants.TAG;
 
 public class MainActivity extends AppCompatActivity {

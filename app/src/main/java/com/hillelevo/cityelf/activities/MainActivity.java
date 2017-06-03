@@ -8,6 +8,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 
 public class MainActivity extends AppCompatActivity {
 

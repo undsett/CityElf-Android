@@ -39,8 +39,8 @@
 
     <activity
       android:label="@string/title_activity_map"
-      android:theme="@android:style/Theme.NoTitleBar"
-      android:name=".activities.MapActivity"></activity>
+      android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen"
+      android:name=".activities.map_activity.MapActivity" />
   </application>
 
 </manifest>

@@ -200,6 +200,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //todo send address from server
         break;
       case R.id.btnCheckStatus:
+        //todo send request to status
         if (nameOfStreet != null) {
           sendAddressFromCoordinate();
         }

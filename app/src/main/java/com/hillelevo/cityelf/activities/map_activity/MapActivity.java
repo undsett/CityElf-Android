@@ -4,6 +4,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
@@ -54,6 +55,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private UiSettings uiSettings;
 
   private Button btnAccount;
+  private Button btnCheckStatus;
 
   private Geocoder geocoder;
   private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").build();
@@ -66,7 +68,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
   private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
-      new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
+      new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
+
+  private String nameOfStreet = null;
+  private MarkerOptions markerOptions;
+  Marker marker;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     btnAccount = (Button) findViewById(R.id.btnSendAddress);
     btnAccount.setOnClickListener(this);
+    btnCheckStatus = (Button) findViewById(R.id.btnCheckStatus);
+    btnCheckStatus.setOnClickListener(this);
 
     geocoder = new Geocoder(this, ruLocale);
 
@@ -85,15 +94,21 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     mGoogleApiClient = new GoogleApiClient.Builder(MapActivity.this)
         .addApi(Places.GEO_DATA_API)
+        .addApi(Places.PLACE_DETECTION_API)
         .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
         .addConnectionCallbacks(this)
         .build();
+    mGoogleApiClient.connect();
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id
         .autoCompleteTextView);
     mAutocompleteTextView.setThreshold(3);
     mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
+    AutocompleteFilter filter = new AutocompleteFilter.Builder()
+        .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+        .setCountry("UA")
+        .build();//country filter
     mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
-        BOUNDS_MOUNTAIN_VIEW, null);
+        BOUNDS_MOUNTAIN_VIEW, filter);
     mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
   }
 
@@ -105,12 +120,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     uiSettings.setMapToolbarEnabled(false); //hide google icons
     // Default marker from center Odessa
     defaultMarker = new LatLng(46.4796777, 30.7457675);
-    mMap.addMarker(new MarkerOptions()
+    //create default marker
+    markerOptions = new MarkerOptions()
         .position(defaultMarker)
-        .title("Odessa marker")
+        .title("Вы тут")
         .icon(BitmapDescriptorFactory.defaultMarker(
             BitmapDescriptorFactory.HUE_AZURE))
-        .draggable(true)); //move marker
+        .draggable(true);    //move marker
+
+    marker = mMap.addMarker(markerOptions);
 
     mMap.setOnMarkerDragListener(new OnMarkerDragListener() {
       @Override
@@ -181,7 +199,26 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         System.out.println(userAddress);//marker address
         //todo send address from server
         break;
+      case R.id.btnCheckStatus:
+        sendAddressFromCoordinate();
+        break;
     }
+
+  }
+
+  private void sendAddressFromCoordinate() {
+    marker.remove();
+
+    List<Address> address = new ArrayList<>();
+    try {
+      address = geocoder.getFromLocationName(nameOfStreet, 1);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    LatLng newMarker = new LatLng(address.get(0).getLatitude(), address.get(0).getLongitude());
+    marker = mMap.addMarker(markerOptions);
+    marker.setPosition(newMarker);
+    mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
 
   }
 
@@ -193,6 +230,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       final PlaceArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
       final String placeId = String.valueOf(item.placeId);
       Log.i(LOG_TAG, "Selected: " + item.description);
+
+      nameOfStreet = String.valueOf(item.description);
+
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
       placeResult.setResultCallback(mUpdatePlaceDetailsCallback);

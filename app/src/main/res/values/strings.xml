@@ -76,10 +76,8 @@
   <string name="msg_token_fmt">InstanceID Token: %s</string>
 
   <!-- Maps activity-->
-  <string name="send">Ok</string>
-  <string name="account">Account</string>
-  <string name="pref">Preferences</string>
-  <string name="inputAddress">Введите адресс…</string>
+  <string name="account">Acc</string>
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
+  <string name="input_adress">Введите свой адрес или выберите на карте</string>
 </resources>

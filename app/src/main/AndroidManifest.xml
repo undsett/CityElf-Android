@@ -14,29 +14,35 @@
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
+    android:minSdkVersion="8"
     android:supportsRtl="true"
-    android:theme="@style/AppTheme"
-    android:minSdkVersion="8">
-    <activity android:name=".activities.MainActivity">
+    android:theme="@style/AppTheme">
+    <!-- Splash activity -->
+    <activity
+      android:label="@string/app_name"
+      android:name=".activities.SplashActivity"
+      android:theme="@style/SplashTheme">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+
+    <activity android:name=".activities.MainActivity" />
+
     <activity
       android:label="@string/title_activity_settings"
       android:name=".activities.SettingsActivity" />
-    <service
-      android:name=".firebase.FirebaseTokenService">
+
+    <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>
-        <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+        <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
       </intent-filter>
     </service>
-    <service
-      android:name=".firebase.FirebaseMessageService">
+    <service android:name=".firebase.FirebaseMessageService">
       <intent-filter>
-        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
     </service>
     <!--
@@ -53,8 +59,8 @@
 
     <activity
       android:label="@string/title_activity_map"
-      android:theme="@android:style/Theme.NoTitleBar"
-      android:name=".activities.MapActivity"></activity>
+      android:name=".activities.map_activity.MapActivity"
+      android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen" />
   </application>
 
 </manifest>

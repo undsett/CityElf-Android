@@ -210,6 +210,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
   private void sendAddressFromCoordinate() {
     marker.remove();
+
     List<Address> address = new ArrayList<>();
     try {
       address = geocoder.getFromLocationName(nameOfStreet, 1);

@@ -1,7 +1,9 @@
 <resources>
   <string name="app_name">CityElf</string>
   <string name="title_activity_settings">Settings</string>
-
+    <string name="action_changeAddress">changeAddress</string>
+    <string name="action_prefrence">prefrence</string>
+    <string name="action_enter">enter</string>
   <!-- Strings related to Settings -->
 
   <!-- Example General settings -->

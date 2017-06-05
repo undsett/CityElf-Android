@@ -34,7 +34,11 @@
     <activity
       android:label="@string/title_activity_settings"
       android:name=".activities.SettingsActivity" />
-
+    <activity
+        android:label="@string/title_activity_settings"
+        android:name=".activities.view_pager_activity.PageActivity" />
+    <service
+      android:name=".firebase.FirebaseTokenService">
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />

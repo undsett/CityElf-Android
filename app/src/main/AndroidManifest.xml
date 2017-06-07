@@ -35,6 +35,7 @@
       android:label="@string/title_activity_settings"
       android:name=".activities.SettingsActivity" />
     <activity
+        android:name=".activities.LoginActivity" />
         android:label="@string/title_activity_settings"
         android:name=".activities.view_pager_activity.PageActivity" />
     <service android:name=".firebase.FirebaseTokenService">

@@ -4,7 +4,7 @@ Android app which helps you to get info about Municipal events in your Neighborh
 
 ## Structure ##
 
-![CityElf structure](https://preview.ibb.co/kCEj7a/City_Elf_App_Structure.png)
+![CityElf structure](https://image.ibb.co/b1Oqkv/City_Elf_Updated_App_Structure.png)
 
 ## Installation for Developers ##
 

@@ -82,4 +82,8 @@
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
   <string name="input_adress">Введите свой адрес или выберите на карте</string>
+  <string name="dialog_header">Выберите комунальныме услуги и адрес</string>
+  <string name="dialog_electricity">Отключение электричества</string>
+  <string name="dialog_gas">Отключение газа</string>
+  <string name="dialog_water">Отключение воды</string>
 </resources>

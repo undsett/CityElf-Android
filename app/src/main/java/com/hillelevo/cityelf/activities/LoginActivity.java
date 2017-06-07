@@ -9,7 +9,7 @@ import android.widget.EditText;
 import com.hillelevo.cityelf.R;
 
 
-public class Login extends Activity {
+public class LoginActivity extends Activity {
 
     private String phone;
     private String mail;

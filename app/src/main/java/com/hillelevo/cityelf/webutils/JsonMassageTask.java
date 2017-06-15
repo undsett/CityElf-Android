@@ -61,7 +61,7 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    MainActivity.reciveResult(result);
+    MainActivity.receiveResult(result);
   }
 
 }

@@ -77,9 +77,22 @@
     <string name="pref_title_vibrate">Vibrate</string>
   <string name="msg_token_fmt">InstanceID Token: %s</string>
 
+  <!--Main activity-->
+  <string name="main_report_button">Сообщить об отключении</string>
+
   <!-- Maps activity-->
   <string name="account">Acc</string>
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
   <string name="input_adress">Введите свой адрес или выберите на карте</string>
+
+  <!-- Dialog fragment-->
+  <string name="dialog_header">Выберите коммунальные услуги и адрес</string>
+  <string name="dialog_electricity">Отключение электричества</string>
+  <string name="dialog_gas">Отключение газа</string>
+  <string name="dialog_water">Отключение воды</string>
+  <string name="dialog_report">Отправить</string>
+  <string name="dialog_login">Логин</string>
+  <string name="dialog_register">Регистрация</string>
+
 </resources>

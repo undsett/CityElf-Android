@@ -82,4 +82,7 @@
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
   <string name="input_adress">Введите свой адрес или выберите на карте</string>
+
+
+  <string name="settings">Settings</string>
 </resources>

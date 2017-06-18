@@ -132,7 +132,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
       // Show the Up button in the action bar.
+      actionBar.setHomeButtonEnabled(true);
       actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        startActivity(new Intent(this, MainActivity.class));
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
     }
   }
 

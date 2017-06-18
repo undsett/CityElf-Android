@@ -49,8 +49,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
   private GoogleMap mMap;
   private LatLng defaultMarker;
-  private LatLngBounds LIMIT_OF_SITY = new LatLngBounds(new LatLng(46.400, 30.530),
-      new LatLng(46.550, 30.850));
+  private LatLngBounds LIMIT_OF_SITY = new LatLngBounds(new LatLng(46.313394, 30.650575),
+      new LatLng(46.683114, 30.940929));
   private LatLng coordinate;
   private UiSettings uiSettings;
 
@@ -58,7 +58,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private Button btnCheckStatus;
 
   private Geocoder geocoder;
-  private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").build();
+  private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").setRegion("RU")
+      .build();
 
   private String userAddress = "Канатна, 22";
 
@@ -67,7 +68,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private AutoCompleteTextView mAutocompleteTextView;
   private GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
-  private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
+  private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
 
   private String nameOfStreet = null;
@@ -108,7 +109,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         .setCountry("UA")
         .build();//country filter
     mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
-        BOUNDS_MOUNTAIN_VIEW, filter);
+        BOUNDS_VIEW, filter);
     mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
   }
 
@@ -162,9 +163,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     // Camera move limit
     mMap.setLatLngBoundsForCameraTarget(LIMIT_OF_SITY);
 
-
   }
 
+  //marker return name of street
   private String sendGeo(LatLng point, Marker marker) {
 
     List<Address> addresses = new ArrayList<>();

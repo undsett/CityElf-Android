@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
   private Button btnTest;
   private Button btnJsonTest;
-  private Button test_page;
+  private Button btnSettings;
   private static String result;
 
 
@@ -54,6 +54,15 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
         toast.show();
+      }
+    });
+
+    btnSettings = (Button) findViewById(R.id.btnSettings);
+    btnSettings.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intent);
       }
     });
 

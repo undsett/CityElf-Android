@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory android:title="Настройки">
+    <EditTextPreference
+      android:defaultValue="@string/default_email"
+      android:key="emailPref"
+      android:title="Электронная почта" />
+    <EditTextPreference
+      android:defaultValue="@string/default_pass"
+      android:key="passwordPref"
+      android:title="Пароль" />
+    <EditTextPreference
+      android:defaultValue="@string/default_street"
+      android:key="streetPref"
+      android:title="Текущий адрес"/>
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+      android:key="manyAddressPref"
+      android:title="Дополнительные адреса" >
+      <intent android:action="com.hillelevo.cityelf.ManyAddress"/>
+    </Preference>
+
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="Уведомления">
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="notificationPush"
+      android:title="Push-уведомление" />
+    <SwitchPreference
+      android:defaultValue="false"
+      android:key="notificationSms"
+      android:title="SMS" />
+    <RingtonePreference
+      android:defaultValue="content://settings/system/notification_sound"
+      android:key="ringtonePref"
+      android:ringtoneType="notification"
+      android:title="Звук уведомления" />
+    <ListPreference
+      android:defaultValue="1"
+      android:entries="@array/entries"
+      android:entryValues="@array/entry_values"
+      android:key="languagePref"
+      android:title="Язык" />
+
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="">
+
+      <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="aboutProgram"
+        android:title="О программе" >
+        <intent android:action="com.hillelevo.cityelf.AboutProgram"/>
+      </Preference>
+
+  </PreferenceCategory>
+
+</PreferenceScreen>

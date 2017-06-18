@@ -2,21 +2,26 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_changeAddress"
-        android:title="@string/action_changeAddress"
+        android:id="@+id/json_test"
+        android:title="@string/json_test"
         android:orderInCategory="100"
         app:showAsAction="never">
     </item>
-    <item android:id="@+id/action_prefrence"
-        android:title="@string/action_prefrence"
+    <item android:id="@+id/map_test"
+        android:title="@string/map_test"
         android:orderInCategory="100"
         app:showAsAction="never">
+    </item>
+    <item
+      android:id="@+id/settings_test"
+      android:title="@string/settings_test"
+      android:orderInCategory="100"
+      app:showAsAction="never">
     </item>
     <item
         android:id="@+id/action_enter"
         android:title="@string/action_enter"
         android:orderInCategory="100"
         app:showAsAction="always">
-
     </item>
 </menu>

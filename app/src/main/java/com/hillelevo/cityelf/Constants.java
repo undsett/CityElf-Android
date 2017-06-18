@@ -15,4 +15,14 @@ public class Constants {
     public static final String FIREBASE_TOKEN = "FirebaseToken";
     public static final String FIREBASE_MESSAGE = "FirebaseMessage";
   }
+
+  public class Prefs {
+    public static final String APP_PREFERENCES = "CityElfPrefs";
+    public static final String REGISTERED = "Registered";
+    public static final String ADDRESS_1 = "Address1";
+    public static final String ADDRESS_2 = "Address2";
+    public static final String ADDRESS_3 = "Address3";
+    public static final String ADDRESS = "Address";
+    public static final int MAX_ADDRESS_QUANTITY = 3;
+  }
 }

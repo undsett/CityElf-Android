@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content">
+
+  <TextView
+    android:id="@+id/textViewDialogTitle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:textSize="18sp"
+    android:text="@string/dialog_header"
+    android:layout_marginStart="10dp" />
+
+  <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/radioGroupDialog"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_below="@id/textViewDialogTitle"
+    android:layout_marginStart="10dp" >
+
+  <RadioButton
+    android:id="@+id/radioButtonDialogElectricity"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/dialog_electricity" />
+
+  <RadioButton
+    android:id="@+id/radioButtonDialogGas"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/dialog_gas" />
+
+  <RadioButton
+    android:id="@+id/radioButtonDialogWater"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/dialog_water" />
+
+  </RadioGroup>
+
+  <Spinner
+    android:id="@+id/spinnerDialog"
+    android:layout_width="210dp"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/radioGroupDialog"
+    android:layout_marginStart="10dp" />
+
+  <Button
+    android:id="@+id/buttonDialogReport"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/dialog_report"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="10dp"
+    android:layout_below="@id/spinnerDialog"/>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <Button
+      android:id="@+id/buttonDialogLogin"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_weight="1"
+      android:textSize="18sp"
+      android:text="@string/dialog_login"
+      android:visibility="gone"/>
+
+    <Button
+      android:id="@+id/buttonDialogRegister"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_weight="1"
+      android:textSize="18sp"
+      android:text="@string/dialog_register"
+      android:visibility="gone"/>
+
+  </LinearLayout>
+
+</RelativeLayout>

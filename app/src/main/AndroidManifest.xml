@@ -9,6 +9,7 @@
     -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.VIBRATE" />
 
   <application
     android:allowBackup="true"
@@ -29,28 +30,23 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-
     <activity android:name=".activities.LoginActivity" />
     android:label="@string/title_activity_settings"
     android:name=".activities.view_pager_activity.PageActivity" />
-
     <activity
       android:label="@string/title_activity_map"
       android:name=".activities.map_activity.MapActivity"
       android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen" />
-
     <activity android:name=".activities.MainActivity" />
-
     <activity
       android:label="@string/title_activity_settings"
-      android:name=".activities.SettingsActivity" />
+      android:name=".activities.setting_activity.SettingsActivity" />
 
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
       </intent-filter>
     </service>
-
     <service android:name=".firebase.FirebaseMessageService">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -68,6 +64,20 @@
     <meta-data
       android:name="com.google.android.geo.API_KEY"
       android:value="@string/google_maps_key" />
+
+    <activity android:name=".activities.setting_activity.AboutProgram">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AboutProgram" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
+    <activity android:name=".activities.setting_activity.ManyAddress">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.ManyAddress" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
 
   </application>
 

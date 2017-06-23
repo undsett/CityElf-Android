@@ -29,6 +29,7 @@ import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
 
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
       }
 
     });
+
 
     // Get the ViewPager and set it's PagerAdapter so that it can display items
     ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -115,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
       case R.id.map_test:
         Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
         startActivity(intentMap);
+        return true;
+
+      case R.id.settings_test:
+        Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intentSetting);
         return true;
 
       case R.id.action_enter:

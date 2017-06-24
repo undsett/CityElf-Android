@@ -82,4 +82,12 @@
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
   <string name="input_adress">Введите свой адрес или выберите на карте</string>
+  <string name="email">Email</string>
+  <string name="login">Войти</string>
+  <string name="registerait_user">Зарегистрироваться</string>
+  <string name="restore_password">Восстановить пароль</string>
+  <string name="password">Пароль</string>
+  <string name="address">Адрес</string>
+  <string name="phone">Телефон</string>
+  <string name="register">Зарегистрироваться</string>
 </resources>

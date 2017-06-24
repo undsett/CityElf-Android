@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical" android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <EditText
+    android:id="@+id/etEmail"
+    android:hint="@string/email"
+    android:gravity="center_horizontal"
+    android:layout_above="@id/etPassword"
+    android:layout_gravity="center_vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textEmailAddress"
+    android:background=""/>
+
+  <EditText
+    android:id="@+id/etPassword"
+    android:hint="@string/password"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textPassword"
+    android:layout_above="@id/btnLogin"
+    android:background=""/>
+
+  <Button
+    android:id="@+id/btnLogin"
+    android:text="@string/login"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"/>
+
+  <TextView
+    android:id="@+id/registerait_user"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:gravity="left"
+    android:layout_below="@id/btnLogin"
+    android:text="@string/registerait_user" />
+
+  <TextView
+    android:id="@+id/restore_password"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:gravity="right"
+    android:layout_below="@id/btnLogin"
+    android:text="@string/restore_password" />
+
+</RelativeLayout>

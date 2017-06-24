@@ -35,7 +35,7 @@
       android:label="@string/title_activity_settings"
       android:name=".activities.SettingsActivity" />
     <activity
-        android:name=".activities.LoginActivity" />
+        android:name=".activities.AuthorizationActivity" />
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />

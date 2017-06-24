@@ -12,9 +12,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
@@ -64,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.json_test:
-        new JsonMassageTask().execute(Constants.TEST_URL);
+        new JsonMassageTask().execute(Constants.SEND_MASSAGE_URL);
         Toast toast = Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
         toast.show();
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
 
       case R.id.action_enter:
-        Intent intentLogin = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
         startActivity(intentLogin);
         return true;
     }

@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Gravity;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.LoginFragment.OnRegisterNewClickListener;
 
 

@@ -9,12 +9,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.webutils.JsonMassageTask;
+import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment implements JsonMassageResponse {
+
+  private static String jsonResult;
+  private String returnClass = "LoginFragment";
 
   public static final String TAG = "FragmentLoginTag";
   TextView tvRegUser;
+  Button btnLogin;
   OnRegisterNewClickListener listner;
 
   @Override
@@ -30,6 +39,16 @@ public class LoginFragment extends Fragment {
     View view = inflater.inflate(R.layout.layout_fragment_login, container, false);
 
     tvRegUser = (TextView) view.findViewById(R.id.registerait_user);
+    btnLogin = (Button) view.findViewById(R.id.btnLogin);
+
+    btnLogin.setOnClickListener(new View.OnClickListener() {
+       @Override
+       public void onClick(View v) {
+//         new JsonMassageTask(AuthorizationActivity.this).execute(Constants.TEST_URL, returnClass);
+
+        }
+    });
+
     tvRegUser.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -39,11 +58,18 @@ public class LoginFragment extends Fragment {
     return view;
   }
 
+  public static void receiveResult(String jsonOutput) {
+    jsonResult = jsonOutput;
+  }
 
+  @Override
+  public void massageResponse(String output) {
+    MainActivity.receiveResult(output);
+  }
 
   public interface OnRegisterNewClickListener{
 
 
-    public void onRegistraitClick();
+    void onRegistraitClick();
   }
 }

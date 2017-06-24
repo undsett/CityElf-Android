@@ -3,50 +3,65 @@
   android:orientation="vertical" android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <EditText
-    android:id="@+id/etEmail"
-    android:hint="@string/email"
-    android:gravity="center_horizontal"
-    android:layout_above="@id/etPassword"
-    android:layout_gravity="center_vertical"
+  <Button
+    android:id="@+id/btnLogin"
+    android:text="@string/login"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="textEmailAddress"
-    android:background=""/>
+    android:layout_height="30dp"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/background_authorization_btn"/>
 
   <EditText
     android:id="@+id/etPassword"
     android:hint="@string/password"
     android:gravity="center"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="30dp"
     android:inputType="textPassword"
     android:layout_above="@id/btnLogin"
-    android:background=""/>
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/background_authorization_et"/>
 
-  <Button
-    android:id="@+id/btnLogin"
-    android:text="@string/login"
+  <EditText
+    android:id="@+id/etEmail"
+    android:hint="@string/email"
+    android:gravity="center"
+    android:layout_above="@id/etPassword"
+    android:layout_gravity="center_vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerVertical="true"/>
+    android:layout_height="30dp"
+    android:inputType="textEmailAddress"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
+    android:background="@drawable/background_authorization_et"/>
 
-  <TextView
+   <TextView
     android:id="@+id/registerait_user"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:gravity="left"
+    android:gravity="start"
     android:layout_below="@id/btnLogin"
-    android:text="@string/registerait_user" />
+    android:text="@string/registerait_user"
+     android:layout_marginLeft="30dp"
+     android:layout_marginRight="40dp"
+     android:layout_marginTop="10dp"/>
 
   <TextView
     android:id="@+id/restore_password"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:gravity="right"
+    android:gravity="end"
     android:layout_below="@id/btnLogin"
-    android:text="@string/restore_password" />
+    android:text="@string/restore_password"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="30dp"
+    android:layout_marginTop="10dp"/>
 
 </RelativeLayout>

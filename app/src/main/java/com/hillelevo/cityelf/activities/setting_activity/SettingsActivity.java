@@ -14,6 +14,7 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
@@ -25,7 +26,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
   SwitchPreference notificationSwitch;
   SwitchPreference notificationSMS;
   ListPreference listPreference;
-  EditTextPreference adressPref;
+  EditTextPreference addressPref;
   EditTextPreference emailPref;
 
   SharedPreferences sharedPreferences;
@@ -36,13 +37,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
     setupActionBar();
     addPreferencesFromResource(R.xml.preferences);
 
-/* take setting in ither place from programm
     sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+/* take setting in ither place from programm
 
     String adress = sharedPreferences.getString("streetPref", "");
     getToast(adress);
 */
+
 
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);
@@ -53,8 +55,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
     listPreference = (ListPreference) findPreference("languagePref");
     listPreference.setOnPreferenceChangeListener(this);
 
-    adressPref = (EditTextPreference) findPreference("streetPref");
-    adressPref.setOnPreferenceChangeListener(this);
+    addressPref = (EditTextPreference) findPreference("streetPref");
+    addressPref.setOnPreferenceChangeListener(this);
 
     emailPref = (EditTextPreference) findPreference("emailPref");
     emailPref.setOnPreferenceChangeListener(this);
@@ -109,7 +111,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
         break;
 
       case "streetPref":
-        adressPref.setSummary(adressPref.getText());
+        addressPref.setSummary(addressPref.getText());
         break;
       case "emailPref":
         emailPref.setSummary(getShortAddress(emailPref.getText()));

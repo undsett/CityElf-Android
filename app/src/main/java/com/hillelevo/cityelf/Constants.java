@@ -5,6 +5,7 @@ public class Constants {
 
   public static final String SEND_MASSAGE_URL = "http://localhost:8088/services/users/all";
   public static final String TEST_URL = "https://learn.javascript.ru/json";
+  public static final String API_KEY = "AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY";
 
   public class Actions {
     public static final String BROADCAST_ACTION_FIREBASE_TOKEN = "FirebaseTokenAction";
@@ -23,6 +24,12 @@ public class Constants {
     public static final String ADDRESS_2 = "Address2";
     public static final String ADDRESS_3 = "Address3";
     public static final String ADDRESS = "Address";
+    public static final String CHECK_NOTIFICATION_ADDRESS_1 = "ChechAddressNotif1";
+    public static final String CHECK_NOTIFICATION_ADDRESS_2 = "ChechAddressNotif2";
+    public static final String TEXT_NOTIFICATION_ADDRESS_1 = "TextAddressNotif1";
+    public static final String TEXT_NOTIFICATION_ADDRESS_2 = "TextAddressNotif2";
+
     public static final int MAX_ADDRESS_QUANTITY = 3;
+
   }
 }

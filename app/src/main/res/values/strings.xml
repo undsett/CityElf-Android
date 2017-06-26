@@ -84,7 +84,7 @@
   <string name="account">Acc</string>
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
-  <string name="input_adress">Введите свой адрес или выберите на карте</string>
+  <string name="input_adress_onmap">Введите свой адрес или выберите на карте</string>
 
 
   <string name="settings">Settings</string>
@@ -115,5 +115,7 @@
   <string name="title_activity_first">FirstActivity</string>
   <string name="settings_test">settings_test</string>
   <string name="about_program">Info about this programg</string>
-  <string name="many_address">Дополнительные адреса (использовано 0 из 2)</string>
+  <string name="many_address">Дополнительные адреса
+    \n       (использовано 0 из 2)</string>
+  <string name="inputAddress">Введите адресс</string>
 </resources>

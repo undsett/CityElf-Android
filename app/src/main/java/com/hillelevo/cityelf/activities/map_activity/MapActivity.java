@@ -20,7 +20,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.webutils.JsonMassageTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,7 +187,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
         sb.append(address.getAddressLine(i) + "\n");
       }
-      Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();//message on screen
     }
 
     assert sb != null;

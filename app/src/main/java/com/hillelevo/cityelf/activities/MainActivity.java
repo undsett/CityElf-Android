@@ -38,6 +38,7 @@ import static com.hillelevo.cityelf.Constants.TAG;
 public class MainActivity extends AppCompatActivity {
 
   private static String result;
+  String returnClass = "MainActivity";
 
   private SharedPreferences settings;
 
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.json_test:
-        new JsonMassageTask().execute(Constants.TEST_URL);
+        new JsonMassageTask().execute(Constants.TEST_URL, returnClass);
         Toast toast = Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
         toast.show();

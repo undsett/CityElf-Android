@@ -38,16 +38,23 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @RequiresApi(api = VERSION_CODES.LOLLIPOP)
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
     GoogleApiClient.ConnectionCallbacks {
+
+  private static String result;
+  String returnClass = "MapActivity";
 
   private GoogleMap mMap;
   private LatLng defaultMarker;
@@ -148,7 +155,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       public void onMarkerDragEnd(Marker marker) {
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
-        System.out.println(userAddress);
+        getToast(userAddress);
       }
     });
 
@@ -204,27 +211,64 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
+          new JsonMassageTask().execute((Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL), returnClass);
           sendAddressFromCoordinate();
+        } else {
+          getToast("Введите адрес");
         }
         break;
     }
 
   }
 
-  private void sendAddressFromCoordinate() {
-    marker.remove();
+  private String getFormatedAddress(String userAddress) {
+    String result = null;
+    result = userAddress.replaceAll(",", "").replaceAll(" ", "+");
 
-    List<Address> address = new ArrayList<>();
+    return result;
+  }
+
+  private double[] parseJsonResponse(String response) {
+    if (response == null) {
+      return null;
+    }
+    String resultJson = null;
+
+    JSONObject jsonObject = null;
     try {
-      address = geocoder.getFromLocationName(nameOfStreet, 1);
-    } catch (IOException e) {
+      double[] LatLng = new double[2];
+      jsonObject = new JSONObject(response);
+
+      JSONArray resultsArray = jsonObject.getJSONArray("results");
+      JSONObject result = resultsArray.getJSONObject(0);
+      JSONObject geometry = result.getJSONObject("geometry");
+      JSONObject location = geometry.getJSONObject("location");
+
+      String locationLat = location.getString("lat");
+      LatLng[0] = Double.valueOf(locationLat);
+      String locationLng = location.getString("lng");
+      LatLng[1] = Double.valueOf(locationLng);
+
+      return LatLng;
+    } catch (JSONException e) {
       e.printStackTrace();
     }
-    LatLng newMarker = new LatLng(address.get(0).getLatitude(), address.get(0).getLongitude());
-    marker = mMap.addMarker(markerOptions);
-    marker.setPosition(newMarker);
-    mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
+    return null;
 
+  }
+
+  private void sendAddressFromCoordinate() {
+
+      if (result != null) {
+        marker.remove();
+
+        LatLng newMarker = new LatLng(parseJsonResponse(result)[0], parseJsonResponse(result)[1]);
+        marker = mMap.addMarker(markerOptions);
+        marker.setPosition(newMarker);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
+      } else {
+        getToast("Empty");
+    }
   }
 
 
@@ -265,6 +309,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     }
   };
 
+
+  public static void receiveResult(String output) {
+    result = output;
+  }
+
   @Override
   public void onConnected(@Nullable Bundle bundle) {
     mPlaceArrayAdapter.setGoogleApiClient(mGoogleApiClient);
@@ -286,5 +335,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         "Google Places API connection failed with error code:" +
             connectionResult.getErrorCode(),
         Toast.LENGTH_LONG).show();
+  }
+
+  private void getToast(Object object) {
+    Toast toast = Toast.makeText(getApplicationContext(),
+        String.valueOf(object), Toast.LENGTH_SHORT);
+    toast.show();
   }
 }

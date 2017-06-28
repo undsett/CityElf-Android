@@ -2,26 +2,23 @@ package com.hillelevo.cityelf.activities.setting_activity;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.R;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.R;
 
 public class ManyAddress extends AppCompatActivity {
 
@@ -44,7 +41,6 @@ public class ManyAddress extends AppCompatActivity {
 
     setting = PreferenceManager.getDefaultSharedPreferences(this);
     prefEditor = setting.edit();
-
 
     saveToSharedBool(checkBox1, Prefs.CHECK_NOTIFICATION_ADDRESS_1);
     saveToSharedBool(checkBox2, Prefs.CHECK_NOTIFICATION_ADDRESS_2);

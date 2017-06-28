@@ -1,9 +1,11 @@
 package com.hillelevo.cityelf.webutils;
 
 import android.os.AsyncTask;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
 
 import com.hillelevo.cityelf.activities.MainActivity;
-
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,12 +15,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class JsonMassageTask extends AsyncTask<String, Void, String> {
+  String returnClass;
 
+  @RequiresApi(api = VERSION_CODES.LOLLIPOP)
   @Override
   protected String doInBackground(String... params) {
     HttpURLConnection connection = null;
     BufferedReader reader = null;
     StringBuffer buffer = new StringBuffer();
+    returnClass = params[1] ;
 
     try {
       URL url = new URL(params[0]);
@@ -50,18 +55,25 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
         e.printStackTrace();
       }
     }
-    if (buffer == null) {
-      return null;
-    } else {
-      return buffer.toString();
-    }
+    return buffer.toString();
+
   }
 
 
+  @RequiresApi(api = VERSION_CODES.LOLLIPOP)
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    MainActivity.receiveResult(result);
+
+    switch (returnClass){
+      case "MainActivity":
+        MainActivity.receiveResult(result);
+        break;
+      case "MapActivity":
+        MapActivity.receiveResult(result);
+        break;
+
+    }
   }
 
 }

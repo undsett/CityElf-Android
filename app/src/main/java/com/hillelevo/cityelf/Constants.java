@@ -4,8 +4,9 @@ public class Constants {
   public static final String TAG = "CityElfLog";
 
   public static final String SEND_MASSAGE_URL = "http://localhost:8088/services/users/all";
-  public static final String TEST_URL = "https://learn.javascript.ru/json";
-  public static final String API_KEY = "AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY";
+  public static final String TEST_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=улица+Дерибасовская+Одесса+Одесская+область+Украина&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
+  public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
+  public static  final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 
   public class Actions {
     public static final String BROADCAST_ACTION_FIREBASE_TOKEN = "FirebaseTokenAction";

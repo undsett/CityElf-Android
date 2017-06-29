@@ -64,8 +64,9 @@ public class LoginFragment extends Fragment implements JsonMassageResponse {
 
   @Override
   public void massageResponse(String output) {
-    MainActivity.receiveResult(output);
+
   }
+
 
   public interface OnRegisterNewClickListener{
 

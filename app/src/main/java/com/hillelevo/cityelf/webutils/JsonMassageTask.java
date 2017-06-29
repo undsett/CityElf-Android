@@ -1,6 +1,13 @@
 package com.hillelevo.cityelf.webutils;
 
 import android.os.AsyncTask;
+
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
+
+import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class JsonMassageTask extends AsyncTask<String, Void, String> {
-  String returnClass;
 
   private JsonMassageResponse response = null;
 
@@ -19,12 +25,13 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
   }
 
 
+  @RequiresApi(api = VERSION_CODES.LOLLIPOP)
   @Override
   protected String doInBackground(String... params) {
     HttpURLConnection connection = null;
     BufferedReader reader = null;
     StringBuffer buffer = new StringBuffer();
-    returnClass = params[1];
+//    returnClass = params[1];
 
 
     try {
@@ -58,7 +65,6 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
       }
     }
     if (buffer == null) {
-
       return null;
     } else {
       return buffer.toString();
@@ -68,22 +74,9 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-
-    switch (returnClass){
-        case "MainActivity":
-          if (response != null)
-          response.massageResponse(result);
-          break;
-        case "MapActivity":
-          if (response != null)
-            response.massageResponse(result);
-          break;
-
-    }
+    response.massageResponse(result);
   }
   public interface JsonMassageResponse {
     void massageResponse(String output);
   }
 }
-
-

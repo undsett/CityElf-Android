@@ -37,9 +37,6 @@ import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
 
 public class MainActivity extends AppCompatActivity implements JsonMassageResponse {
 
-  private static String result;
-  String returnClass = "MainActivity";
-
   private SharedPreferences settings;
 
 
@@ -110,9 +107,9 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.json_test:
-        new JsonMassageTask(this).execute(Constants.TEST_URL, returnClass);
+
+        new JsonMassageTask(this).execute(Constants.TEST_URL);
         showMassage("Loading...");
-//        showMassage(result);
         return true;
 
       case R.id.map_test:
@@ -149,15 +146,18 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
     }
   };
 
+  //massage from JsonMassageTask
+  @Override
+  public void massageResponse(String output) {
+    showMassage(output);
+  }
+
   public void showMassage(String massage) {
       Toast toast = Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG);
       toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
       toast.show();
   }
 
-  public static void receiveResult(String output) {
-    result = output;
-  }
 
   //Save and load data to Shared Prefs
 
@@ -207,10 +207,5 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
     });
 
     builder.show();
-  }
-
-  @Override
-  public void massageResponse(String output) {
-    showMassage(output);
   }
 }

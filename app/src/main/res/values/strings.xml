@@ -84,7 +84,18 @@
   <string name="account">Acc</string>
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
+
   <string name="input_adress_onmap">Введите свой адрес или выберите на карте</string>
+
+  <!--Authorization activity-->
+  <string name="email">Email</string>
+  <string name="login">Войти</string>
+  <string name="registerait_user">Зарегистрироваться</string>
+  <string name="restore_password">Восстановить пароль</string>
+  <string name="password">Пароль</string>
+  <string name="address">Адрес</string>
+  <string name="phone">Телефон</string>
+  <string name="register">Зарегистрироваться</string>
 
 
   <string name="settings">Settings</string>
@@ -115,6 +126,7 @@
   <string name="title_activity_first">FirstActivity</string>
   <string name="settings_test">settings_test</string>
   <string name="about_program">Info about this programg</string>
+
   <string name="many_address">Дополнительные адреса
     \n       (использовано 0 из 2)</string>
   <string name="inputAddress">Введите адресс</string>

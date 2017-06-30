@@ -24,6 +24,7 @@ import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
 
+import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -51,10 +51,9 @@ import org.json.JSONObject;
 @RequiresApi(api = VERSION_CODES.LOLLIPOP)
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
-    GoogleApiClient.ConnectionCallbacks {
+    GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
 
-  private static String result;
-  String returnClass = "MapActivity";
+  private String jsonMassageResult;
 
   private GoogleMap mMap;
   private LatLng defaultMarker;
@@ -211,8 +210,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMassageTask().execute((Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL), returnClass);
-          sendAddressFromCoordinate();
+          new JsonMassageTask(this).execute(Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
+//          sendAddressFromCoordinate();
+////////////////////////////
         } else {
           getToast("Введите адрес");
         }
@@ -259,10 +259,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
   private void sendAddressFromCoordinate() {
 
-      if (result != null) {
+      if (jsonMassageResult != null) {
         marker.remove();
 
-        LatLng newMarker = new LatLng(parseJsonResponse(result)[0], parseJsonResponse(result)[1]);
+        LatLng newMarker = new LatLng(parseJsonResponse(jsonMassageResult)[0], parseJsonResponse(
+            jsonMassageResult)[1]);
         marker = mMap.addMarker(markerOptions);
         marker.setPosition(newMarker);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
@@ -309,11 +310,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     }
   };
 
-
-  public static void receiveResult(String output) {
-    result = output;
-  }
-
   @Override
   public void onConnected(@Nullable Bundle bundle) {
     mPlaceArrayAdapter.setGoogleApiClient(mGoogleApiClient);
@@ -341,5 +337,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     Toast toast = Toast.makeText(getApplicationContext(),
         String.valueOf(object), Toast.LENGTH_SHORT);
     toast.show();
+  }
+
+  @Override
+  public void massageResponse(String output) {
+    jsonMassageResult = output;
+    sendAddressFromCoordinate();
   }
 }

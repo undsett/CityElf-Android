@@ -95,4 +95,10 @@
   <string name="dialog_login">Логин</string>
   <string name="dialog_register">Регистрация</string>
 
+  <!--Main activity-->
+  <string name="poll_button_vote">Проголосовать</string>
+  <string name="tab_notifications_title">Уведомления</string>
+  <string name="tab_adverts_title">Объявления</string>
+  <string name="tab_polls_title">Опросы</string>
+
 </resources>

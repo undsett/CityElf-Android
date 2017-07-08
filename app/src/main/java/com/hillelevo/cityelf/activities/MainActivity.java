@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf.activities;
 
+import static com.hillelevo.cityelf.Constants.TAG;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,7 +23,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.astuetz.PagerSlidingTabStrip;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
@@ -29,16 +30,15 @@ import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
+import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
 
-import static com.hillelevo.cityelf.Constants.TAG;
-
-public class MainActivity extends AppCompatActivity {
-
-  private static String result;
+public class MainActivity extends AppCompatActivity implements JsonMassageResponse {
 
   private SharedPreferences settings;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
       }
 
     });
+
 
     // Get the ViewPager and set it's PagerAdapter so that it can display items
     ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -106,10 +107,9 @@ public class MainActivity extends AppCompatActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.json_test:
-        new JsonMassageTask().execute(Constants.TEST_URL);
-        Toast toast = Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        toast.show();
+
+        new JsonMassageTask(this).execute(Constants.TEST_URL);
+        showMassage("Loading...");
         return true;
 
       case R.id.map_test:
@@ -117,8 +117,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intentMap);
         return true;
 
+      case R.id.settings_test:
+        Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intentSetting);
+        return true;
+
       case R.id.action_enter:
-        Intent intentLogin = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
         startActivity(intentLogin);
         return true;
     }
@@ -141,9 +146,18 @@ public class MainActivity extends AppCompatActivity {
     }
   };
 
-  public static void receiveResult(String output) {
-    result = output;
+  //massage from JsonMassageTask
+  @Override
+  public void massageResponse(String output) {
+    showMassage(output);
   }
+
+  public void showMassage(String massage) {
+      Toast toast = Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG);
+      toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+      toast.show();
+  }
+
 
   //Save and load data to Shared Prefs
 

@@ -20,8 +20,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.webutils.JsonMassageTask;
 
+import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,16 +44,21 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @RequiresApi(api = VERSION_CODES.LOLLIPOP)
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
-    GoogleApiClient.ConnectionCallbacks {
+    GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
+
+  private String jsonMassageResult;
 
   private GoogleMap mMap;
   private LatLng defaultMarker;
-  private LatLngBounds LIMIT_OF_SITY = new LatLngBounds(new LatLng(46.400, 30.530),
-      new LatLng(46.550, 30.850));
+  private LatLngBounds LIMIT_OF_SITY = new LatLngBounds(new LatLng(46.313394, 30.650575),
+      new LatLng(46.683114, 30.940929));
   private LatLng coordinate;
   private UiSettings uiSettings;
 
@@ -58,7 +66,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private Button btnCheckStatus;
 
   private Geocoder geocoder;
-  private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").build();
+  private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").setRegion("RU")
+      .build();
 
   private String userAddress = "Канатна, 22";
 
@@ -67,7 +76,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private AutoCompleteTextView mAutocompleteTextView;
   private GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
-  private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
+  private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
 
   private String nameOfStreet = null;
@@ -108,7 +117,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         .setCountry("UA")
         .build();//country filter
     mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
-        BOUNDS_MOUNTAIN_VIEW, filter);
+        BOUNDS_VIEW, filter);
     mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
   }
 
@@ -145,7 +154,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       public void onMarkerDragEnd(Marker marker) {
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
-        System.out.println(userAddress);
+        getToast(userAddress);
       }
     });
 
@@ -162,9 +171,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     // Camera move limit
     mMap.setLatLngBoundsForCameraTarget(LIMIT_OF_SITY);
 
-
   }
 
+  //marker return name of street
   private String sendGeo(LatLng point, Marker marker) {
 
     List<Address> addresses = new ArrayList<>();
@@ -184,7 +193,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
         sb.append(address.getAddressLine(i) + "\n");
       }
-      Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();//message on screen
     }
 
     assert sb != null;
@@ -202,27 +210,66 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          sendAddressFromCoordinate();
+          new JsonMassageTask(this).execute(Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
+//          sendAddressFromCoordinate();
+////////////////////////////
+        } else {
+          getToast("Введите адрес");
         }
         break;
     }
 
   }
 
-  private void sendAddressFromCoordinate() {
-    marker.remove();
+  private String getFormatedAddress(String userAddress) {
+    String result = null;
+    result = userAddress.replaceAll(",", "").replaceAll(" ", "+");
 
-    List<Address> address = new ArrayList<>();
+    return result;
+  }
+
+  private double[] parseJsonResponse(String response) {
+    if (response == null) {
+      return null;
+    }
+    String resultJson = null;
+
+    JSONObject jsonObject = null;
     try {
-      address = geocoder.getFromLocationName(nameOfStreet, 1);
-    } catch (IOException e) {
+      double[] LatLng = new double[2];
+      jsonObject = new JSONObject(response);
+
+      JSONArray resultsArray = jsonObject.getJSONArray("results");
+      JSONObject result = resultsArray.getJSONObject(0);
+      JSONObject geometry = result.getJSONObject("geometry");
+      JSONObject location = geometry.getJSONObject("location");
+
+      String locationLat = location.getString("lat");
+      LatLng[0] = Double.valueOf(locationLat);
+      String locationLng = location.getString("lng");
+      LatLng[1] = Double.valueOf(locationLng);
+
+      return LatLng;
+    } catch (JSONException e) {
       e.printStackTrace();
     }
-    LatLng newMarker = new LatLng(address.get(0).getLatitude(), address.get(0).getLongitude());
-    marker = mMap.addMarker(markerOptions);
-    marker.setPosition(newMarker);
-    mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
+    return null;
 
+  }
+
+  private void sendAddressFromCoordinate() {
+
+      if (jsonMassageResult != null) {
+        marker.remove();
+
+        LatLng newMarker = new LatLng(parseJsonResponse(jsonMassageResult)[0], parseJsonResponse(
+            jsonMassageResult)[1]);
+        marker = mMap.addMarker(markerOptions);
+        marker.setPosition(newMarker);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
+      } else {
+        getToast("Empty");
+    }
   }
 
 
@@ -284,5 +331,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         "Google Places API connection failed with error code:" +
             connectionResult.getErrorCode(),
         Toast.LENGTH_LONG).show();
+  }
+
+  private void getToast(Object object) {
+    Toast toast = Toast.makeText(getApplicationContext(),
+        String.valueOf(object), Toast.LENGTH_SHORT);
+    toast.show();
+  }
+
+  @Override
+  public void massageResponse(String output) {
+    jsonMassageResult = output;
+    sendAddressFromCoordinate();
   }
 }

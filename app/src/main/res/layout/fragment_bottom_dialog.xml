@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content">
+  android:layout_height="wrap_content"
+  android:background="@android:color/white">
 
   <TextView
     android:id="@+id/textViewDialogTitle"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
-    android:textSize="18sp"
+    android:textAppearance="@style/TextFontHeader"
     android:text="@string/dialog_header"
     android:layout_marginStart="10dp" />
 
@@ -24,19 +25,22 @@
     android:id="@+id/radioButtonDialogElectricity"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/dialog_electricity" />
+    android:text="@string/dialog_electricity"
+    android:textAppearance="@style/TextFontStandard" />
 
   <RadioButton
     android:id="@+id/radioButtonDialogGas"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/dialog_gas" />
+    android:text="@string/dialog_gas"
+    android:textAppearance="@style/TextFontStandard" />
 
   <RadioButton
     android:id="@+id/radioButtonDialogWater"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/dialog_water" />
+    android:text="@string/dialog_water"
+    android:textAppearance="@style/TextFontStandard"/>
 
   </RadioGroup>
 
@@ -52,9 +56,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="@string/dialog_report"
+    android:textColor="@color/colorTextSecondary"
+    android:textSize="18sp"
     android:layout_centerHorizontal="true"
+    android:textAllCaps="false"
     android:layout_marginTop="10dp"
-    android:layout_below="@id/spinnerDialog"/>
+    android:layout_below="@id/spinnerDialog"
+    android:background="@color/colorAccent"/>
 
   <LinearLayout
     android:layout_width="match_parent"

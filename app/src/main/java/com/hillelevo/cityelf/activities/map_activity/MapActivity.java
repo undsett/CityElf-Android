@@ -154,6 +154,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       public void onMarkerDragEnd(Marker marker) {
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
+        mAutocompleteTextView.setText(userAddress);
         getToast(userAddress);
       }
     });
@@ -259,16 +260,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
   private void sendAddressFromCoordinate() {
 
-      if (jsonMassageResult != null) {
-        marker.remove();
+    if (jsonMassageResult != null) {
+      marker.remove();
 
-        LatLng newMarker = new LatLng(parseJsonResponse(jsonMassageResult)[0], parseJsonResponse(
-            jsonMassageResult)[1]);
-        marker = mMap.addMarker(markerOptions);
-        marker.setPosition(newMarker);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
-      } else {
-        getToast("Empty");
+      LatLng newMarker = new LatLng(parseJsonResponse(jsonMassageResult)[0], parseJsonResponse(
+          jsonMassageResult)[1]);
+      marker = mMap.addMarker(markerOptions);
+      marker.setPosition(newMarker);
+      mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
+    } else {
+      getToast("Empty");
     }
   }
 

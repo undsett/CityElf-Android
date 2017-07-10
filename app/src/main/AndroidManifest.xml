@@ -11,6 +11,7 @@
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.VIBRATE" />
 
   <application
     android:allowBackup="true"
@@ -32,8 +33,6 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-
-    <activity android:name=".activities.LoginActivity" />
     android:label="@string/title_activity_settings"
     android:name=".activities.view_pager_activity.PageActivity" />
 
@@ -46,7 +45,24 @@
 
     <activity
       android:label="@string/title_activity_settings"
-      android:name=".activities.SettingsActivity" />
+      android:name=".activities.setting_activity.SettingsActivity" />
+
+    <activity
+        android:name=".activities.AuthorizationActivity" />
+
+    <activity android:name=".activities.setting_activity.AboutProgram">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AboutProgram" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
+    <activity android:name=".activities.setting_activity.ManyAddress">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.ManyAddress" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
 
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>

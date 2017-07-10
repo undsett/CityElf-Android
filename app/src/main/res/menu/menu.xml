@@ -13,10 +13,15 @@
         app:showAsAction="never">
     </item>
     <item
+      android:id="@+id/settings_test"
+      android:title="@string/settings_test"
+      android:orderInCategory="100"
+      app:showAsAction="never">
+    </item>
+    <item
         android:id="@+id/action_enter"
         android:title="@string/action_enter"
         android:orderInCategory="100"
         app:showAsAction="always">
-
     </item>
 </menu>

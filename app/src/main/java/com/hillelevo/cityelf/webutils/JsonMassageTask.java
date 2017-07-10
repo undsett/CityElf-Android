@@ -2,7 +2,11 @@ package com.hillelevo.cityelf.webutils;
 
 import android.os.AsyncTask;
 
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
+
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,17 +18,27 @@ import java.net.URL;
 
 public class JsonMassageTask extends AsyncTask<String, Void, String> {
 
+  private JsonMassageResponse response = null;
+
+  public JsonMassageTask(JsonMassageResponse listener) {
+    response = listener;
+  }
+
+
+  @RequiresApi(api = VERSION_CODES.LOLLIPOP)
   @Override
   protected String doInBackground(String... params) {
     HttpURLConnection connection = null;
     BufferedReader reader = null;
     StringBuffer buffer = new StringBuffer();
+//    returnClass = params[1];
+
 
     try {
       URL url = new URL(params[0]);
+
       connection = (HttpURLConnection) url.openConnection();
       connection.connect();
-
       InputStream stream = connection.getInputStream();
 
       reader = new BufferedReader(new InputStreamReader(stream));
@@ -57,11 +71,12 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
     }
   }
 
-
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    MainActivity.receiveResult(result);
+    response.massageResponse(result);
   }
-
+  public interface JsonMassageResponse {
+    void massageResponse(String output);
+  }
 }

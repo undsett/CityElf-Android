@@ -25,7 +25,6 @@ public class JsonMassageTask extends AsyncTask<String, Void, String> {
   }
 
 
-  @RequiresApi(api = VERSION_CODES.LOLLIPOP)
   @Override
   protected String doInBackground(String... params) {
     HttpURLConnection connection = null;

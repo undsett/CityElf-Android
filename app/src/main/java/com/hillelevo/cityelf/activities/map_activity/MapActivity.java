@@ -23,8 +23,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
-
 import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +32,9 @@ import java.util.Locale;
 
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -48,7 +46,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@RequiresApi(api = VERSION_CODES.LOLLIPOP)
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
     GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
@@ -66,8 +63,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private Button btnCheckStatus;
 
   private Geocoder geocoder;
-  private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").setRegion("RU")
-      .build();
+  /*private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").setRegion("RU")
+      .build();*/
+  private Locale ruLocale = new Locale("ru", "RU");
 
   private String userAddress = "Канатна, 22";
 
@@ -154,6 +152,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       public void onMarkerDragEnd(Marker marker) {
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
+        mAutocompleteTextView.setText(userAddress);
         getToast(userAddress);
       }
     });
@@ -210,9 +209,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMassageTask(this).execute(Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
-//          sendAddressFromCoordinate();
-////////////////////////////
+          new JsonMassageTask(this).execute(
+              Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
         } else {
           getToast("Введите адрес");
         }
@@ -259,16 +257,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
   private void sendAddressFromCoordinate() {
 
-      if (jsonMassageResult != null) {
-        marker.remove();
+    if (jsonMassageResult != null) {
+      marker.remove();
 
-        LatLng newMarker = new LatLng(parseJsonResponse(jsonMassageResult)[0], parseJsonResponse(
-            jsonMassageResult)[1]);
-        marker = mMap.addMarker(markerOptions);
-        marker.setPosition(newMarker);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
-      } else {
-        getToast("Empty");
+      LatLng newMarker = new LatLng(parseJsonResponse(jsonMassageResult)[0], parseJsonResponse(
+          jsonMassageResult)[1]);
+      marker = mMap.addMarker(markerOptions);
+      marker.setPosition(newMarker);
+      mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarker));
+    } else {
+      getToast("Empty");
     }
   }
 
@@ -302,11 +300,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       // Selecting the first object buffer.
       final Place place = places.get(0);
       CharSequence attributions = places.getAttributions();
-/*
-      mNameTextView.setText(Html.fromHtml(place.getName() + ""));
-      mAddressTextView.setText(Html.fromHtml(place.getAddress() + ""));
-      mIdTextView.setText(Html.fromHtml(place.getId() + ""));
-      */
     }
   };
 

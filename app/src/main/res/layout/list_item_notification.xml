@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical" android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:layout_margin="10dp"
+  android:padding="10dp">
+
+  <LinearLayout
+    android:id="@+id/llNotifTitleContainer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+      android:id="@+id/tvNotifTitle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Title"
+      android:textAppearance="@style/TextFontBold"/>
+
+    <ImageView
+      android:id="@+id/ivNotifIcon"
+      android:layout_width="15dp"
+      android:layout_height="15dp"
+      android:background="@android:drawable/ic_dialog_alert"/>
+
+  </LinearLayout>
+
+  <TextView
+    android:id="@+id/tvNotifAddress"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/llNotifTitleContainer"
+    android:text="Address"
+    android:textAppearance="@style/TextFontStandard"/>
+
+  <LinearLayout
+    android:id="@+id/llNotifDurationContainer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_below="@id/tvNotifAddress">
+
+    <ImageView
+      android:id="@+id/ivNotifClock"
+      android:layout_width="15dp"
+      android:layout_height="15dp"
+      android:background="@android:drawable/ic_dialog_info"/>
+
+    <TextView
+      android:id="@+id/tvNotifDuration"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:text="Duration"
+      android:textAppearance="@style/TextFontStandard"/>
+
+  </LinearLayout>
+
+  <TextView
+    android:id="@+id/tvNotifTime"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Time"
+    android:layout_alignParentEnd="true"
+    android:textAppearance="@style/TextFontBold"/>
+
+  <com.hillelevo.cityelf.data.ExpandableTextView
+    android:id="@+id/tvNotifContent"
+    android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/llNotifDurationContainer"
+    android:paddingTop="5dp"
+    android:text="Content"
+    android:textAppearance="@style/TextFontStandard"/>
+
+</RelativeLayout>

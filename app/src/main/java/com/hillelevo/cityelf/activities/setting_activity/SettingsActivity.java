@@ -2,7 +2,6 @@ package com.hillelevo.cityelf.activities.setting_activity;
 
 
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.AppCompatPreferenceActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
 
 import android.content.Context;
@@ -14,13 +13,15 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatDelegate;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class SettingsActivity extends AppCompatPreferenceActivity implements
+public class SettingsActivity extends PreferenceActivity implements
     OnPreferenceChangeListener {
 
   SwitchPreference notificationSwitch;
@@ -30,6 +31,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
   EditTextPreference emailPref;
 
   SharedPreferences sharedPreferences;
+  android.app.FragmentManager manager;
+
+  private AppCompatDelegate delegate;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +42,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
     addPreferencesFromResource(R.xml.preferences);
 
     sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-/* take setting in ither place from programm
-
-    String adress = sharedPreferences.getString("streetPref", "");
-    getToast(adress);
-*/
-
 
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);
@@ -60,7 +57,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
 
     emailPref = (EditTextPreference) findPreference("emailPref");
     emailPref.setOnPreferenceChangeListener(this);
+
+    manager = getFragmentManager();
+
   }
+
 
   private void getToast(Object obj) {
     Toast toast = Toast.makeText(getApplicationContext(),
@@ -69,7 +70,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
   }
 
   private void setupActionBar() {
-    ActionBar actionBar = getSupportActionBar();
+    ActionBar actionBar = getDelegate().getSupportActionBar();
     if (actionBar != null) {
       actionBar.setHomeButtonEnabled(true);
       actionBar.setDisplayHomeAsUpEnabled(true);
@@ -109,16 +110,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
           getToast("Украинский");
         }
         break;
-
       case "streetPref":
         addressPref.setSummary(addressPref.getText());
         break;
       case "emailPref":
         emailPref.setSummary(getShortAddress(emailPref.getText()));
         break;
+      case "manyAddressPref":
+        Intent intentMap = new Intent(SettingsActivity.this, ManyAddress
+            .class);
+        startActivity(intentMap);
+        break;
     }
-
     return true;
+  }
+
+
+  private AppCompatDelegate getDelegate() {
+    if (delegate == null) {
+      delegate = AppCompatDelegate.create(this, null);
+    }
+    return delegate;
   }
 
 

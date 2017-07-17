@@ -2,6 +2,22 @@ package com.hillelevo.cityelf.activities;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Params;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
+
+import java.util.ArrayList;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,26 +46,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
-import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.map_activity.MapActivity;
-import com.hillelevo.cityelf.data.Advert;
-import com.hillelevo.cityelf.data.Notification;
-import com.hillelevo.cityelf.data.Poll;
-import com.hillelevo.cityelf.fragments.AdvertFragment;
-import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.fragments.BottomDialogFragment;
-import com.hillelevo.cityelf.fragments.NotificationFragment;
-import com.hillelevo.cityelf.fragments.PollFragment;
-import com.hillelevo.cityelf.webutils.JsonMassageTask;
-import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
-
-import java.util.ArrayList;
-
-public class MainActivity extends AppCompatActivity implements JsonMassageResponse{
+public class MainActivity extends AppCompatActivity implements JsonMassageResponse {
 
   private static String result;
   private boolean registered;
@@ -59,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
   private TabLayout tabLayout;
 
-  private SharedPreferences settings;
+  private static SharedPreferences settings;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -132,24 +129,21 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.json_test:
+      /*case R.id.json_test:
         new JsonMassageTask(this).execute(Constants.TEST_URL);
         showMassage("Loading...");
         return true;
-
-      case R.id.map_test:
-        Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
-        startActivity(intentMap);
-        return true;
-
-      case R.id.settings_test:
-        Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
-        startActivity(intentSetting);
-        return true;
+*/
 
       case R.id.action_enter:
-        Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
-        startActivity(intentLogin);
+        //// TODO: 17.07.17 This step depends from status-registred
+        if (registered) {
+          Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
+          startActivity(intentLogin);
+        } else {
+          Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
+          startActivity(intentLogin);
+        }
         return true;
     }
     return super.onOptionsItemSelected(item);
@@ -178,11 +172,10 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
   }
 
   public void showMassage(String massage) {
-      Toast toast = Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG);
-      toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-      toast.show();
+    Toast toast = Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG);
+    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+    toast.show();
   }
-
 
   //Save and load data to Shared Prefs
 
@@ -200,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
     editor.apply();
   }
 
-  private boolean loadRegisteredStatusFromSharedPrefs() {
+  public static boolean loadRegisteredStatusFromSharedPrefs() {
     //Check for data by id
     if (settings != null && settings.contains(Prefs.REGISTERED)) {
       Log.d(TAG, "MainActivity mSettings != null, loading registration status");
@@ -259,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
     /**
      * Tabs in ViewPager
+     *
      * @return tabs amount
      */
     @Override
@@ -268,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
         return 3;
       }
       // Unregistered - one tab, Notifications
-        else {
+      else {
         return 1;
       }
     }

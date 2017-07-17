@@ -37,15 +37,14 @@
     android:name=".activities.view_pager_activity.PageActivity" />
 
     <activity
-      android:label="@string/title_activity_map"
-      android:name=".activities.map_activity.MapActivity" />
+      android:label="@string/app_name"
+      android:name=".activities.map_activity.MapActivity"/>
 
     <activity android:name=".activities.MainActivity" />
 
     <activity
       android:label="@string/title_activity_settings"
-      android:name=".activities.setting_activity.SettingsActivity"
-      android:theme="@style/Theme.AppCompat.Light"/>
+      android:name=".activities.setting_activity.SettingsActivity"/>
 
     <activity
         android:name=".activities.AuthorizationActivity" />

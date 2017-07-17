@@ -18,7 +18,6 @@
       android:title="Дополнительные адреса" >
       <intent android:action="com.hillelevo.cityelf.ManyAddress"/>
     </Preference>
-
   </PreferenceCategory>
 
   <PreferenceCategory android:title="Уведомления">
@@ -53,5 +52,4 @@
       </Preference>
 
   </PreferenceCategory>
-
 </PreferenceScreen>

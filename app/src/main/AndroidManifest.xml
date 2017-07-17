@@ -38,14 +38,14 @@
 
     <activity
       android:label="@string/title_activity_map"
-      android:name=".activities.map_activity.MapActivity"
-      android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen" />
+      android:name=".activities.map_activity.MapActivity" />
 
     <activity android:name=".activities.MainActivity" />
 
     <activity
       android:label="@string/title_activity_settings"
-      android:name=".activities.setting_activity.SettingsActivity" />
+      android:name=".activities.setting_activity.SettingsActivity"
+      android:theme="@style/Theme.AppCompat.Light"/>
 
     <activity
         android:name=".activities.AuthorizationActivity" />

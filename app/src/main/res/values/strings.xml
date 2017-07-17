@@ -85,7 +85,7 @@
   <string name="title_activity_maps">Map</string>
   <string name="title_activity_map">Map</string>
 
-  <string name="input_adress_onmap">Введите свой адрес или выберите на карте</string>
+  <string name="input_adress_onmap">Введите или выберите свой адресс</string>
 
   <!--Authorization activity-->
   <string name="email">Email</string>

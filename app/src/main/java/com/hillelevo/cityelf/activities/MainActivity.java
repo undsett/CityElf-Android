@@ -6,6 +6,7 @@ import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.data.Advert;
 import com.hillelevo.cityelf.data.Notification;
@@ -57,11 +58,19 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
   private TabLayout tabLayout;
 
   private static SharedPreferences settings;
+  private FirstStartApp firstStartApp;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    firstStartApp = new FirstStartApp(this);
+
+    if (firstStartApp.isFirstLaunch()) {
+      launchFirstTime();
+      finish();
+    }
 
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
@@ -118,6 +127,13 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
     saveToSharedPrefs(Prefs.ADDRESS_1, "Test street, 1");
     saveToSharedPrefs(Prefs.ADDRESS_2, "Test street, 2");
     //TODO Add to Shared Prefs real address from Map Activity and Registration form
+  }
+
+  private void launchFirstTime() {
+    firstStartApp.setFirstLaunch(false);
+    Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+    startActivity(firstStart);
+    finish();
   }
 
   @Override

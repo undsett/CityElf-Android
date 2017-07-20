@@ -1,72 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical" android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
 
   <Button
     android:id="@+id/btnRegister"
-    android:text="@string/register"
     android:layout_width="match_parent"
     android:layout_height="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
     android:layout_centerVertical="true"
-    android:layout_marginLeft="40dp"
-    android:layout_marginRight="40dp"
-    android:layout_marginTop="10dp"
-    android:background="@drawable/background_authorization_btn"/>
+    android:background="@drawable/background_authorization_btn"
+    android:text="@string/register" />
 
-  <EditText
+  <AutoCompleteTextView
     android:id="@+id/etAddress"
-    android:hint="@string/address"
-    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="30dp"
-    android:inputType="textPostalAddress"
-    android:layout_above="@id/etPassword"
+    android:layout_marginTop="10dp"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
-    android:layout_marginTop="10dp"
-    android:background="@drawable/background_authorization_et"/>
+    android:layout_above="@id/etPassword"
+    android:background="@drawable/background_authorization_et"
+    android:gravity="center"
+    android:hint="@string/address"
+    android:inputType="textPostalAddress"
+    android:maxLines="1"
+    android:singleLine="true" />
 
   <EditText
     android:id="@+id/etPhone"
-    android:hint="@string/phone"
-    android:gravity="center"
-    android:layout_above="@id/etAddress"
-    android:layout_gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="30dp"
-    android:inputType="phone"
+    android:layout_marginTop="10dp"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
-    android:layout_marginTop="10dp"
-    android:background="@drawable/background_authorization_et"/>
+    android:layout_above="@id/etAddress"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/background_authorization_et"
+    android:gravity="center"
+    android:hint="@string/phone"
+    android:inputType="phone" />
 
   <EditText
     android:id="@+id/etEmail"
-    android:hint="@string/email"
-    android:gravity="center"
-    android:layout_above="@id/etPhone"
-    android:layout_gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="30dp"
-    android:inputType="textEmailAddress"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
-    android:background="@drawable/background_authorization_et"/>
+    android:layout_above="@id/etPhone"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/background_authorization_et"
+    android:gravity="center"
+    android:hint="@string/email"
+    android:inputType="textEmailAddress" />
 
   <EditText
     android:id="@+id/etPassword"
-    android:hint="@string/password"
-    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="30dp"
-    android:inputType="textPassword"
-    android:layout_above="@id/btnRegister"
+    android:layout_marginTop="10dp"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
-    android:layout_marginTop="10dp"
-    android:background="@drawable/background_authorization_et"/>
-
+    android:layout_above="@id/btnRegister"
+    android:background="@drawable/background_authorization_et"
+    android:gravity="center"
+    android:hint="@string/password"
+    android:inputType="textPassword" />
 
 
 </RelativeLayout>

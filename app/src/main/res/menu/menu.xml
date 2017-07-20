@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/json_test"
-        android:title="@string/json_test"
-        android:orderInCategory="100"
-        app:showAsAction="never">
-    </item>
-    <item android:id="@+id/map_test"
-        android:title="@string/map_test"
-        android:orderInCategory="100"
-        app:showAsAction="never">
-    </item>
-    <item
-      android:id="@+id/settings_test"
-      android:title="@string/settings_test"
-      android:orderInCategory="100"
-      app:showAsAction="never">
-    </item>
-    <item
-        android:id="@+id/action_enter"
-        android:title="@string/action_enter"
-        android:orderInCategory="100"
-        app:showAsAction="always">
-    </item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+    android:id="@+id/action_enter"
+    android:icon="@drawable/user_white_png"
+    android:orderInCategory="100"
+    android:title="@string/action_enter"
+    app:showAsAction="always" />
+
 </menu>

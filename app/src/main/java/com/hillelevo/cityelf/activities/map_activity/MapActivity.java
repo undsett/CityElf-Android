@@ -22,38 +22,46 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
-
 import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@RequiresApi(api = VERSION_CODES.LOLLIPOP)
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
     GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
 
   private String jsonMassageResult;
+  private boolean registered;
+
 
   private GoogleMap mMap;
   private LatLng defaultMarker;
@@ -62,22 +70,22 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private LatLng coordinate;
   private UiSettings uiSettings;
 
-  private Button btnAccount;
-  private Button btnCheckStatus;
+  private ImageButton btnCheckStatus;
+  private ImageButton btnClear;
 
   private Geocoder geocoder;
-  private Locale ruLocale = new Locale.Builder().setLanguage("ru").setScript("Cyrl").setRegion("RU")
-      .build();
+  private Locale ruLocale = new Locale("ru", "RU");
 
   private String userAddress = "Канатна, 22";
 
   private static final String LOG_TAG = "MapActivity";
   private static final int GOOGLE_API_CLIENT_ID = 0;
   private AutoCompleteTextView mAutocompleteTextView;
-  private GoogleApiClient mGoogleApiClient;
+  private static GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
   private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
+  private CameraPosition cameraPosition;
 
   private String nameOfStreet = null;
   private MarkerOptions markerOptions;
@@ -87,13 +95,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.activity_map);
 
-    btnAccount = (Button) findViewById(R.id.btnSendAddress);
-    btnAccount.setOnClickListener(this);
-    btnCheckStatus = (Button) findViewById(R.id.btnCheckStatus);
+    btnCheckStatus = (ImageButton) findViewById(R.id.btnCheckStatus);
     btnCheckStatus.setOnClickListener(this);
+    btnClear = (ImageButton) findViewById(R.id.btnClear);
+    btnClear.setOnClickListener(this);
+    btnClear.setVisibility(View.INVISIBLE);
+    mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
+
+    registered = MainActivity.loadRegisteredStatusFromSharedPrefs();
 
     geocoder = new Geocoder(this, ruLocale);
 
@@ -101,15 +112,61 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         .findFragmentById(R.id.map);
     mapFragment.getMapAsync(this);
 
-    mGoogleApiClient = new GoogleApiClient.Builder(MapActivity.this)
-        .addApi(Places.GEO_DATA_API)
-        .addApi(Places.PLACE_DETECTION_API)
-        .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
-        .addConnectionCallbacks(this)
-        .build();
-    mGoogleApiClient.connect();
-    mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id
-        .autoCompleteTextView);
+    showHideImageBtnClearInputText(mAutocompleteTextView, btnClear);
+
+    registerConnectToGoogle();
+
+    autocompleteInputStreet(mAutocompleteTextView);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.action_enter:
+        //// TODO: 17.07.17 This step depends from status-registred
+        if (registered) {
+          Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
+          startActivity(intentLogin);
+        } else {
+          Intent intentLogin = new Intent(MapActivity.this, AuthorizationActivity.class);
+          startActivity(intentLogin);
+        }
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+
+  private void showHideImageBtnClearInputText(EditText inputText, final ImageButton button) {
+    inputText.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence inputText, int i, int i1, int i2) {
+        if (inputText.toString().trim().length() == 0) {
+          button.setVisibility(View.INVISIBLE);
+        } else {
+          button.setVisibility(View.VISIBLE);
+        }
+      }
+
+      @Override
+      public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+      }
+
+      @Override
+      public void afterTextChanged(Editable editable) {
+
+      }
+    });
+  }
+
+  public void autocompleteInputStreet(AutoCompleteTextView mAutocompleteTextView) {
     mAutocompleteTextView.setThreshold(3);
     mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
     AutocompleteFilter filter = new AutocompleteFilter.Builder()
@@ -119,6 +176,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
         BOUNDS_VIEW, filter);
     mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
+  }
+
+  public void registerConnectToGoogle() {
+    mGoogleApiClient = new GoogleApiClient.Builder(this)
+        .addApi(Places.GEO_DATA_API)
+        .addApi(Places.PLACE_DETECTION_API)
+        .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
+        .addConnectionCallbacks(this)
+        .build();
+    mGoogleApiClient.connect();
   }
 
 
@@ -160,7 +227,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     });
 
     //Animate orientation camera
-    CameraPosition cameraPosition = new CameraPosition.Builder()
+    cameraPosition = new CameraPosition.Builder()
         .target(defaultMarker)
         .zoom(13)
         .bearing(0)
@@ -204,19 +271,19 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   @Override
   public void onClick(View v) {
     switch (v.getId()) {
-      case R.id.btnSendAddress:
-        System.out.println(userAddress);//marker address
-        //todo send address from server
-        break;
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMassageTask(this).execute(Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
-//          sendAddressFromCoordinate();
-////////////////////////////
+          new JsonMassageTask(this).execute(
+              Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
+          mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Введите адрес");
         }
+        break;
+      case R.id.btnClear:
+        mAutocompleteTextView.setText("");
+        btnClear.setVisibility(View.INVISIBLE);
         break;
     }
 
@@ -303,11 +370,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       // Selecting the first object buffer.
       final Place place = places.get(0);
       CharSequence attributions = places.getAttributions();
-/*
-      mNameTextView.setText(Html.fromHtml(place.getName() + ""));
-      mAddressTextView.setText(Html.fromHtml(place.getAddress() + ""));
-      mIdTextView.setText(Html.fromHtml(place.getId() + ""));
-      */
     }
   };
 

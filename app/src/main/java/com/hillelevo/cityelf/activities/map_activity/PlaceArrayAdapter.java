@@ -132,7 +132,7 @@ public class PlaceArrayAdapter
     return filter;
   }
 
-  class PlaceAutocomplete {
+  public static class PlaceAutocomplete {
 
     public CharSequence placeId;
     public CharSequence description;

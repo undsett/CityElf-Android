@@ -21,8 +21,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.Colors;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.webutils.JsonMassageTask;
 import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
 
@@ -31,24 +33,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -58,12 +55,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
     GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
 
   private String jsonMassageResult;
-  private Toolbar toolbar;
+  private boolean registered;
+
 
   private GoogleMap mMap;
   private LatLng defaultMarker;
@@ -83,7 +81,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   private static final String LOG_TAG = "MapActivity";
   private static final int GOOGLE_API_CLIENT_ID = 0;
   private AutoCompleteTextView mAutocompleteTextView;
-  private GoogleApiClient mGoogleApiClient;
+  private static GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
   private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
@@ -105,13 +103,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     btnClear.setOnClickListener(this);
     btnClear.setVisibility(View.INVISIBLE);
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
-/*
 
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-*/
-
-    setColors();
+    registered = MainActivity.loadRegisteredStatusFromSharedPrefs();
 
     geocoder = new Geocoder(this, ruLocale);
 
@@ -123,21 +116,32 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     registerConnectToGoogle();
 
-    autocompleteInputStreet();
+    autocompleteInputStreet(mAutocompleteTextView);
   }
 
-  @RequiresApi(api = VERSION_CODES.LOLLIPOP)
-  private void setColors() {
-    toolbar = (Toolbar) findViewById(R.id.toolbar);
-    toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(Colors.BLUE)));
-    toolbar.setTitle("CityElf");
-    toolbar.setTitleTextColor(Color.WHITE);
-    Window window = this.getWindow();
-    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-    window.setStatusBarColor(
-        ContextCompat.getColor(this, R.color.mint));//work only API lvl >=23
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu, menu);
+    return true;
   }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.action_enter:
+        //// TODO: 17.07.17 This step depends from status-registred
+        if (registered) {
+          Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
+          startActivity(intentLogin);
+        } else {
+          Intent intentLogin = new Intent(MapActivity.this, AuthorizationActivity.class);
+          startActivity(intentLogin);
+        }
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
 
   private void showHideImageBtnClearInputText(EditText inputText, final ImageButton button) {
     inputText.addTextChangedListener(new TextWatcher() {
@@ -162,10 +166,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     });
   }
 
-
-  private void autocompleteInputStreet() {
-    mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id
-        .autoCompleteTextView);
+  public void autocompleteInputStreet(AutoCompleteTextView mAutocompleteTextView) {
     mAutocompleteTextView.setThreshold(3);
     mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
     AutocompleteFilter filter = new AutocompleteFilter.Builder()
@@ -177,8 +178,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
   }
 
-  private void registerConnectToGoogle() {
-    mGoogleApiClient = new GoogleApiClient.Builder(MapActivity.this)
+  public void registerConnectToGoogle() {
+    mGoogleApiClient = new GoogleApiClient.Builder(this)
         .addApi(Places.GEO_DATA_API)
         .addApi(Places.PLACE_DETECTION_API)
         .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)

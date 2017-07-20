@@ -5,21 +5,14 @@
   android:layout_height="fill_parent"
   android:orientation="vertical">
   <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    tools:context="com.hillelevo.cityelf.activities.map_activity.MapActivity"
+    android:layout_alignParentStart="true"
     android:layout_alignParentTop="true"
-    android:layout_alignParentStart="true" />
-  <android.support.v7.widget.Toolbar
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:background="#2d9cdb">
-  </android.support.v7.widget.Toolbar>
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    tools:context="com.hillelevo.cityelf.activities.map_activity.MapActivity" />
 
   <AutoCompleteTextView
     android:id="@+id/autoCompleteTextView"
@@ -40,24 +33,24 @@
   <TextView
     android:layout_width="30dp"
     android:layout_height="35dp"
-    android:background="@drawable/blue_frame_bg"
     android:layout_alignBaseline="@+id/textView5"
     android:layout_alignBottom="@+id/textView5"
-    android:layout_toEndOf="@+id/textView5" />
+    android:layout_toEndOf="@+id/textView5"
+    android:background="@drawable/blue_frame_bg" />
   <TextView
+    android:id="@+id/textView5"
     android:layout_width="30dp"
     android:layout_height="35dp"
     android:layout_alignEnd="@+id/autoCompleteTextView"
+    android:layout_alignStart="@+id/btnClear"
     android:layout_alignTop="@+id/autoCompleteTextView"
-    android:background="#ffffff"
-    android:id="@+id/textView5"
-    android:layout_alignStart="@+id/btnClear" />
+    android:background="#ffffff" />
   <ImageButton
     android:id="@+id/btnCheckStatus"
     android:layout_width="20dp"
+    android:layout_height="20dp"
     android:layout_marginTop="8dp"
     android:layout_marginLeft="5dp"
-    android:layout_height="20dp"
     android:layout_alignTop="@+id/autoCompleteTextView"
     android:layout_gravity="right|center_vertical"
     android:layout_toEndOf="@+id/textView5"

@@ -22,6 +22,7 @@ public class Constants {
 
   public class Colors{
     public static final String BLUE = "#2d9cdb";
+    @ColorInt public static final String BLUE2 = "#2d9cdb";
 
   }
 

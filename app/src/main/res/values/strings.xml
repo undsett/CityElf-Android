@@ -136,4 +136,5 @@
   <string name="many_address">Дополнительные адреса
     \n       (использовано 0 из 2)</string>
   <string name="inputAddress">Введите адресс</string>
+  <string name="check_status">Проверить</string>
 </resources>

@@ -22,7 +22,7 @@
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="mapActivityPref"
       android:title="Карта">
-      <intent android:action="com.hillelevo.cityelf.map_activity.MapActivity" />
+      <intent android:action="com.hillelevo.cityelf.MapActivity" />
     </Preference>
   </PreferenceCategory>
 

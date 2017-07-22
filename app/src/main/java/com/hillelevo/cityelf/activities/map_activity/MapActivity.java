@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf.activities.map_activity;
 
+import static com.hillelevo.cityelf.Constants.TAG;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -21,6 +23,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
@@ -33,14 +37,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +59,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -61,6 +73,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   private String jsonMassageResult;
   private boolean registered;
+  private boolean active;
 
 
   private GoogleMap mMap;
@@ -70,8 +83,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private LatLng coordinate;
   private UiSettings uiSettings;
 
-  private ImageButton btnCheckStatus;
+  private ImageButton btnSearchAddress;
   private ImageButton btnClear;
+  private Button btnCheckStatus;
 
   private Geocoder geocoder;
   private Locale ruLocale = new Locale("ru", "RU");
@@ -91,13 +105,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private MarkerOptions markerOptions;
   Marker marker;
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    active = true;
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    active = false;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map);
 
-    btnCheckStatus = (ImageButton) findViewById(R.id.btnCheckStatus);
+    btnSearchAddress = (ImageButton) findViewById(R.id.btnSearchAddress);
+    btnSearchAddress.setOnClickListener(this);
+    btnCheckStatus = (Button) findViewById(R.id.btnCheckStatus);
     btnCheckStatus.setOnClickListener(this);
     btnClear = (ImageButton) findViewById(R.id.btnClear);
     btnClear.setOnClickListener(this);
@@ -117,6 +144,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     registerConnectToGoogle();
 
     autocompleteInputStreet(mAutocompleteTextView);
+
+    // Create LocalBroadcastManager and register it to all actions;
+    LocalBroadcastManager messageBroadcastManager = LocalBroadcastManager.getInstance(this);
+    messageBroadcastManager.registerReceiver(MessageReceiver,
+        new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_TOKEN));
+    messageBroadcastManager.registerReceiver(MessageReceiver,
+        new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
   }
 
   @Override
@@ -222,6 +256,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
         mAutocompleteTextView.setText(userAddress);
+        nameOfStreet = userAddress;
+        mAutocompleteTextView.setSelection(0);
         getToast(userAddress);
       }
     });
@@ -271,7 +307,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   @Override
   public void onClick(View v) {
     switch (v.getId()) {
-      case R.id.btnCheckStatus:
+      case R.id.btnSearchAddress:
         //todo send request to status
         if (nameOfStreet != null) {
           new JsonMassageTask(this).execute(
@@ -284,6 +320,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       case R.id.btnClear:
         mAutocompleteTextView.setText("");
         btnClear.setVisibility(View.INVISIBLE);
+        break;
+      case R.id.btnCheckStatus:
+        /*
+        *You need to send to the server variable - "nameOfStreet"
+        */
+
+        String s = userAddress;
+        s = nameOfStreet;
+        if (mAutocompleteTextView.length() != 0 /*todo add check status of request status*/) {
+          Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
+          startActivity(intentMain);
+        }
         break;
     }
 
@@ -350,6 +398,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       Log.i(LOG_TAG, "Selected: " + item.description);
 
       nameOfStreet = String.valueOf(item.description);
+      mAutocompleteTextView.setSelection(0);
 
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
@@ -406,5 +455,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   public void massageResponse(String output) {
     jsonMassageResult = output;
     sendAddressFromCoordinate();
+  }
+
+  /**
+   * BroadcastReceiver for local broadcasts
+   */
+  private BroadcastReceiver MessageReceiver = new BroadcastReceiver() {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+
+      String action = intent.getAction();
+      String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
+      Log.d(TAG, "MapActivity onReceive: " + action);
+      Log.d(TAG, "MapActivity onReceive: " + token);
+      if(active) {
+        showDebugAlertDialog(token);
+      }
+    }
+  };
+
+  // AlertDialog for firebase testing
+
+  private void showDebugAlertDialog(String token) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle("Firebase id");
+
+    // Set up the input
+    final EditText input = new EditText(this);
+    input.setInputType(InputType.TYPE_CLASS_TEXT);
+    input.setText(token.toCharArray(), 0, token.length());
+    builder.setView(input);
+
+    // Set up the button
+    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        dialog.cancel();
+      }
+    });
+
+    builder.show();
   }
 }

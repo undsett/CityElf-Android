@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
   private static String result;
   private boolean registered;
+  private boolean active;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
   private ArrayList<Poll> polls = new ArrayList<>();
@@ -59,6 +60,18 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
   private static SharedPreferences settings;
   private FirstStartApp firstStartApp;
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    active = true;
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    active = false;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, false);
+    saveToSharedPrefs(Prefs.REGISTERED, true);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
@@ -176,7 +189,9 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
       String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
       Log.d(TAG, "MainActivity onReceive: " + action);
       Log.d(TAG, "MainActivity onReceive: " + token);
-      showDebugAlertDialog(token);
+      if(active) {
+        showDebugAlertDialog(token);
+      }
     }
   };
 

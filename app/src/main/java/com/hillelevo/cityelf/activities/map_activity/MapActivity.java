@@ -1,5 +1,19 @@
 package com.hillelevo.cityelf.activities.map_activity;
 
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.Build.VERSION_CODES;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -20,30 +34,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.webutils.JsonMassageTask;
-
-import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import android.location.Address;
-import android.location.Geocoder;
-import android.os.Build.VERSION_CODES;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +49,7 @@ import org.json.JSONObject;
 @RequiresApi(api = VERSION_CODES.LOLLIPOP)
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
-    GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
+    GoogleApiClient.ConnectionCallbacks, JsonMessageResponse {
 
   private String jsonMassageResult;
 
@@ -210,7 +208,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMassageTask(this).execute(Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
+          new JsonMessageTask(this).execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL, null);
 //          sendAddressFromCoordinate();
 ////////////////////////////
         } else {
@@ -340,7 +338,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
   }
 
   @Override
-  public void massageResponse(String output) {
+  public void messageResponse(String output) {
     jsonMassageResult = output;
     sendAddressFromCoordinate();
   }

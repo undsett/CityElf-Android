@@ -28,14 +28,18 @@ import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.authorization.User;
+import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
-import com.hillelevo.cityelf.webutils.JsonMassageTask;
-import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
-public class MainActivity extends AppCompatActivity implements JsonMassageResponse {
+public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
 
   private SharedPreferences settings;
 
@@ -108,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
     switch (item.getItemId()) {
       case R.id.json_test:
 
-        new JsonMassageTask(this).execute(Constants.TEST_URL);
-        showMassage("Loading...");
+        new JsonMessageTask(this).execute(WebUrls.TEST_URL, null);
+        showMessage("Loading...");
         return true;
 
       case R.id.map_test:
@@ -148,12 +152,12 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
   //massage from JsonMassageTask
   @Override
-  public void massageResponse(String output) {
-    showMassage(output);
+  public void messageResponse(String output) {
+    showMessage(output);
   }
 
-  public void showMassage(String massage) {
-      Toast toast = Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG);
+  public void showMessage(String message) {
+      Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
       toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
       toast.show();
   }

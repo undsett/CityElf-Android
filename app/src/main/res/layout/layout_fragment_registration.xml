@@ -15,17 +15,45 @@
     android:background="@drawable/background_authorization_btn"/>
 
   <EditText
-    android:id="@+id/etAddress"
-    android:hint="@string/address"
+    android:id="@+id/etPassword"
+    android:hint="@string/password"
     android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="30dp"
-    android:inputType="textPostalAddress"
-    android:layout_above="@id/etPassword"
+    android:inputType="textPassword"
+    android:layout_above="@id/btnRegister"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
     android:layout_marginTop="10dp"
     android:background="@drawable/background_authorization_et"/>
+
+  <!--<EditText-->
+    <!--android:id="@+id/etAddress"-->
+    <!--android:hint="@string/address"-->
+    <!--android:gravity="center"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="30dp"-->
+    <!--android:inputType="textPostalAddress"-->
+    <!--android:layout_above="@id/etPassword"-->
+    <!--android:layout_marginLeft="40dp"-->
+    <!--android:layout_marginRight="40dp"-->
+    <!--android:layout_marginTop="10dp"-->
+    <!--android:background="@drawable/background_authorization_et"/>background_authorization_et-->
+
+  <AutoCompleteTextView
+    android:id="@+id/etAddress"
+    android:layout_width="match_parent"
+    android:layout_height="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
+    android:layout_above="@id/etPassword"
+    android:background="@drawable/background_authorization_et"
+    android:gravity="center"
+    android:hint="@string/address"
+    android:inputType="textPostalAddress"
+    android:maxLines="1"
+    android:singleLine="true" />
 
   <EditText
     android:id="@+id/etPhone"
@@ -54,18 +82,6 @@
     android:layout_marginRight="40dp"
     android:background="@drawable/background_authorization_et"/>
 
-  <EditText
-    android:id="@+id/etPassword"
-    android:hint="@string/password"
-    android:gravity="center"
-    android:layout_width="match_parent"
-    android:layout_height="30dp"
-    android:inputType="textPassword"
-    android:layout_above="@id/btnRegister"
-    android:layout_marginLeft="40dp"
-    android:layout_marginRight="40dp"
-    android:layout_marginTop="10dp"
-    android:background="@drawable/background_authorization_et"/>
 
 
 

@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf;
 
+import android.support.annotation.ColorInt;
+
 public class Constants {
   public static final String TAG = "CityElfLog";
 
@@ -25,6 +27,12 @@ public class Constants {
   public class Params {
     public static final String FIREBASE_TOKEN = "FirebaseToken";
     public static final String FIREBASE_MESSAGE = "FirebaseMessage";
+  }
+
+  public class Colors{
+    public static final String BLUE = "#2d9cdb";
+    @ColorInt public static final String BLUE2 = "#2d9cdb";
+
   }
 
   public class Prefs {

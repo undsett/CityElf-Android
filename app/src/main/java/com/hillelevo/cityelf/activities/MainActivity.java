@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -16,40 +20,95 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-import com.astuetz.PagerSlidingTabStrip;
-import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
-import com.hillelevo.cityelf.activities.authorization.User;
-import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
 
-  private SharedPreferences settings;
+  private static String result;
+  private boolean registered;
+  private boolean active;
+  private ArrayList<Notification> notifications = new ArrayList<>();
+  private ArrayList<Advert> adverts = new ArrayList<>();
+  private ArrayList<Poll> polls = new ArrayList<>();
 
+  private TabLayout tabLayout;
+
+  private static SharedPreferences settings;
+  private FirstStartApp firstStartApp;
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    active = true;
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    active = false;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    firstStartApp = new FirstStartApp(this);
+
+    if (firstStartApp.isFirstLaunch()) {
+      launchFirstTime();
+      finish();
+    }
+
+    settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
+    // Add user registration status to Shared Prefs, HARDCODED!
+    saveToSharedPrefs(Prefs.REGISTERED, false);
+    //TODO Add real registration status
+
+    // Load registered status from Shared Prefs
+    registered = loadRegisteredStatusFromSharedPrefs();
+
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
+
+    // Fill ViewPager with data
+    // TODO Replace test Notifications, Adverts and Polls with real ones from server
+    // Generate test Notifications, Adverts and Polls
+    fillTestData();
+    ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
+
+    pager.setAdapter(new CustomPagerAdapter(getSupportFragmentManager()));
+
+    // Set custom tabs for ViewPager
+    tabLayout = (TabLayout) findViewById(R.id.tabs);
+    tabLayout.setupWithViewPager(pager);
+    setupTabs();
 
     // Show Report dialog - BottomDialogFragment
     buttonReport.setOnClickListener(new OnClickListener() {
@@ -66,21 +125,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
         // Create and show the dialog.
         BottomDialogFragment newFragment = BottomDialogFragment
-            .newInstance(loadRegisteredStatusFromSharedPrefs());
+            .newInstance(registered);
         newFragment.show(ft, "dialog");
       }
 
     });
-
-
-    // Get the ViewPager and set it's PagerAdapter so that it can display items
-    ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-    viewPager.setAdapter(new SampleFragmentPagerAdapter(getSupportFragmentManager()));
-
-    // Give the PagerSlidingTabStrip the ViewPager
-    PagerSlidingTabStrip tabsStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-    // Attach the view pager to the tab strip
-    tabsStrip.setViewPager(viewPager);
 
     // Create LocalBroadcastManager and register it to all actions;
     LocalBroadcastManager messageBroadcastManager = LocalBroadcastManager.getInstance(this);
@@ -89,16 +138,17 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     messageBroadcastManager.registerReceiver(MessageReceiver,
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
 
-    settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
-
-    // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, true);
-    //TODO Add real registration status
-
     // Add test address to Shared Prefs, HARDCODED!
     saveToSharedPrefs(Prefs.ADDRESS_1, "Test street, 1");
     saveToSharedPrefs(Prefs.ADDRESS_2, "Test street, 2");
     //TODO Add to Shared Prefs real address from Map Activity and Registration form
+  }
+
+  private void launchFirstTime() {
+    firstStartApp.setFirstLaunch(false);
+    Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+    startActivity(firstStart);
+    finish();
   }
 
   @Override
@@ -110,25 +160,22 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.json_test:
 
-        new JsonMessageTask(this).execute(WebUrls.TEST_URL, null);
-        showMessage("Loading...");
-        return true;
-
-      case R.id.map_test:
-        Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
-        startActivity(intentMap);
-        return true;
-
-      case R.id.settings_test:
-        Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
-        startActivity(intentSetting);
-        return true;
+//      case R.id.json_test:
+//
+//        new JsonMessageTask(this).execute(WebUrls.TEST_URL, null);
+//        showMessage("Loading...");
+//        return true;
 
       case R.id.action_enter:
-        Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
-        startActivity(intentLogin);
+        //// TODO: 17.07.17 This step depends from status-registred
+        if (registered) {
+          Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
+          startActivity(intentLogin);
+        } else {
+          Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
+          startActivity(intentLogin);
+        }
         return true;
     }
     return super.onOptionsItemSelected(item);
@@ -146,7 +193,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
       Log.d(TAG, "MainActivity onReceive: " + action);
       Log.d(TAG, "MainActivity onReceive: " + token);
-      showDebugAlertDialog(token);
+      if (active) {
+        showDebugAlertDialog(token);
+      }
     }
   };
 
@@ -156,12 +205,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     showMessage(output);
   }
 
-  public void showMessage(String message) {
-      Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
-      toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-      toast.show();
-  }
 
+  public void showMessage(String message) {
+    Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
+    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+    toast.show();
+  }
 
   //Save and load data to Shared Prefs
 
@@ -179,11 +228,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     editor.apply();
   }
 
-  private boolean loadRegisteredStatusFromSharedPrefs() {
+  public static boolean loadRegisteredStatusFromSharedPrefs() {
     //Check for data by id
     if (settings != null && settings.contains(Prefs.REGISTERED)) {
       Log.d(TAG, "MainActivity mSettings != null, loading registration status");
-      return settings.getBoolean(Prefs.REGISTERED, false);
+      return settings.getBoolean(Prefs.REGISTERED, true);
     } else {
       Log.d(TAG, "MainActivity mSettings != null, no registration status");
       return false;
@@ -202,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     input.setText(token.toCharArray(), 0, token.length());
     builder.setView(input);
 
-// Set up the button
+    // Set up the button
     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
@@ -211,5 +260,109 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     });
 
     builder.show();
+  }
+
+  /**
+   * Custom Adapter for ViewPager
+   */
+  private class CustomPagerAdapter extends FragmentPagerAdapter {
+
+    public CustomPagerAdapter(FragmentManager fm) {
+      super(fm);
+    }
+
+    @Override
+    public Fragment getItem(int pos) {
+      switch (pos) {
+        case 0:
+          return NotificationFragment.newInstance(notifications);
+        case 1:
+          return AdvertFragment.newInstance(adverts);
+        case 2:
+          return PollFragment.newInstance(polls);
+        default:
+          return NotificationFragment.newInstance(notifications);
+      }
+    }
+
+    /**
+     * Tabs in ViewPager
+     *
+     * @return tabs amount
+     */
+    @Override
+    public int getCount() {
+      // Registered user has 3 tabs
+      if (registered) {
+        return 3;
+      }
+      // Unregistered - one tab, Notifications
+      else {
+        return 1;
+      }
+    }
+  }
+
+  // Hardcoded method to fill up test Notifications, Adverts and Polls
+  private void fillTestData() {
+    notifications.add(new Notification("Уведомление 1", "Тестовая улица, 1", "2 часа", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест ", 0));
+    notifications.add(new Notification("Уведомление 2", "Тестовая улица, 1", "2 часа", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест ", 0));
+    notifications.add(new Notification("Уведомление 3", "Тестовая улица, 1", "2 часа", "сегодня",
+        "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест ", 0));
+    adverts.add(new Advert("Объявление 1", "Тестовая улица, 1", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест "));
+    adverts.add(new Advert("Объявление 2", "Тестовая улица, 1", "сегодня",
+        "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест "));
+    adverts.add(new Advert("Объявление 3", "Тестовая улица, 1", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест "));
+    polls.add(new Poll("Опрос 1", "Тестовая улица, 1", "2 часа", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
+        "Вариант 3", "Вариант 4", 10));
+    polls.add(new Poll("Опрос 2", "Тестовая улица, 1", "2 часа", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
+        "Вариант 3", "", 30));
+    polls.add(new Poll("Опрос 3", "Тестовая улица, 1", "2 часа", "сегодня",
+        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+            + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
+        "", "", 20));
+  }
+
+  /**
+   * Set up tabs for ViewPager
+   */
+  private void setupTabs() {
+    TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);
+    tabOne.setText(R.string.tab_notifications_title);
+    tabLayout.getTabAt(0).setCustomView(tabOne);
+
+    if (registered) {
+      TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);
+      tabTwo.setText(R.string.tab_adverts_title);
+      tabLayout.getTabAt(1).setCustomView(tabTwo);
+
+      TextView tabThree = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabThree.setText(R.string.tab_polls_title);
+      tabLayout.getTabAt(2).setCustomView(tabThree);
+    }
   }
 }

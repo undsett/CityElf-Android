@@ -7,18 +7,18 @@
       android:title="Электронная почта" />
     <EditTextPreference
       android:defaultValue="@string/default_pass"
+      android:inputType="textPassword"
       android:key="passwordPref"
       android:title="Пароль" />
     <EditTextPreference
       android:defaultValue="@string/default_street"
       android:key="streetPref"
-      android:title="Текущий адрес"/>
+      android:title="Текущий адрес" />
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="manyAddressPref"
-      android:title="Дополнительные адреса" >
-      <intent android:action="com.hillelevo.cityelf.ManyAddress"/>
+      android:title="Дополнительные адреса">
+      <intent android:action="com.hillelevo.cityelf.ManyAddress" />
     </Preference>
-
   </PreferenceCategory>
 
   <PreferenceCategory android:title="Уведомления">
@@ -46,12 +46,11 @@
 
   <PreferenceCategory android:title="">
 
-      <Preference xmlns:android="http://schemas.android.com/apk/res/android"
-        android:key="aboutProgram"
-        android:title="О программе" >
-        <intent android:action="com.hillelevo.cityelf.AboutProgram"/>
-      </Preference>
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+      android:key="aboutProgram"
+      android:title="О программе">
+      <intent android:action="com.hillelevo.cityelf.AboutProgram" />
+    </Preference>
 
   </PreferenceCategory>
-
 </PreferenceScreen>

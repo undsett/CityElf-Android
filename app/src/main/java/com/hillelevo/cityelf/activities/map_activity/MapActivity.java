@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf.activities.map_activity;
 
+import static com.hillelevo.cityelf.Constants.TAG;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -21,6 +23,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
@@ -33,14 +37,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -61,6 +72,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   private String jsonMassageResult;
   private boolean registered;
+  private boolean active;
 
 
   private GoogleMap mMap;
@@ -91,6 +103,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private MarkerOptions markerOptions;
   Marker marker;
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    active = true;
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    active = false;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +140,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     registerConnectToGoogle();
 
     autocompleteInputStreet(mAutocompleteTextView);
+
+    // Create LocalBroadcastManager and register it to all actions;
+    LocalBroadcastManager messageBroadcastManager = LocalBroadcastManager.getInstance(this);
+    messageBroadcastManager.registerReceiver(MessageReceiver,
+        new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_TOKEN));
+    messageBroadcastManager.registerReceiver(MessageReceiver,
+        new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
   }
 
   @Override
@@ -406,5 +436,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   public void massageResponse(String output) {
     jsonMassageResult = output;
     sendAddressFromCoordinate();
+  }
+
+  /**
+   * BroadcastReceiver for local broadcasts
+   */
+  private BroadcastReceiver MessageReceiver = new BroadcastReceiver() {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+
+      String action = intent.getAction();
+      String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
+      Log.d(TAG, "MapActivity onReceive: " + action);
+      Log.d(TAG, "MapActivity onReceive: " + token);
+      if(active) {
+        showDebugAlertDialog(token);
+      }
+    }
+  };
+
+  // AlertDialog for firebase testing
+
+  private void showDebugAlertDialog(String token) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle("Firebase id");
+
+    // Set up the input
+    final EditText input = new EditText(this);
+    input.setInputType(InputType.TYPE_CLASS_TEXT);
+    input.setText(token.toCharArray(), 0, token.length());
+    builder.setView(input);
+
+    // Set up the button
+    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        dialog.cancel();
+      }
+    });
+
+    builder.show();
   }
 }

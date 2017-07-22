@@ -15,7 +15,7 @@
     android:background="@drawable/background_authorization_btn"/>
 
   <EditText
-    android:id="@+id/etPassword"
+    android:id="@+id/etLogPassword"
     android:hint="@string/password"
     android:gravity="center"
     android:layout_width="match_parent"
@@ -28,10 +28,10 @@
     android:background="@drawable/background_authorization_et"/>
 
   <EditText
-    android:id="@+id/etEmail"
+    android:id="@+id/etLogEmail"
     android:hint="@string/email"
     android:gravity="center"
-    android:layout_above="@id/etPassword"
+    android:layout_above="@id/etLogPassword"
     android:layout_gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="30dp"
@@ -41,7 +41,7 @@
     android:background="@drawable/background_authorization_et"/>
 
    <TextView
-    android:id="@+id/registerait_user"
+    android:id="@+id/tvRegisteraitUser"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
@@ -53,7 +53,7 @@
      android:layout_marginTop="10dp"/>
 
   <TextView
-    android:id="@+id/restore_password"
+    android:id="@+id/tvRestorePassword"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"

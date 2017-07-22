@@ -278,7 +278,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
               Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
-          getToast("Введите адрес");
+          getToast("Неверный адрес");
         }
         break;
       case R.id.btnClear:

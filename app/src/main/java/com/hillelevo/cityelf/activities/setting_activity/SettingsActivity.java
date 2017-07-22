@@ -3,6 +3,7 @@ package com.hillelevo.cityelf.activities.setting_activity;
 
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -115,11 +116,6 @@ public class SettingsActivity extends PreferenceActivity implements
         break;
       case "emailPref":
         emailPref.setSummary(getShortAddress(emailPref.getText()));
-        break;
-      case "manyAddressPref":
-        Intent intentMap = new Intent(SettingsActivity.this, ManyAddress
-            .class);
-        startActivity(intentMap);
         break;
     }
     return true;

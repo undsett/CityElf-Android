@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, true);
+    saveToSharedPrefs(Prefs.REGISTERED, false);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
@@ -145,13 +145,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      /*case R.id.json_test:
-        new JsonMassageTask(this).execute(Constants.TEST_URL);
-        showMassage("Loading...");
-        return true;
-*/
-
-      case R.id.action_enter:
+           case R.id.action_enter:
         //// TODO: 17.07.17 This step depends from status-registred
         if (registered) {
           Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
@@ -161,6 +155,11 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
           startActivity(intentLogin);
         }
         return true;
+      case R.id.action_map:
+        Intent intentLogin = new Intent(MainActivity.this, MapActivity.class);
+        startActivity(intentLogin);
+        return true;
+
     }
     return super.onOptionsItemSelected(item);
   }

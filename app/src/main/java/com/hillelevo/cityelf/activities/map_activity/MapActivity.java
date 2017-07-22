@@ -2,41 +2,6 @@ package com.hillelevo.cityelf.activities.map_activity;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceBuffer;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
-import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.AuthorizationActivity;
-import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.webutils.JsonMassageTask;
-import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -62,13 +27,46 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Params;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
-    GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
+    GoogleApiClient.ConnectionCallbacks, JsonMessageResponse {
 
   private String jsonMassageResult;
   private boolean registered;
@@ -304,8 +302,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMassageTask(this).execute(
-              Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
+          new JsonMessageTask(this).execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL, null);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Введите адрес");
@@ -433,7 +430,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   }
 
   @Override
-  public void massageResponse(String output) {
+  public void messageResponse(String output) {
     jsonMassageResult = output;
     sendAddressFromCoordinate();
   }

@@ -2,23 +2,6 @@ package com.hillelevo.cityelf.activities;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
-import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.map_activity.MapActivity;
-import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.data.Advert;
-import com.hillelevo.cityelf.data.Notification;
-import com.hillelevo.cityelf.data.Poll;
-import com.hillelevo.cityelf.fragments.AdvertFragment;
-import com.hillelevo.cityelf.fragments.BottomDialogFragment;
-import com.hillelevo.cityelf.fragments.NotificationFragment;
-import com.hillelevo.cityelf.fragments.PollFragment;
-import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
-
-import java.util.ArrayList;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,8 +29,27 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Params;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements JsonMassageResponse {
+
+public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
 
   private static String result;
   private boolean registered;
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, true);
+    saveToSharedPrefs(Prefs.REGISTERED, false);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
@@ -158,7 +160,9 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+
            case R.id.action_enter:
+
         //// TODO: 17.07.17 This step depends from status-registred
         if (registered) {
           Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
@@ -189,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
       String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
       Log.d(TAG, "MainActivity onReceive: " + action);
       Log.d(TAG, "MainActivity onReceive: " + token);
-      if(active) {
+      if (active) {
         showDebugAlertDialog(token);
       }
     }
@@ -197,12 +201,13 @@ public class MainActivity extends AppCompatActivity implements JsonMassageRespon
 
   //massage from JsonMassageTask
   @Override
-  public void massageResponse(String output) {
-    showMassage(output);
+  public void messageResponse(String output) {
+    showMessage(output);
   }
 
-  public void showMassage(String massage) {
-    Toast toast = Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG);
+
+  public void showMessage(String message) {
+    Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
     toast.show();
   }

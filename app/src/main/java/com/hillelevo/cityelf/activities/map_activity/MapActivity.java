@@ -22,15 +22,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.webutils.JsonMassageTask;
-import com.hillelevo.cityelf.webutils.JsonMassageTask.JsonMassageResponse;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ import org.json.JSONObject;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
-    GoogleApiClient.ConnectionCallbacks, JsonMassageResponse {
+    GoogleApiClient.ConnectionCallbacks, JsonMessageResponse {
 
   private String jsonMassageResult;
   private boolean registered;
@@ -310,8 +310,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       case R.id.btnSearchAddress:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMassageTask(this).execute(
-              Constants.ADDRESS_URL + getFormatedAddress(nameOfStreet) + Constants.API_KEY_URL);
+          new JsonMessageTask(this)
+              .execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL,
+                  null);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Неверный адрес");
@@ -452,7 +453,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   }
 
   @Override
-  public void massageResponse(String output) {
+  public void messageResponse(String output) {
     jsonMassageResult = output;
     sendAddressFromCoordinate();
   }
@@ -469,7 +470,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
       Log.d(TAG, "MapActivity onReceive: " + action);
       Log.d(TAG, "MapActivity onReceive: " + token);
-      if(active) {
+      if (active) {
         showDebugAlertDialog(token);
       }
     }

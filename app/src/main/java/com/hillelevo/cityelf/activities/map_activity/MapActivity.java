@@ -103,7 +103,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   private String nameOfStreet = null;
   private MarkerOptions markerOptions;
-  Marker marker;
+  private Marker marker;
 
   @Override
   protected void onResume() {

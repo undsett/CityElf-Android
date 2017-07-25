@@ -9,6 +9,7 @@ public class Constants {
   public static  final String POST = "POST";
   public static final String AUTH = "Authorization";
   public static final int CONNECTION_TIMEOUT = 1000 * 15;
+  public static final String RESPONSE_TO_A_REQUEST = "Ваш запрос отправлен. Мы рассмотрим его в течение 3 рабочих дней, о результате сообщим по электронной почте";
 
   public class WebUrls {
     public static final String SEND_MASSAGE_URL = "http://cityelf.com:8088/services/users/all";
@@ -17,6 +18,7 @@ public class Constants {
     public static final String TEST_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=улица+Дерибасовская+Одесса+Одесская+область+Украина&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
+    public static final String USER_UPLOAD_URL = "http://localhost:8088/services/users/upload";
   }
 
   public class Actions {

@@ -1,9 +1,9 @@
 <resources>
   <string name="app_name">CityElf</string>
   <string name="title_activity_settings">Settings</string>
-    <string name="json_test">json_test</string>
-    <string name="map_test">map_test</string>
-    <string name="action_enter">enter</string>
+  <string name="json_test">json_test</string>
+  <string name="map_test">map_test</string>
+  <string name="action_enter">enter</string>
   <!-- Strings related to Settings -->
 
   <!-- Example General settings -->
@@ -14,67 +14,67 @@
         based on your message history
     </string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
+  <string name="pref_title_display_name">Display name</string>
+  <string name="pref_default_display_name">John Smith</string>
 
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
+  <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+  <string-array name="pref_example_list_titles">
+    <item>Always</item>
+    <item>When possible</item>
+    <item>Never</item>
+  </string-array>
+  <string-array name="pref_example_list_values">
+    <item>1</item>
+    <item>0</item>
+    <item>-1</item>
+  </string-array>
 
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
+  <!-- Example settings for Data & Sync -->
+  <string name="pref_header_data_sync">Data &amp; sync</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
+  <string name="pref_title_sync_frequency">Sync frequency</string>
+  <string-array name="pref_sync_frequency_titles">
+    <item>15 minutes</item>
+    <item>30 minutes</item>
+    <item>1 hour</item>
+    <item>3 hours</item>
+    <item>6 hours</item>
+    <item>Never</item>
+  </string-array>
+  <string-array name="pref_sync_frequency_values">
+    <item>15</item>
+    <item>30</item>
+    <item>60</item>
+    <item>180</item>
+    <item>360</item>
+    <item>-1</item>
+  </string-array>
 
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
+  <string-array name="list_preference_entries">
+    <item>Entry 1</item>
+    <item>Entry 2</item>
+    <item>Entry 3</item>
+  </string-array>
 
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
+  <string-array name="list_preference_entry_values">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+  </string-array>
 
-    <string-array name="multi_select_list_preference_default_value" />
+  <string-array name="multi_select_list_preference_default_value" />
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
+  <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+  <!-- Example settings for Notifications -->
+  <string name="pref_header_notifications">Notifications</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
+  <string name="pref_title_new_message_notifications">New message notifications</string>
 
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
+  <string name="pref_title_ringtone">Ringtone</string>
+  <string name="pref_ringtone_silent">Silent</string>
 
-    <string name="pref_title_vibrate">Vibrate</string>
+  <string name="pref_title_vibrate">Vibrate</string>
   <string name="msg_token_fmt">InstanceID Token: %s</string>
 
   <!--Main activity-->
@@ -132,8 +132,16 @@
   <string name="title_activity_first">FirstActivity</string>
   <string name="settings_test">settings_test</string>
   <string name="about_program">Info about this programg</string>
+  <string name="osmdInfo">Если Вы глава ОСМД, то можете получить дополнительные функции: добавлять объявления, опросы для жильцов дома и следить за их результатами</string>
 
   <string name="many_address">Дополнительные адреса
     \n       (использовано 0 из 2)</string>
   <string name="inputAddress">Введите адресс</string>
+  <string name="check_status">Проверить</string>
+  <string name="get_admin_function">Получить функции администратора</string>
+  <string name="you_address">Ваш адрес</string>
+  <string name="firstLast_name">Ваше ФИО</string>
+  <string name="you_document">Добавьте документ, подтверждающий Вашу должность</string>
+  <string name="add_document">Добавить документ</string>
+  <string name="send_requet">Отправить запрос</string>
 </resources>

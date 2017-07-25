@@ -19,6 +19,11 @@
       android:title="Дополнительные адреса">
       <intent android:action="com.hillelevo.cityelf.ManyAddress" />
     </Preference>
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+      android:key="mapActivityPref"
+      android:title="Карта">
+      <intent android:action="com.hillelevo.cityelf.MapActivity" />
+    </Preference>
   </PreferenceCategory>
 
   <PreferenceCategory android:title="Уведомления">
@@ -45,7 +50,12 @@
   </PreferenceCategory>
 
   <PreferenceCategory android:title="">
-
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+      android:key="aboutProgram"
+      android:title="Функции администратора"
+      android:summary="@string/osmdInfo">
+      <intent android:action="com.hillelevo.cityelf.AuthenticationOSMD" />
+    </Preference>
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="aboutProgram"
       android:title="О программе">

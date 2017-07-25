@@ -2,31 +2,6 @@ package com.hillelevo.cityelf.activities.map_activity;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.location.Address;
-import android.location.Geocoder;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -56,10 +31,38 @@ import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,8 +83,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private LatLng coordinate;
   private UiSettings uiSettings;
 
-  private ImageButton btnCheckStatus;
+  private ImageButton btnSearchAddress;
   private ImageButton btnClear;
+  private Button btnCheckStatus;
 
   private Geocoder geocoder;
   private Locale ruLocale = new Locale("ru", "RU");
@@ -99,7 +103,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   private String nameOfStreet = null;
   private MarkerOptions markerOptions;
-  Marker marker;
+  private Marker marker;
 
   @Override
   protected void onResume() {
@@ -118,7 +122,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map);
 
-    btnCheckStatus = (ImageButton) findViewById(R.id.btnCheckStatus);
+    btnSearchAddress = (ImageButton) findViewById(R.id.btnSearchAddress);
+    btnSearchAddress.setOnClickListener(this);
+    btnCheckStatus = (Button) findViewById(R.id.btnCheckStatus);
     btnCheckStatus.setOnClickListener(this);
     btnClear = (ImageButton) findViewById(R.id.btnClear);
     btnClear.setOnClickListener(this);
@@ -250,6 +256,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
         mAutocompleteTextView.setText(userAddress);
+        nameOfStreet = userAddress;
+        mAutocompleteTextView.setSelection(0);
         getToast(userAddress);
       }
     });
@@ -299,18 +307,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   @Override
   public void onClick(View v) {
     switch (v.getId()) {
-      case R.id.btnCheckStatus:
+      case R.id.btnSearchAddress:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMessageTask(this).execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL, null);
+          new JsonMessageTask(this)
+              .execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL,
+                  null);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
-          getToast("Введите адрес");
+          getToast("Неверный адрес");
         }
         break;
       case R.id.btnClear:
         mAutocompleteTextView.setText("");
         btnClear.setVisibility(View.INVISIBLE);
+        break;
+      case R.id.btnCheckStatus:
+        /*
+        *You need to send to the server variable - "nameOfStreet"
+        */
+
+        String s = userAddress;
+        s = nameOfStreet;
+        if (mAutocompleteTextView.length() != 0 /*todo add check status of request status*/) {
+          Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
+          startActivity(intentMain);
+        }
         break;
     }
 
@@ -377,6 +399,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       Log.i(LOG_TAG, "Selected: " + item.description);
 
       nameOfStreet = String.valueOf(item.description);
+      mAutocompleteTextView.setSelection(0);
 
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
@@ -447,7 +470,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
       Log.d(TAG, "MapActivity onReceive: " + action);
       Log.d(TAG, "MapActivity onReceive: " + token);
-      if(active) {
+      if (active) {
         showDebugAlertDialog(token);
       }
     }

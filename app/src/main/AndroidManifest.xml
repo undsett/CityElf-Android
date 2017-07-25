@@ -38,7 +38,12 @@
 
     <activity
       android:label="@string/app_name"
-      android:name=".activities.map_activity.MapActivity"/>
+      android:name=".activities.map_activity.MapActivity">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.MapActivity" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+      </activity>
 
     <activity android:name=".activities.MainActivity" />
 
@@ -52,6 +57,13 @@
     <activity android:name=".activities.setting_activity.AboutProgram">
       <intent-filter>
         <action android:name="com.hillelevo.cityelf.AboutProgram" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
+    <activity android:name=".activities.setting_activity.AuthenticationOSMD">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AuthenticationOSMD" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>

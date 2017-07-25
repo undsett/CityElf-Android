@@ -18,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +30,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
@@ -46,6 +54,10 @@ import com.hillelevo.cityelf.fragments.NotificationFragment;
 import com.hillelevo.cityelf.fragments.PollFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 
@@ -89,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, false);
+    saveToSharedPrefs(Prefs.REGISTERED, true);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
@@ -161,14 +173,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
 
-//      case R.id.json_test:
-//
-//        new JsonMessageTask(this).execute(WebUrls.TEST_URL, null);
-//        showMessage("Loading...");
-//        return true;
+           case R.id.action_enter:
 
-      case R.id.action_enter:
         //// TODO: 17.07.17 This step depends from status-registred
+
         if (registered) {
           Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
           startActivity(intentLogin);
@@ -180,7 +188,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
     return super.onOptionsItemSelected(item);
   }
-
+  private String getB64Auth (String login, String pass) {
+    String source=login+":"+pass;
+    String ret="Basic "+ Base64.encodeToString(source.getBytes(),Base64.URL_SAFE|Base64.NO_WRAP);
+    return ret;
+  }
   /**
    * BroadcastReceiver for local broadcasts
    */

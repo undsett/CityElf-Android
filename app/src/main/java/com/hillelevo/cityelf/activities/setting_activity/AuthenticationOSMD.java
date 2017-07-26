@@ -40,10 +40,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 
 public class AuthenticationOSMD extends AppCompatActivity implements JsonMessageResponse,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
@@ -51,7 +47,6 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
 
   private Button btnAddDocument;
   private Button btnSendRequest;
-  ImageView imageView;
 
   private TextView imageName;
   private EditText userName;
@@ -83,9 +78,6 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
     btnSendRequest.setOnClickListener(this);
     imageName = (TextView) findViewById(R.id.image_name);
     userName = (EditText) findViewById(R.id.fistNameLastName);
-
-    //delete this
-    imageView = (ImageView) findViewById(R.id.imageView);
 
     registerConnectToGoogle();
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.addressAdministation);
@@ -177,16 +169,7 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
         if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg")
             || file_extn.equals("png")) {
 
-          try {
-            MultipartEntity multipartEntity = new MultipartEntity(
-                HttpMultipartMode.BROWSER_COMPATIBLE);
-            multipartEntity.addPart("file", new FileBody(new File(imageFile2)));
-            multipartEntity.addPart("name", new StringBody("Oleg Mikhailov"));
-            multipartEntity.addPart("mailFrom", new StringBody("mosmdf@gmail.com"));
-            multipartEntity.addPart("address", new StringBody("Tiraspolskaya"));
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
+
         }
       }
     }
@@ -207,7 +190,6 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
     } catch (IOException e) {
       e.printStackTrace();
     }
-    imageView.setImageBitmap(file);
 
     return cursor.getString(column_index);
   }

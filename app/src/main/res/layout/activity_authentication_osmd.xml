@@ -108,13 +108,4 @@
     android:layout_alignTop="@+id/btn_add_document"
     android:layout_toEndOf="@+id/btn_add_document"
     android:text="" />
-  <ImageView
-    android:id="@+id/imageView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="44dp"
-    android:layout_marginStart="39dp"
-    android:layout_alignParentBottom="true"
-    android:layout_alignStart="@+id/image_name"
-    app:srcCompat="@drawable/background_splash" />
 </RelativeLayout>

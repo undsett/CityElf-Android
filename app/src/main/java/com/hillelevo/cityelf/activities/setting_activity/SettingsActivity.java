@@ -4,6 +4,7 @@ package com.hillelevo.cityelf.activities.setting_activity;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 
 import android.content.Context;
 import android.content.Intent;

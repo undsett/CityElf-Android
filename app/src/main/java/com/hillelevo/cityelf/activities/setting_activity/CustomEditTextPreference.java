@@ -1,13 +1,18 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.activities.MainActivity;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.preference.EditTextPreference;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 
 public class CustomEditTextPreference extends EditTextPreference {
+
 
 
   public CustomEditTextPreference(Context context) {
@@ -31,7 +36,7 @@ public class CustomEditTextPreference extends EditTextPreference {
       a = +2;
 
 
-    } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+    }else if (which == DialogInterface.BUTTON_NEGATIVE) {
       int a = 2;
     }
     super.onClick(dialog, which);

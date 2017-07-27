@@ -3,16 +3,18 @@
   <PreferenceCategory android:title="Настройки">
     <EditTextPreference
       android:defaultValue="@string/default_email"
-      android:key="emailPref"
+      android:key="email"
+      android:maxLines="1"
       android:title="Электронная почта" />
     <EditTextPreference
       android:defaultValue="@string/default_pass"
       android:inputType="textPassword"
-      android:key="passwordPref"
+      android:maxLines="1"
+      android:key="password"
       android:title="Пароль" />
     <EditTextPreference
       android:defaultValue="@string/default_street"
-      android:key="streetPref"
+      android:key="address"
       android:title="Текущий адрес" />
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="manyAddressPref"

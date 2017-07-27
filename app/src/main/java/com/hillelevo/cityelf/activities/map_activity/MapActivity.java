@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
@@ -131,7 +132,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     btnClear.setVisibility(View.INVISIBLE);
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
 
-    registered = MainActivity.loadRegisteredStatusFromSharedPrefs();
+    registered = MainActivity.loadBooleanStatusFromSharedPrefs(Prefs.OSMD_ADMIN);
 
     geocoder = new Geocoder(this, ruLocale);
 
@@ -255,9 +256,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       public void onMarkerDragEnd(Marker marker) {
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
-        mAutocompleteTextView.setText(userAddress);
+        mAutocompleteTextView.setText(shortAddress(userAddress));
         nameOfStreet = userAddress;
-        mAutocompleteTextView.setSelection(0);
         getToast(userAddress);
       }
     });
@@ -275,6 +275,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Camera move limit
     mMap.setLatLngBoundsForCameraTarget(LIMIT_OF_SITY);
 
+  }
+
+  private CharSequence shortAddress(String userAddress) {
+    if (getVerificationCity()) {
+      return userAddress.substring(0, userAddress.indexOf(", Одес"));
+    } else {
+      getToast("Возможно этот адрес не находится в Одессе");
+      return userAddress;
+    }
   }
 
   //marker return name of street
@@ -326,9 +335,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         /*
         *You need to send to the server variable - "nameOfStreet"
         */
+        if (getVerificationCity()) {
+          //todo If the street is not in Odessa
+        }
 
-        String s = userAddress;
-        s = nameOfStreet;
         if (mAutocompleteTextView.length() != 0 /*todo add check status of request status*/) {
           Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
           startActivity(intentMain);
@@ -336,6 +346,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         break;
     }
 
+  }
+
+  public boolean getVerificationCity() {
+    return nameOfStreet.contains("Одеса") || nameOfStreet.contains("Одесса");
   }
 
   private String getFormatedAddress(String userAddress) {
@@ -349,7 +363,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     if (response == null) {
       return null;
     }
-    String resultJson = null;
 
     JSONObject jsonObject = null;
     try {
@@ -399,7 +412,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       Log.i(LOG_TAG, "Selected: " + item.description);
 
       nameOfStreet = String.valueOf(item.description);
-      mAutocompleteTextView.setSelection(0);
+      mAutocompleteTextView.setText(shortAddress(nameOfStreet));
 
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
@@ -448,7 +461,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   private void getToast(Object object) {
     Toast toast = Toast.makeText(getApplicationContext(),
-        String.valueOf(object), Toast.LENGTH_SHORT);
+        String.valueOf(object), Toast.LENGTH_LONG);
     toast.show();
   }
 

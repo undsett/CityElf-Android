@@ -40,6 +40,7 @@ public class Constants {
   public class Prefs {
     public static final String APP_PREFERENCES = "CityElfPrefs";
     public static final String REGISTERED = "Registered";
+    public static final String OSMD_ADMIN = "OsmdAdministrate";
     public static final String ADDRESS_1 = "Address1";
     public static final String ADDRESS_2 = "Address2";
     public static final String ADDRESS_3 = "Address3";

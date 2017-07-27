@@ -2,6 +2,24 @@ package com.hillelevo.cityelf.activities;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Params;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
+import java.util.ArrayList;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,41 +48,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
-import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.Constants.WebUrls;
-import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
-import com.hillelevo.cityelf.activities.map_activity.MapActivity;
-import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.data.Advert;
-import com.hillelevo.cityelf.data.Notification;
-import com.hillelevo.cityelf.data.Poll;
-import com.hillelevo.cityelf.fragments.AdvertFragment;
-import com.hillelevo.cityelf.fragments.BottomDialogFragment;
-import com.hillelevo.cityelf.fragments.NotificationFragment;
-import com.hillelevo.cityelf.fragments.PollFragment;
-import com.hillelevo.cityelf.webutils.JsonMessageTask;
-import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
 
   private static String result;
   private boolean registered;
+  private boolean osmd_admin;
   private boolean active;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
@@ -102,10 +92,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
     saveToSharedPrefs(Prefs.REGISTERED, true);
+    saveToSharedPrefs(Prefs.OSMD_ADMIN, true);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
-    registered = loadRegisteredStatusFromSharedPrefs();
+    registered = loadBooleanStatusFromSharedPrefs(Prefs.REGISTERED);
+    osmd_admin = loadBooleanStatusFromSharedPrefs(Prefs.OSMD_ADMIN);
 
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
@@ -165,15 +157,21 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu, menu);
+    if (osmd_admin) {
+      getMenuInflater().inflate(R.menu.menu2, menu);
+    } else {
+      getMenuInflater().inflate(R.menu.menu, menu);
+    }
     return true;
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+      case R.id.addPoll:
 
-           case R.id.action_enter:
+        return true;
+      case R.id.action_enter:
 
         //// TODO: 17.07.17 This step depends from status-registred
 
@@ -188,11 +186,14 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
     return super.onOptionsItemSelected(item);
   }
-  private String getB64Auth (String login, String pass) {
-    String source=login+":"+pass;
-    String ret="Basic "+ Base64.encodeToString(source.getBytes(),Base64.URL_SAFE|Base64.NO_WRAP);
+
+  private String getB64Auth(String login, String pass) {
+    String source = login + ":" + pass;
+    String ret =
+        "Basic " + Base64.encodeToString(source.getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
     return ret;
   }
+
   /**
    * BroadcastReceiver for local broadcasts
    */
@@ -240,16 +241,17 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     editor.apply();
   }
 
-  public static boolean loadRegisteredStatusFromSharedPrefs() {
+  public static boolean loadBooleanStatusFromSharedPrefs(String prefKey) {
     //Check for data by id
-    if (settings != null && settings.contains(Prefs.REGISTERED)) {
+    if (settings != null && settings.contains(prefKey)) {
       Log.d(TAG, "MainActivity mSettings != null, loading registration status");
-      return settings.getBoolean(Prefs.REGISTERED, true);
+      return settings.getBoolean(prefKey, true);
     } else {
       Log.d(TAG, "MainActivity mSettings != null, no registration status");
       return false;
     }
   }
+
 
   // AlertDialog for firebase testing
 

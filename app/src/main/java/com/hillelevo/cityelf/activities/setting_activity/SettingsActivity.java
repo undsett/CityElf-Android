@@ -3,7 +3,6 @@ package com.hillelevo.cityelf.activities.setting_activity;
 
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,14 +24,13 @@ import android.widget.Toast;
 public class SettingsActivity extends PreferenceActivity implements
     OnPreferenceChangeListener {
 
-  SwitchPreference notificationSwitch;
-  SwitchPreference notificationSMS;
-  ListPreference listPreference;
-  EditTextPreference addressPref;
-  EditTextPreference emailPref;
+  private SwitchPreference notificationSwitch;
+  private SwitchPreference notificationSMS;
+  private ListPreference languagePref;
+  private EditTextPreference addressPref;
+  private EditTextPreference emailPref;
 
-  SharedPreferences sharedPreferences;
-  android.app.FragmentManager manager;
+  private SharedPreferences sharedPreferences;
 
   private AppCompatDelegate delegate;
 
@@ -50,16 +48,17 @@ public class SettingsActivity extends PreferenceActivity implements
     notificationSMS = (SwitchPreference) findPreference("notificationSms");
     notificationSMS.setOnPreferenceChangeListener(this);
 
-    listPreference = (ListPreference) findPreference("languagePref");
-    listPreference.setOnPreferenceChangeListener(this);
+    languagePref = (ListPreference) findPreference("languagePref");
+    languagePref.setOnPreferenceChangeListener(this);
 
-    addressPref = (EditTextPreference) findPreference("streetPref");
+    addressPref = (EditTextPreference) findPreference("address");
+    addressPref.setSummary(sharedPreferences.getString("address", ""));
     addressPref.setOnPreferenceChangeListener(this);
 
-    emailPref = (EditTextPreference) findPreference("emailPref");
+    emailPref = (EditTextPreference) findPreference("email");
+    emailPref.setSummary(getShortAddress(sharedPreferences.getString("email", "")));
     emailPref.setOnPreferenceChangeListener(this);
 
-    manager = getFragmentManager();
 
   }
 
@@ -111,10 +110,12 @@ public class SettingsActivity extends PreferenceActivity implements
           getToast("Украинский");
         }
         break;
-      case "streetPref":
+      case "address":
         addressPref.setSummary(addressPref.getText());
         break;
-      case "emailPref":
+      case "email":
+        //todo user update email request
+        String s = emailPref.getText();
         emailPref.setSummary(getShortAddress(emailPref.getText()));
         break;
     }
@@ -130,14 +131,23 @@ public class SettingsActivity extends PreferenceActivity implements
   }
 
 
-  private static String getShortAddress(String address) {
-    StringBuilder shortAddress = new StringBuilder();
-    String[] twoWords = address.split("@");
+  private String getShortAddress(String address) {
+    if (address.contains("@")) {
 
-    shortAddress.append(firstWord(twoWords[0]));
-    shortAddress.append('@').append(twoWords[1]);
+      StringBuilder shortAddress = new StringBuilder();
+      String[] twoWords = address.split("@");
 
-    return shortAddress.toString();
+      shortAddress.append(firstWord(twoWords[0]));
+      shortAddress.append('@').append(twoWords[1]);
+
+      return shortAddress.toString();
+    } else {
+      Toast toast = Toast.makeText(this,
+          "Некорректный email", Toast.LENGTH_LONG);
+      toast.show();
+      return "";
+    }
+
   }
 
   private static String firstWord(String firstPart) {

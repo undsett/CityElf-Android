@@ -1,12 +1,14 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.EditTextPreference;
@@ -22,13 +24,13 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 public class SettingsActivity extends PreferenceActivity implements
-    OnPreferenceChangeListener {
+    OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
   private SwitchPreference notificationSwitch;
   private SwitchPreference notificationSMS;
   private ListPreference languagePref;
   private EditTextPreference addressPref;
-  private EditTextPreference emailPref;
+  private CustomEditTextPreference emailPref;
 
   private SharedPreferences sharedPreferences;
 
@@ -38,9 +40,13 @@ public class SettingsActivity extends PreferenceActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setupActionBar();
+    PreferenceManager prefMgr = getPreferenceManager();
+    prefMgr.setSharedPreferencesName(Prefs.APP_PREFERENCES);
+    prefMgr.setSharedPreferencesMode(Context.MODE_PRIVATE);
+
     addPreferencesFromResource(R.xml.preferences);
 
-    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    sharedPreferences = prefMgr.getSharedPreferences();
 
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);
@@ -55,7 +61,7 @@ public class SettingsActivity extends PreferenceActivity implements
     addressPref.setSummary(sharedPreferences.getString("address", ""));
     addressPref.setOnPreferenceChangeListener(this);
 
-    emailPref = (EditTextPreference) findPreference("email");
+    emailPref = (CustomEditTextPreference) findPreference("email");
     emailPref.setSummary(getShortAddress(sharedPreferences.getString("email", "")));
     emailPref.setOnPreferenceChangeListener(this);
 
@@ -90,6 +96,22 @@ public class SettingsActivity extends PreferenceActivity implements
     }
   }
 
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    // Set up a listener whenever a key changes
+    getPreferenceScreen().getSharedPreferences()
+        .registerOnSharedPreferenceChangeListener(this);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    // Unregister the listener whenever a key changes
+    getPreferenceScreen().getSharedPreferences()
+        .unregisterOnSharedPreferenceChangeListener(this);
+  }
 
   @Override
   public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -161,5 +183,15 @@ public class SettingsActivity extends PreferenceActivity implements
       }
     }
     return str.toString();
+  }
+
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    Preference pref = findPreference(key);
+    if (pref instanceof EditTextPreference && !key.equals("password")) {
+      EditTextPreference editTextPref = (EditTextPreference) pref;
+      String s = ((EditTextPreference) pref).getText();
+      pref.setSummary(s);
+    }
   }
 }

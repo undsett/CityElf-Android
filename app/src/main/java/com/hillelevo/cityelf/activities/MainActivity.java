@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   //Save and load data to Shared Prefs
 
-  private void saveToSharedPrefs(String type, String data) {
+  public static void saveToSharedPrefs(String type, String data) {
     Log.d(TAG, "MainActivity savedToSharedPrefs: " + type + ", " + data);
     SharedPreferences.Editor editor = settings.edit();
     editor.putString(type, data);
@@ -241,6 +241,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     editor.apply();
   }
 
+  public static String loadStringFromSharedPRefs(String prefKey) {
+    if (settings != null && settings.contains(prefKey)) {
+      Log.d(TAG, "MainActivity mSettings != null, loading registration status");
+      return settings.getString(prefKey, "");
+    } else {
+      Log.d(TAG, "MainActivity mSettings != null, no registration status");
+      return "";
+    }
+  }
+
   public static boolean loadBooleanStatusFromSharedPrefs(String prefKey) {
     //Check for data by id
     if (settings != null && settings.contains(prefKey)) {
@@ -251,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       return false;
     }
   }
-
 
   // AlertDialog for firebase testing
 

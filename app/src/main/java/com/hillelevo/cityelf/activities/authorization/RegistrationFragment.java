@@ -1,11 +1,15 @@
 package com.hillelevo.cityelf.activities.authorization;
 
+import static com.hillelevo.cityelf.Constants.TAG;
+
 import android.app.AlertDialog;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +32,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.PlaceArrayAdapter;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
@@ -35,11 +40,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class RegistrationFragment extends Fragment implements JsonMessageResponse, OnClickListener, GoogleApiClient.OnConnectionFailedListener,
-    GoogleApiClient.ConnectionCallbacks{
+public class RegistrationFragment extends Fragment implements JsonMessageResponse, OnClickListener,
+    GoogleApiClient.OnConnectionFailedListener,
+    GoogleApiClient.ConnectionCallbacks {
 
   EditText etEmail, etPhone, etAddress, etPassword;
   Button btnRegister;
+
+  private String email = null;
+  private int phone = 0;
+  private String address = "";
+  private String password = null;
 
   UserLocalStore userLocalStore;
   User registeredUser = new User(null, null, 0, null, null);
@@ -76,49 +87,50 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     switch (v.getId()) {
       case R.id.btnRegister:
 
-        int phone = 0;
-        String address = "";
-
-        String email = etEmail.getText().toString();
-        if (email.matches("")) {
-          Toast.makeText(getContext(), "You did not enter a email", Toast.LENGTH_SHORT).show();
-        }
+        email = etEmail.getText().toString();
         if (etPhone.getText().length() != 0) {
-           phone = Integer.parseInt(etPhone.getText().toString());
-        }else{
+          phone = Integer.parseInt(etPhone.getText().toString());
+        } else {
           phone = 0;
         }
         if (etAddress.getText().length() != 0) {
           address = etAddress.getText().toString();
-        }else{
-          address = "";
+        } else {
+          address = userLocalStore.getStoredAddress();
         }
-        String password = etPassword.getText().toString();
-        if (password.matches("")) {
-          Toast.makeText(getContext(), "You did not enter a password", Toast.LENGTH_SHORT).show();
-        }
+        password = etPassword.getText().toString();
 
-//        UserLocalStore userLocalStore = null;
-//        userLocalStore.getLoggedInUser();
-        Toast.makeText(getContext(), "FIREBASE ID IS " + userLocalStore.getStoredToken(), Toast.LENGTH_SHORT).show();
-
-        registeredUser = new User(userLocalStore.getStoredToken(),email, phone, address, password);
-
-        String bodyParams = "firebaseid=" + registeredUser.getFirebaseId() + "&email=" + email + "&password=" + password;
-
-        if (!email.equals("") && !address.equals("") && !password.equals("")) {
-
-          new JsonMessageTask(RegistrationFragment.this).execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams);
+        if (email.equals("")) {
+          Toast.makeText(getContext(), "Введите email", Toast.LENGTH_SHORT).show();
           break;
-
-        } else if (email.equals("")) {
-          Toast.makeText(getContext(), "Please enter email", Toast.LENGTH_SHORT).show();
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+          Toast.makeText(getContext(), "Вы ввели неправильный email", Toast.LENGTH_SHORT).show();
           break;
+        } else if (phone != 0) {
+          String checkPhone = Integer.toString(phone);
+          if (!Patterns.PHONE.matcher(checkPhone).matches()){
+            Toast.makeText(getContext(), "Вы ввели неправильный номер телефона", Toast.LENGTH_SHORT).show();
+            break;
+          }
         } else if (address.equals("")) {
-          Toast.makeText(getContext(), "Please enter address", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getContext(), "Введите адрес", Toast.LENGTH_SHORT).show();
           break;
         } else if (password.equals("")) {
-          Toast.makeText(getContext(), "Please enter password", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getContext(), "Введите пароль", Toast.LENGTH_SHORT).show();
+          break;
+        } else if (password.length() < 4) {
+          Toast.makeText(getContext(), "Пароль должен содержать больше четырех символов",
+              Toast.LENGTH_SHORT).show();
+          break;
+        } else {
+          Toast.makeText(getContext(), "FIREBASE ID IS " + userLocalStore.getStoredToken(),
+              Toast.LENGTH_SHORT).show();
+
+          String bodyParams =
+              "firebaseid=" + userLocalStore.getStoredToken() + "&email=" + email + "&password="
+                  + password;
+          new JsonMessageTask(RegistrationFragment.this)
+              .execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams);
           break;
         }
     }
@@ -127,7 +139,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
   @Override
   public void messageResponse(String output) {
     if (output == null || output.isEmpty()) {
-      showErrorMessage("Registration failed");
+      showMessage("Registration failed");
       registeredUser = null;
     } else {
       try {
@@ -136,19 +148,22 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
           int code = jsonObject.getInt("code");
           String message = jsonObject.getString("message");
 
-          showErrorMessage(message+code);
+          showMessage(message + code);
 
           if (code == 11 && message.equals("User registration OK")) {
 
-//            authenticate(returnedUser);
-            showErrorMessage(message);
+            registeredUser = new User(userLocalStore.getStoredToken(), email, phone, address,
+                password);
 
-          }else{
-            showErrorMessage(message);
+            authenticate(registeredUser);
+            showMessage(message);
+
+          } else {
+            showMessage(message);
             registeredUser = null;
           }
         } else {
-          showErrorMessage("Registration failed");
+          showMessage("Registration failed");
         }
 
 
@@ -158,8 +173,20 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     }
   }
 
+  private void authenticate(User registeredUser) {
 
-  private void showErrorMessage(String massage) {
+    Log.d(TAG, registeredUser.getEmail() + " Registered");
+
+    userLocalStore.storeUserData(registeredUser);
+    userLocalStore.setUserLoggedIn(true);
+
+    showMessage("На Ваш email выслана ссылка для подтверждения регистрации.");
+
+    Intent intent = new Intent(getContext(), MainActivity.class);
+    RegistrationFragment.this.startActivity(intent);
+  }
+
+  private void showMessage(String massage) {
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
     dialogBuilder.setMessage(massage);
     dialogBuilder.setPositiveButton("Ok", null);

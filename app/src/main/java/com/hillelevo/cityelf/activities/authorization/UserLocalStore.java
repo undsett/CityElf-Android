@@ -1,6 +1,8 @@
 package com.hillelevo.cityelf.activities.authorization;
 
 
+import com.hillelevo.cityelf.Constants.Prefs;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -10,12 +12,18 @@ public class UserLocalStore {
   private SharedPreferences userLocalDatabase;
 
   public UserLocalStore(Context context) {
-    userLocalDatabase = context.getSharedPreferences(SP_NAME, 0);
+    userLocalDatabase = context.getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
   }
 
-  public void storeToken(String token){
+  public void storeToken(String token) {
     SharedPreferences.Editor spEditor = userLocalDatabase.edit();
     spEditor.putString("firebase_id", token);
+    spEditor.commit();
+  }
+
+  public void storeAddress(String address) {
+    SharedPreferences.Editor spEditor = userLocalDatabase.edit();
+    spEditor.putString("address", address);
     spEditor.commit();
   }
 
@@ -41,10 +49,13 @@ public class UserLocalStore {
     return storedUser;
   }
 
-  public String getStoredToken(){
+  public String getStoredToken() {
     return userLocalDatabase.getString("firebase_id", "");
   }
 
+  public String getStoredAddress() {
+    return userLocalDatabase.getString("address", "");
+  }
 
   public void setUserLoggedIn(Boolean loggedIn) {
     SharedPreferences.Editor spEditor = userLocalDatabase.edit();

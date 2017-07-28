@@ -19,6 +19,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
@@ -34,6 +35,7 @@ public class SettingsActivity extends PreferenceActivity implements
   private EditTextPreference addressPref;
   private EditTextPreference emailPref;
   private Preference exit;
+  private RingtonePreference ringtonePref;
 
   private SharedPreferences sharedPreferences;
 
@@ -67,6 +69,9 @@ public class SettingsActivity extends PreferenceActivity implements
     emailPref = (EditTextPreference) findPreference("email");
     emailPref.setSummary(getShortAddress(sharedPreferences.getString("email", "")));
     emailPref.setOnPreferenceChangeListener(this);
+
+    ringtonePref = (RingtonePreference) findPreference("ringtonePref");
+    ringtonePref.setOnPreferenceChangeListener(this);
 
     exit = (Preference) findPreference("exit");
     exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -149,11 +154,9 @@ public class SettingsActivity extends PreferenceActivity implements
         addressPref.setSummary(addressPref.getText());
         break;
       case "email":
-        //todo user update email request
-        String s = emailPref.getText();
         emailPref.setSummary(getShortAddress(emailPref.getText()));
         break;
-    }
+      }
     return true;
   }
 
@@ -177,9 +180,13 @@ public class SettingsActivity extends PreferenceActivity implements
 
       return shortAddress.toString();
     } else {
+      if (address.equals("")) {
+        return "";
+      }
       Toast toast = Toast.makeText(this,
           "Некорректный email", Toast.LENGTH_LONG);
       toast.show();
+      emailPref.setText("");
       return "";
     }
 
@@ -205,7 +212,11 @@ public class SettingsActivity extends PreferenceActivity implements
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
       String s = ((EditTextPreference) pref).getText();
-      pref.setSummary(s);
+      if (key.equals("email")){
+        pref.setSummary(getShortAddress(s));
+      } else if (key.equals("address")) {
+        pref.setSummary(s);
+      }
     }
   }
 }

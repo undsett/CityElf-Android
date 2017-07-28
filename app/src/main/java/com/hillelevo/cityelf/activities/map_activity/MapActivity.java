@@ -340,6 +340,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             && mAutocompleteTextView.length() != 0) {
           if (getVerificationCity()) {
             //todo If the street is not in Odessa
+            MainActivity.saveToSharedPrefs("address", nameOfStreet);
             Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
             startActivity(intentMain);
           }

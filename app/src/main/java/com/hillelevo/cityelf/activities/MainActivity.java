@@ -26,6 +26,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -86,8 +89,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
     if (firstStartApp.isFirstLaunch()) {
-      saveToSharedPrefs(Prefs.REGISTERED, true);
-      saveToSharedPrefs(Prefs.OSMD_ADMIN, true);
       launchFirstTime();
       finish();
 
@@ -95,7 +96,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     //settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-
+    saveToSharedPrefs(Prefs.REGISTERED, true);
+    saveToSharedPrefs(Prefs.OSMD_ADMIN, true);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs

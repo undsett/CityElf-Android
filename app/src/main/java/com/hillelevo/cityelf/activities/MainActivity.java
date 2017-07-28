@@ -8,7 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,12 +31,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.data.Advert;
@@ -46,7 +50,11 @@ import com.hillelevo.cityelf.fragments.NotificationFragment;
 import com.hillelevo.cityelf.fragments.PollFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
@@ -75,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     active = false;
   }
 
+  @RequiresApi(api = VERSION_CODES.N)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -87,9 +96,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
+//    UserLocalStore.getU
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, false);
+    saveToSharedPrefs(Prefs.REGISTERED, true);
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
@@ -98,9 +108,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
     // Fill ViewPager with data
-    // TODO Replace test Notifications, Adverts and Polls with real ones from server
+
+//    startJsonResponse();
+    // TODO !!! Replace test Notifications, Adverts and Polls with real ones from server
     // Generate test Notifications, Adverts and Polls
-    fillTestData();
+//    fillTestData();
     ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
 
     pager.setAdapter(new CustomPagerAdapter(getSupportFragmentManager()));
@@ -199,19 +211,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
   };
 
-  //massage from JsonMassageTask
-  @Override
-  public void messageResponse(String output) {
-    showMessage(output);
-  }
-
-
-  public void showMessage(String message) {
-    Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
-    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-    toast.show();
-  }
-
   //Save and load data to Shared Prefs
 
   private void saveToSharedPrefs(String type, String data) {
@@ -303,47 +302,134 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
   }
 
+  private void startJsonResponse(){
+    UserLocalStore userLocalStore = null;
+    if (firstStartApp.isFirstLaunch()) {
+      userLocalStore.storeAddress(null);
+    } else {
+      String address = "Різдвяна, 4";
+      try {
+        new JsonMessageTask(this)
+            .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
+                Constants.GET);
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  //message from JsonMessageTask
+  @Override
+  public void messageResponse(String output) {
+    showMessage(output);
+    fillTestData(output);
+  }
+
+  public void showMessage(String message) {
+    Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
+    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+    toast.show();
+  }
+
   // Hardcoded method to fill up test Notifications, Adverts and Polls
-  private void fillTestData() {
-    notifications.add(new Notification("Уведомление 1", "Тестовая улица, 1", "2 часа", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест ", 0));
-    notifications.add(new Notification("Уведомление 2", "Тестовая улица, 1", "2 часа", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест ", 0));
-    notifications.add(new Notification("Уведомление 3", "Тестовая улица, 1", "2 часа", "сегодня",
-        "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест ", 0));
-    adverts.add(new Advert("Объявление 1", "Тестовая улица, 1", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест "));
-    adverts.add(new Advert("Объявление 2", "Тестовая улица, 1", "сегодня",
-        "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест "));
-    adverts.add(new Advert("Объявление 3", "Тестовая улица, 1", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест "));
-    polls.add(new Poll("Опрос 1", "Тестовая улица, 1", "2 часа", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
-        "Вариант 3", "Вариант 4", 10));
-    polls.add(new Poll("Опрос 2", "Тестовая улица, 1", "2 часа", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
-        "Вариант 3", "", 30));
-    polls.add(new Poll("Опрос 3", "Тестовая улица, 1", "2 часа", "сегодня",
-        "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-            + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
-        "", "", 20));
+  private void fillTestData(String message) {
+    JSONObject jsonObject  = null;
+    JSONObject addressJsonObject = null;
+    String title = null;
+    String start = null;
+    String estimatedStop = null;
+    String address = null;
+    int count = 0;
+
+    if (message == null || message.isEmpty()) {
+      showMessage("No Forecast");
+    } else {
+      try {
+        jsonObject = new JSONObject(message);
+
+        while (count < jsonObject.length()) {
+
+          if (jsonObject.getJSONObject("Water") != null) {
+
+            JSONObject waterJsonObject = jsonObject.getJSONObject("Water");
+            title = "Отключение воды";
+            start = waterJsonObject.getString("start");
+            estimatedStop = waterJsonObject.getString("estimatedStop");
+
+            addressJsonObject = waterJsonObject.getJSONObject("address");
+            address = addressJsonObject.getString("address");
+            continue;
+          } else if(jsonObject.getJSONObject("Gas") != null){
+            JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
+            title = "Отключение газа";
+            start = gasJsonObject.getString("start");
+            estimatedStop = gasJsonObject.getString("estimatedStop");
+
+            addressJsonObject = gasJsonObject.getJSONObject("address");
+            address = addressJsonObject.getString("address");
+            continue;
+          } else if(jsonObject.getJSONObject("Electricity") != null){
+
+            JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
+
+            title = "Отключение света";
+            start = electricityJsonObject.getString("start");
+            estimatedStop = electricityJsonObject.getString("estimatedStop");
+
+            addressJsonObject = electricityJsonObject.getJSONObject("address");
+            address = addressJsonObject.getString("address");
+            continue;
+          }
+
+          count ++;
+
+      notifications
+          .add(new Notification(title, "Тестовая улица, 1", "2 часа", start,
+              "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+                  + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+                  + "тест тест тест тест тест тест тест ", 0));
+//      notifications.add(new Notification("Уведомление 2", "Тестовая улица, 1", "2 часа", "сегодня",
+//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест ", 0));
+//      notifications.add(new Notification("Уведомление 3", "Тестовая улица, 1", "2 часа", "сегодня",
+//          "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест ", 0));
+//      adverts.add(new Advert("Объявление 1", "Тестовая улица, 1", "сегодня",
+//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест "));
+//      adverts.add(new Advert("Объявление 2", "Тестовая улица, 1", "сегодня",
+//          "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест "));
+//      adverts.add(new Advert("Объявление 3", "Тестовая улица, 1", "сегодня",
+//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест "));
+//      polls.add(new Poll("Опрос 1", "Тестовая улица, 1", "2 часа", "сегодня",
+//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
+//          "Вариант 3", "Вариант 4", 10));
+//      polls.add(new Poll("Опрос 2", "Тестовая улица, 1", "2 часа", "сегодня",
+//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
+//          "Вариант 3", "", 30));
+//      polls.add(new Poll("Опрос 3", "Тестовая улица, 1", "2 часа", "сегодня",
+//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+//              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
+//          "", "", 20));
+    }
+
+      }catch(JSONException e){
+        e.printStackTrace();
+      }
+
+    }
   }
 
   /**

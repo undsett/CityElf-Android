@@ -47,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.WebUrls;
@@ -302,7 +303,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       case R.id.btnCheckStatus:
         //todo send request to status
         if (nameOfStreet != null) {
-          new JsonMessageTask(this).execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL, null);
+          new JsonMessageTask(this).execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL,
+              Constants.GET);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Введите адрес");

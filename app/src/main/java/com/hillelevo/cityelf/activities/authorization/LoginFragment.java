@@ -24,6 +24,8 @@ import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import java.util.concurrent.ExecutionException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +35,8 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   TextView tvRegisteraitUser;
   Button btnLogin;
   OnRegisteraitNewClickListener listner;
+
+  private String password = null;
 
   UserLocalStore userLocalStore;
   User returnedUser = new User(null, null, 0, null, null);
@@ -69,24 +73,16 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
       case R.id.btnLogin:
 
         String email = etLogEmail.getText().toString();
-        String password = etLogPassword.getText().toString();
+        password = etLogPassword.getText().toString();
 
 //        returnedUser = new User(userLocalStore.getStoredToken(),email, password);
 
         String bodyParams = "email=" + email + "&password=" + password;
 
         if (!email.isEmpty() && !password.isEmpty()) {
-//          try {
-//            new JsonMessageTask(LoginFragment.this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, email, password);
-            new JsonMessageTask(LoginFragment.this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
-//            checkResponse(responseMessage);
-//          } catch (InterruptedException e) {
-//            e.printStackTrace();
-//          } catch (ExecutionException e) {
-//            e.printStackTrace();
-//          }
 
-//          new JsonMassageTask(this).execute(Constants.AUTHORIZATION_URL, Constants.POST, user.authCertificate);
+            new JsonMessageTask(LoginFragment.this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
+//          new JsonMessageTask(this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, returnedUser.getAuthCertificate());
           break;
         } else if (email.equals("")) {
           Toast.makeText(getContext(), "Please enter email", Toast.LENGTH_SHORT).show();
@@ -116,12 +112,23 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
       JSONObject jsonObject = new JSONObject(output);
       if (jsonObject != null) {
 
-        int code = jsonObject.getInt("code");
-        String message = jsonObject.getString("message");
+        JSONObject statusJsonObject = jsonObject.getJSONObject("status");
+
+        int code = statusJsonObject.getInt("code");
+        String message = statusJsonObject.getString("message");
 
         showErrorMessage(message);
 
         if (code == 33 && message.equals("Your login and password is correct")) {
+
+          JSONObject userJsonObject = jsonObject.getJSONObject("user");
+          int id = userJsonObject.getInt("id");
+          String email = userJsonObject.getString("email");
+          int phone = userJsonObject.getInt("phone");
+
+          JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
+          String address = addressJsonArray.getString(2);
+          returnedUser = new User(userLocalStore.getStoredToken(), email, phone, address, password);
 
           authenticate(returnedUser);
 

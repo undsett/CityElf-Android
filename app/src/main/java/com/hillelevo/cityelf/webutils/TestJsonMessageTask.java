@@ -2,14 +2,16 @@ package com.hillelevo.cityelf.webutils;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Build.VERSION_CODES;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -17,13 +19,23 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class JsonMessageTask extends AsyncTask<String, Void, String> {
+public class TestJsonMessageTask extends AsyncTask<String, Void, String> {
 
   private JsonMessageResponse response = null;
 
-  public JsonMessageTask(JsonMessageResponse listener) {
+  public TestJsonMessageTask(JsonMessageResponse listener) {
     response = listener;
+  }
+
+  public TestJsonMessageTask(Activity activity) {
   }
 
 
@@ -86,7 +98,44 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           Log.d(TAG, "Response Code is: " + responseCode);
         }
 
+      } else if (params[1] != null && params[1].equals("PUT")){
+
+//        JSONObject updatePreferenceObject = new JSONObject();
+//        try {
+//          updatePreferenceObject.put("id", 50);
+//          updatePreferenceObject.put("phone", "068333");
+//        } catch (JSONException e) {
+//          e.printStackTrace();
+//        }
+
+        url = new URL(params[0]);
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.addRequestProperty("id", "44");
+        connection.addRequestProperty("phone", "068333");
+        connection.getHeaderField("application/json");
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+
+
+//        connection.setRequestProperty(Constants.AUTH, "Basic c2Fsb21hdGtpbkBnbWFpbC5jb206MTIzNDU2cXdlcnR5");
+
+//        outputStream = connection.getOutputStream();
+//        outputStream.write(params[2].getBytes());
+////        outputStream.write(Integer.parseInt(updatePreferenceObject.toString()));
+//        outputStream.flush();
+//        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+
+        Log.d(TAG, "Response Code is: " + responseCode);
+
+        if (responseCode != 200) {
+
+        }
+
       }
+
 
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       buffer = new StringBuffer();

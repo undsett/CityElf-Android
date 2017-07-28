@@ -1,6 +1,8 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
 
@@ -20,6 +22,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.MenuItem;
 import android.widget.Toast;
+import com.hillelevo.cityelf.activities.authorization.LoginFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.TestJsonMessageTask;
+import java.util.concurrent.ExecutionException;
+import junit.framework.Test;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SettingsActivity extends PreferenceActivity implements
     OnPreferenceChangeListener {
@@ -93,6 +102,25 @@ public class SettingsActivity extends PreferenceActivity implements
 
   @Override
   public boolean onPreferenceChange(Preference preference, Object newValue) {
+    JSONObject updatePreferenceObject = new JSONObject();
+    try {
+      updatePreferenceObject.put("id", "50");
+      updatePreferenceObject.put("phone", "068333");
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+//    String value = String.valueOf(newValue);
+    try {
+      String res = new TestJsonMessageTask(this).execute(WebUrls.UPDATE_USER_URL, "PUT", updatePreferenceObject.toString()).get();
+//      String res = new TestJsonMessageTask(this).execute(WebUrls.UPDATE_USER_URL, "PUT").get();
+      if (res.isEmpty()){
+
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
     switch (preference.getKey()) {
       case "notificationSms":
         //// TODO: 17.06.17 send sms status

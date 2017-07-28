@@ -4,17 +4,25 @@ import static com.hillelevo.cityelf.Constants.TAG;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.activities.MainActivity;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 
 public class FirebaseMessageService extends FirebaseMessagingService {
+
+  SharedPreferences settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
+
 
   @Override
   public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -41,7 +49,10 @@ public class FirebaseMessageService extends FirebaseMessagingService {
         new NotificationCompat.Builder(this)
             .setSmallIcon(android.R.drawable.ic_menu_edit)
             .setContentTitle("Новое событие:")
-            .setContentText(notification);
+            .setContentText(notification)
+            .setSound(getSoundFromPref())
+            .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000});
+
     int NOTIFICATION_ID = 1;
 
     // Notification click
@@ -52,5 +63,19 @@ public class FirebaseMessageService extends FirebaseMessagingService {
     NotificationManager nManager = (NotificationManager) getSystemService(
         Context.NOTIFICATION_SERVICE);
     nManager.notify(NOTIFICATION_ID, builder.build());
+  }
+
+  public Uri getSoundFromPref() {
+    Uri notification = null;
+    if (settings.contains("ringtonePref")){
+      notification = Uri.parse(MainActivity.loadStringFromSharedPRefs("ringtonePref"));
+      Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+      r.play();
+    } else{
+      notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+      Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+      r.play();
+    }
+    return notification;
   }
 }

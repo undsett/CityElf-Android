@@ -4,6 +4,7 @@
   <string name="json_test">json_test</string>
   <string name="map_test">map_test</string>
   <string name="action_enter">enter</string>
+  <string name="action_osmd">osmd_admin</string>
   <!-- Strings related to Settings -->
 
   <!-- Example General settings -->
@@ -132,6 +133,7 @@
   <string name="title_activity_first">FirstActivity</string>
   <string name="settings_test">settings_test</string>
   <string name="about_program">Info about this programg</string>
+  <string name="exit">Выход</string>
   <string name="osmdInfo">Если Вы глава ОСМД, то можете получить дополнительные функции: добавлять объявления, опросы для жильцов дома и следить за их результатами</string>
 
   <string name="many_address">Дополнительные адреса

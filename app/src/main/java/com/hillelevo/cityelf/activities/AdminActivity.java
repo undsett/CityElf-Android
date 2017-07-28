@@ -15,7 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-public class AdminActvity extends FragmentActivity {
+public class AdminActivity extends FragmentActivity {
 
   private TabLayout tabLayout;
 

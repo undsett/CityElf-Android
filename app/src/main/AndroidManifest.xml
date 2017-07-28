@@ -75,6 +75,13 @@
       </intent-filter>
     </activity>
 
+    <activity android:name=".activities.AdminActivity">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AdminActvity" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />

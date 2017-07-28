@@ -78,6 +78,7 @@
       android:layout_weight="1"
       android:textSize="18sp"
       android:text="@string/dialog_login"
+      android:background="@drawable/background_authorization_btn"
       android:visibility="gone"/>
 
     <Button
@@ -88,6 +89,7 @@
       android:layout_weight="1"
       android:textSize="18sp"
       android:text="@string/dialog_register"
+      android:background="@drawable/background_authorization_btn"
       android:visibility="gone"/>
 
   </LinearLayout>

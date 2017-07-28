@@ -144,4 +144,19 @@
   <string name="you_document">Добавьте документ, подтверждающий Вашу должность</string>
   <string name="add_document">Добавить документ</string>
   <string name="send_requet">Отправить запрос</string>
+  <string name="fragment_admin_advert_header">Добавить новое объявление</string>
+  <string name="fragment_admin_advert_name">Название</string>
+  <string name="fragment_admin_advert_address">Адрес</string>
+  <string name="fragment_admin_advert_content">Описание</string>
+  <string name="fragment_admin_advert_add_button">Добавить</string>
+  <string name="fragment_admin_poll_header">Добавить новый опрос</string>
+  <string name="fragment_admin_poll_name">Название</string>
+  <string name="fragment_admin_poll_address">Адрес</string>
+  <string name="fragment_admin_poll_content">Описание</string>
+  <string name="fragment_admin_poll_add_button">Добавить</string>
+  <string name="fragment_admin_poll_variants">Варианты ответа</string>
+  <string name="fragment_admin_poll_add_variant">Добавить вариант ответа</string>
+  <string name="fragment_admin_poll_period">Период голосования</string>
+  <string name="fragment_admin_poll_start">Начальная дата</string>
+  <string name="fragment_admin_poll_finish">Конечная дата</string>
 </resources>

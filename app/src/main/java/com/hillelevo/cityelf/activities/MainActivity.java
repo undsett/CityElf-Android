@@ -30,17 +30,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
@@ -52,12 +45,8 @@ import com.hillelevo.cityelf.fragments.AdvertFragment;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.fragments.NotificationFragment;
 import com.hillelevo.cityelf.fragments.PollFragment;
-import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 

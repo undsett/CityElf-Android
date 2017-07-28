@@ -212,7 +212,8 @@ public class SettingsActivity extends PreferenceActivity implements
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
       String s = ((EditTextPreference) pref).getText();
-      if (key.equals("email")){
+
+      if (key.equals("email")) {
         pref.setSummary(getShortAddress(s));
       } else if (key.equals("address")) {
         pref.setSummary(s);

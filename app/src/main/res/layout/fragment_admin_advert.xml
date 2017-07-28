@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical" android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:layout_margin="15dp">
+
+  <TextView
+    android:id="@+id/tvAdminAdvertHeader"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/fragment_admin_advert_header"
+    android:textAppearance="@style/TextFontBold" />
+
+  <TextView
+    android:id="@+id/tvAdminAdvertName"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="25dp"
+    android:text="@string/fragment_admin_advert_name"
+    android:textAppearance="@style/TextFontBold" />
+
+  <EditText
+    android:id="@+id/etAdminAdvertName"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/background_authorization_et"
+    android:textSize="14sp" />
+
+  <TextView
+    android:id="@+id/name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:layout_alignStart="@+id/head"
+    android:layout_below="@+id/addressAdministation"
+    android:text="@string/firstLast_name"
+    android:textAppearance="@style/TextFontStandard" />
+
+  <EditText
+    android:id="@+id/fistNameLastName"
+    android:layout_width="345dp"
+    android:layout_height="35dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp"
+    android:layout_alignParentEnd="true"
+    android:layout_below="@+id/name"
+    android:paddingLeft="15sp"
+    android:background="@drawable/background_authorization_et"
+    android:textSize="14sp" />
+
+  <TextView
+    android:id="@+id/administrationDocument"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:layout_alignStart="@+id/head"
+    android:layout_below="@+id/fistNameLastName"
+    android:text="@string/you_document"
+    android:textAppearance="@style/TextFontStandard" />
+  <Button
+    android:id="@+id/btn_add_document"
+    android:layout_width="166dp"
+    android:layout_height="30dp"
+    android:layout_marginTop="8dp"
+    android:layout_alignStart="@+id/administrationDocument"
+    android:layout_below="@+id/administrationDocument"
+    android:layout_centerVertical="true"
+    android:background="@drawable/background_authorization_et"
+    android:text="@string/add_document"
+    android:textAllCaps="false" />
+
+  <View
+    android:id="@+id/view"
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="35dp"
+    android:layout_below="@+id/btn_add_document"
+    android:background="@android:color/darker_gray" />
+
+  <Button
+    android:id="@+id/btn_send_request"
+    android:layout_width="166dp"
+    android:layout_height="30dp"
+    android:layout_marginTop="60dp"
+    android:layout_alignStart="@+id/administrationDocument"
+    android:layout_below="@+id/btn_add_document"
+    android:layout_centerVertical="true"
+    android:background="@drawable/background_authorization_btn"
+    android:text="@string/send_requet"
+    android:textAllCaps="false" />
+
+  <ListView
+    android:id="@+id/lvAdvertList"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"/>
+
+</LinearLayout>

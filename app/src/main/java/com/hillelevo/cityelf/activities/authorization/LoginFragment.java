@@ -24,7 +24,6 @@ import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
-import java.util.concurrent.ExecutionException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +38,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   private String password = null;
 
   UserLocalStore userLocalStore;
-  User returnedUser = new User(null, null, 0, null, null);
+  User loggedInUser = new User(null, null, 0, null, null);
   String responseMessage;
 
 
@@ -75,8 +74,6 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
         String email = etLogEmail.getText().toString();
         password = etLogPassword.getText().toString();
 
-//        returnedUser = new User(userLocalStore.getStoredToken(),email, password);
-
         String bodyParams = "email=" + email + "&password=" + password;
 
         if (!email.isEmpty() && !password.isEmpty()) {
@@ -85,10 +82,10 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 //          new JsonMessageTask(this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, returnedUser.getAuthCertificate());
           break;
         } else if (email.equals("")) {
-          Toast.makeText(getContext(), "Please enter email", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getContext(), "Введите email", Toast.LENGTH_SHORT).show();
           break;
         } else if (password.equals("")) {
-          Toast.makeText(getContext(), "Please enter password", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getContext(), "Введите пароль", Toast.LENGTH_SHORT).show();
           break;
         }
 
@@ -107,7 +104,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   public void checkResponse(String output){
     if (output == null || output.isEmpty()) {
 
-      showErrorMessage("LoggedIn failed");
+      showMessage("LoggedIn failed");
     } else {try {
       JSONObject jsonObject = new JSONObject(output);
       if (jsonObject != null) {
@@ -117,28 +114,30 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
         int code = statusJsonObject.getInt("code");
         String message = statusJsonObject.getString("message");
 
-        showErrorMessage(message);
+        showMessage(message);
 
         if (code == 33 && message.equals("Your login and password is correct")) {
 
           JSONObject userJsonObject = jsonObject.getJSONObject("user");
+//          TODO: set id in User and UserLocalStore
           int id = userJsonObject.getInt("id");
           String email = userJsonObject.getString("email");
           int phone = userJsonObject.getInt("phone");
 
           JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
-          String address = addressJsonArray.getString(2);
-          returnedUser = new User(userLocalStore.getStoredToken(), email, phone, address, password);
+          JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
+          String address = addressJsonObject.getString("address");
+          loggedInUser = new User(userLocalStore.getStoredToken(), email, phone, address, password);
 
-          authenticate(returnedUser);
+          authenticate(loggedInUser);
 
         }else{
-          showErrorMessage(message);
-          returnedUser = null;
+          showMessage(message);
+          loggedInUser = null;
         }
       } else {
-        showErrorMessage("Incorrect user details");
-        returnedUser = null;
+        showMessage("Incorrect user details");
+        loggedInUser = null;
       }
 
 
@@ -150,20 +149,20 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
   }
 
-  private void authenticate(User returnedUser) {
+  private void authenticate(User loggedInUser) {
 
-    Log.d(TAG, returnedUser.getEmail() + " Logged In");
+    Log.d(TAG, loggedInUser.getEmail() + " Logged In");
 
-    showErrorMessage("All OK");
+    showMessage("All OK");
 
-    userLocalStore.storeUserData(returnedUser);
+    userLocalStore.storeUserData(loggedInUser);
     userLocalStore.setUserLoggedIn(true);
 
     Intent intent = new Intent(getContext(), MainActivity.class);
     LoginFragment.this.startActivity(intent);
   }
 
-  private void showErrorMessage(String message) {
+  private void showMessage(String message) {
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
     dialogBuilder.setMessage(message);
     dialogBuilder.setPositiveButton("Ok", null);

@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
+    android:id="@+id/addPoll"
+    android:icon="@drawable/btn_add_poll"
+    android:orderInCategory="100"
+    android:title="@string/osmdInfo"
+    app:showAsAction="always" />
+  <item
     android:id="@+id/action_enter"
     android:icon="@drawable/user_white_png"
     android:orderInCategory="100"

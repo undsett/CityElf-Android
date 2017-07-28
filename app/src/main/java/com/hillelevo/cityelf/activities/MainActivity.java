@@ -8,9 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -61,7 +60,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private static String result;
   private boolean registered;
+  private boolean osmd_admin;
   private boolean active;
+  UserLocalStore userLocalStore = null;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
   private ArrayList<Poll> polls = new ArrayList<>();
@@ -83,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     active = false;
   }
 
-  @RequiresApi(api = VERSION_CODES.N)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -96,14 +96,17 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
-//    UserLocalStore.getU
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, true);
+    saveToSharedPrefs(Prefs.REGISTERED, false);
+
+    saveToSharedPrefs(Prefs.OSMD_ADMIN, false);
+
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
-    registered = loadRegisteredStatusFromSharedPrefs();
+    registered = loadBooleanStatusFromSharedPrefs(Prefs.REGISTERED);
+    osmd_admin = loadBooleanStatusFromSharedPrefs(Prefs.OSMD_ADMIN);
 
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
@@ -165,22 +168,24 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu, menu);
+    if (osmd_admin) {
+      getMenuInflater().inflate(R.menu.menu2, menu);
+    } else {
+      getMenuInflater().inflate(R.menu.menu, menu);
+    }
     return true;
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+      case R.id.addPoll:
 
-//      case R.id.json_test:
-//
-//        new JsonMessageTask(this).execute(WebUrls.TEST_URL, null);
-//        showMessage("Loading...");
-//        return true;
-
+        return true;
       case R.id.action_enter:
+
         //// TODO: 17.07.17 This step depends from status-registred
+
         if (registered) {
           Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
           startActivity(intentLogin);
@@ -191,6 +196,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private String getB64Auth(String login, String pass) {
+    String source = login + ":" + pass;
+    String ret =
+        "Basic " + Base64.encodeToString(source.getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
+    return ret;
   }
 
   /**
@@ -213,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   //Save and load data to Shared Prefs
 
-  private void saveToSharedPrefs(String type, String data) {
+  public static void saveToSharedPrefs(String type, String data) {
     Log.d(TAG, "MainActivity savedToSharedPrefs: " + type + ", " + data);
     SharedPreferences.Editor editor = settings.edit();
     editor.putString(type, data);
@@ -227,11 +239,21 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     editor.apply();
   }
 
-  public static boolean loadRegisteredStatusFromSharedPrefs() {
-    //Check for data by id
-    if (settings != null && settings.contains(Prefs.REGISTERED)) {
+  public static String loadStringFromSharedPRefs(String prefKey) {
+    if (settings != null && settings.contains(prefKey)) {
       Log.d(TAG, "MainActivity mSettings != null, loading registration status");
-      return settings.getBoolean(Prefs.REGISTERED, true);
+      return settings.getString(prefKey, "");
+    } else {
+      Log.d(TAG, "MainActivity mSettings != null, no registration status");
+      return "";
+    }
+  }
+
+  public static boolean loadBooleanStatusFromSharedPrefs(String prefKey) {
+    //Check for data by id
+    if (settings != null && settings.contains(prefKey)) {
+      Log.d(TAG, "MainActivity mSettings != null, loading registration status");
+      return settings.getBoolean(prefKey, true);
     } else {
       Log.d(TAG, "MainActivity mSettings != null, no registration status");
       return false;
@@ -302,12 +324,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
   }
 
-  private void startJsonResponse(){
-    UserLocalStore userLocalStore = null;
+  private void startJsonResponse() {
     if (firstStartApp.isFirstLaunch()) {
       userLocalStore.storeAddress(null);
     } else {
-      String address = "Різдвяна, 4";
+      String address = userLocalStore.getStoredAddress();
       try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
@@ -333,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
   private void fillTestData(String message) {
-    JSONObject jsonObject  = null;
+    JSONObject jsonObject = null;
     JSONObject addressJsonObject = null;
     String title = null;
     String start = null;
@@ -359,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             addressJsonObject = waterJsonObject.getJSONObject("address");
             address = addressJsonObject.getString("address");
             continue;
-          } else if(jsonObject.getJSONObject("Gas") != null){
+          } else if (jsonObject.getJSONObject("Gas") != null) {
             JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
             title = "Отключение газа";
             start = gasJsonObject.getString("start");
@@ -368,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             addressJsonObject = gasJsonObject.getJSONObject("address");
             address = addressJsonObject.getString("address");
             continue;
-          } else if(jsonObject.getJSONObject("Electricity") != null){
+          } else if (jsonObject.getJSONObject("Electricity") != null) {
 
             JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
 
@@ -381,13 +402,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             continue;
           }
 
-          count ++;
+          count++;
 
-      notifications
-          .add(new Notification(title, "Тестовая улица, 1", "2 часа", start,
-              "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-                  + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-                  + "тест тест тест тест тест тест тест ", 0));
+          notifications
+              .add(new Notification(title, "Тестовая улица, 1", "2 часа", start,
+                  "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
+                      + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
+                      + "тест тест тест тест тест тест тест ", 0));
 //      notifications.add(new Notification("Уведомление 2", "Тестовая улица, 1", "2 часа", "сегодня",
 //          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
 //              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
@@ -423,9 +444,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 //              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
 //              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
 //          "", "", 20));
-    }
+        }
 
-      }catch(JSONException e){
+      } catch (JSONException e) {
         e.printStackTrace();
       }
 

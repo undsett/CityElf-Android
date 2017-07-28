@@ -9,16 +9,17 @@ public class Constants {
   public static  final String POST = "POST";
   public static final String AUTH = "Authorization";
   public static final int CONNECTION_TIMEOUT = 1000 * 15;
+  public static final String RESPONSE_TO_A_REQUEST = "Ваш запрос отправлен. Мы рассмотрим его в течение 3 рабочих дней, о результате сообщим по электронной почте";
 
   public class WebUrls {
-    public static final String GET_ALL_FORECASTS = "http://192.168.0.120:8088/services/allforecasts/get?address=";
-    public static final String SEND_MASSAGE_URL = "http://localhost:8088/services/users/all";
-    public static final String AUTHORIZATION_URL = "http://192.168.0.120:8088/services/registration/login";
-    public static final String REGISTRATION_URL = "http://ec2-52-91-121-221.compute-1.amazonaws.com:8088/services/registration/register";
-    public static final String UPDATE_USER_URL = "http://192.168.0.120:8088/services/users/updateUser";
+    public static final String GET_ALL_FORECASTS = "http://localhost:8088/services/allforecasts/get?address=";
+    public static final String AUTHORIZATION_URL = "http://localhost:8088/services/registration/login";
+    public static final String REGISTRATION_URL = "http://localhost:8088/services/registration/register";
+    public static final String UPDATE_USER_URL = "http://localhost:8088/services/users/updateUser";
     public static final String TEST_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=улица+Дерибасовская+Одесса+Одесская+область+Украина&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
+    public static final String USER_UPLOAD_URL = "http://localhost:8088/services/users/upload";
   }
 
   public class Actions {
@@ -40,6 +41,7 @@ public class Constants {
   public class Prefs {
     public static final String APP_PREFERENCES = "CityElfPrefs";
     public static final String REGISTERED = "Registered";
+    public static final String OSMD_ADMIN = "OsmdAdministrate";
     public static final String ADDRESS_1 = "Address1";
     public static final String ADDRESS_2 = "Address2";
     public static final String ADDRESS_3 = "Address3";

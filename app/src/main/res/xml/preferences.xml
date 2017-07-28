@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
   <PreferenceCategory android:title="Настройки">
-    <EditTextPreference
+
+    <com.hillelevo.cityelf.activities.setting_activity.CustomEditTextPreference
       android:defaultValue="@string/default_email"
-      android:key="emailPref"
-      android:title="Электронная почта" />
+      android:key="email"
+      android:maxLines="1"
+      android:title="Электронная почта"/>
     <EditTextPreference
       android:defaultValue="@string/default_pass"
       android:inputType="textPassword"
-      android:key="passwordPref"
+      android:maxLines="1"
+      android:key="password"
       android:title="Пароль" />
     <EditTextPreference
       android:defaultValue="@string/default_street"
-      android:key="streetPref"
+      android:key="address"
       android:title="Текущий адрес" />
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="manyAddressPref"
       android:title="Дополнительные адреса">
       <intent android:action="com.hillelevo.cityelf.ManyAddress" />
+    </Preference>
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+      android:key="mapActivityPref"
+      android:title="Карта">
+      <intent android:action="com.hillelevo.cityelf.MapActivity" />
     </Preference>
   </PreferenceCategory>
 
@@ -45,7 +53,12 @@
   </PreferenceCategory>
 
   <PreferenceCategory android:title="">
-
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+      android:key="aboutProgram"
+      android:title="Функции администратора"
+      android:summary="@string/osmdInfo">
+      <intent android:action="com.hillelevo.cityelf.AuthenticationOSMD" />
+    </Preference>
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="aboutProgram"
       android:title="О программе">

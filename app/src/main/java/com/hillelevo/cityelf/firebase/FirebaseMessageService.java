@@ -42,6 +42,7 @@ public class FirebaseMessageService extends FirebaseMessagingService {
             .setSmallIcon(android.R.drawable.ic_menu_edit)
             .setContentTitle("Новое событие:")
             .setContentText(notification);
+    //// TODO: 27.07.17 тут вызвать setVibrate, setMusicj
     int NOTIFICATION_ID = 1;
 
     // Notification click

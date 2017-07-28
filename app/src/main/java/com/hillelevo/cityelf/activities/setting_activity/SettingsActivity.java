@@ -4,7 +4,7 @@ package com.hillelevo.cityelf.activities.setting_activity;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +16,7 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
@@ -31,7 +32,8 @@ public class SettingsActivity extends PreferenceActivity implements
   private SwitchPreference notificationSMS;
   private ListPreference languagePref;
   private EditTextPreference addressPref;
-  private CustomEditTextPreference emailPref;
+  private EditTextPreference emailPref;
+  private Preference exit;
 
   private SharedPreferences sharedPreferences;
 
@@ -62,9 +64,19 @@ public class SettingsActivity extends PreferenceActivity implements
     addressPref.setSummary(sharedPreferences.getString("address", ""));
     addressPref.setOnPreferenceChangeListener(this);
 
-    emailPref = (CustomEditTextPreference) findPreference("email");
+    emailPref = (EditTextPreference) findPreference("email");
     emailPref.setSummary(getShortAddress(sharedPreferences.getString("email", "")));
     emailPref.setOnPreferenceChangeListener(this);
+
+    exit = (Preference) findPreference("exit");
+    exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+      @Override
+      public boolean onPreferenceClick(Preference preference) {
+        UserLocalStore userLocalStore = new UserLocalStore(SettingsActivity.super.getBaseContext());
+        userLocalStore.clearUserData();
+        return false;
+      }
+    });
 
 
   }
@@ -191,6 +203,7 @@ public class SettingsActivity extends PreferenceActivity implements
     Preference pref = findPreference(key);
     if (pref instanceof EditTextPreference && !key.equals("password")) {
       EditTextPreference editTextPref = (EditTextPreference) pref;
+      //// TODO: 27.07.17 send to server
       String s = ((EditTextPreference) pref).getText();
       pref.setSummary(s);
     }

@@ -335,13 +335,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         /*
         *You need to send to the server variable - "nameOfStreet"
         */
-        if (getVerificationCity()) {
-          //todo If the street is not in Odessa
-        }
 
-        if (mAutocompleteTextView.length() != 0 /*todo add check status of request status*/) {
-          Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
-          startActivity(intentMain);
+        if (nameOfStreet != null && mAutocompleteTextView != null
+            && mAutocompleteTextView.length() != 0) {
+          if (getVerificationCity()) {
+            //todo If the street is not in Odessa
+            Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
+            startActivity(intentMain);
+          }
+        } else {
+          getToast("Неверный адресс");
         }
         break;
     }

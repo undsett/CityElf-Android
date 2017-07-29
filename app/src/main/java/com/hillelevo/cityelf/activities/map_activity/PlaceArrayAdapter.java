@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf.activities.map_activity;
 
+import static com.hillelevo.cityelf.Constants.TAG;
+
 import android.content.Context;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -23,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 public class PlaceArrayAdapter
     extends ArrayAdapter<PlaceArrayAdapter.PlaceAutocomplete> implements Filterable {
 
-  private static final String TAG = "PlaceArrayAdapter";
   private GoogleApiClient mGoogleApiClient;
   private AutocompleteFilter mPlaceFilter;
   private LatLngBounds mBounds;
@@ -65,7 +66,7 @@ public class PlaceArrayAdapter
 
   private ArrayList<PlaceAutocomplete> getPredictions(CharSequence constraint) {
     if (mGoogleApiClient != null) {
-      Log.i(TAG, "Executing autocomplete query for: " + constraint);
+      Log.d(TAG, "Executing autocomplete query for: " + constraint);
       PendingResult<AutocompletePredictionBuffer> results =
           Places.GeoDataApi
               .getAutocompletePredictions(mGoogleApiClient, constraint.toString(),
@@ -77,13 +78,13 @@ public class PlaceArrayAdapter
       if (!status.isSuccess()) {
         Toast.makeText(getContext(), "Error: " + status.toString(),
             Toast.LENGTH_SHORT).show();
-        Log.e(TAG, "Error getting place predictions: " + status
+        Log.d(TAG, "Error getting place predictions: " + status
             .toString());
         autocompletePredictions.release();
         return null;
       }
 
-      Log.i(TAG, "Query completed. Received " + autocompletePredictions.getCount()
+      Log.d(TAG, "Query completed. Received " + autocompletePredictions.getCount()
           + " predictions.");
       Iterator<AutocompletePrediction> iterator = autocompletePredictions.iterator();
       ArrayList resultList = new ArrayList<>(autocompletePredictions.getCount());
@@ -96,7 +97,7 @@ public class PlaceArrayAdapter
       autocompletePredictions.release();
       return resultList;
     }
-    Log.e(TAG, "Google API client is not connected.");
+    Log.d(TAG, "Google API client is not connected.");
     return null;
   }
 

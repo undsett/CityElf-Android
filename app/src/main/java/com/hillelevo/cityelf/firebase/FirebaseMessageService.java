@@ -51,7 +51,7 @@ public class FirebaseMessageService extends FirebaseMessagingService {
             .setContentTitle("Новое событие:")
             .setContentText(notification)
             .setSound(getSoundFromPref())
-            .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000});
+            .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
     int NOTIFICATION_ID = 1;
 
@@ -67,11 +67,11 @@ public class FirebaseMessageService extends FirebaseMessagingService {
 
   public Uri getSoundFromPref() {
     Uri notification = null;
-    if (settings.contains("ringtonePref")){
+    if (settings.contains("ringtonePref")) {
       notification = Uri.parse(MainActivity.loadStringFromSharedPRefs("ringtonePref"));
       Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
       r.play();
-    } else{
+    } else {
       notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
       Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
       r.play();

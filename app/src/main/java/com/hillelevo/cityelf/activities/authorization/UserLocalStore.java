@@ -21,6 +21,12 @@ public class UserLocalStore {
     spEditor.commit();
   }
 
+  public void storeAddress(String address) {
+    SharedPreferences.Editor spEditor = userLocalDatabase.edit();
+    spEditor.putString("address", address);
+    spEditor.commit();
+  }
+
   public void storeUserData(User user) {
     SharedPreferences.Editor spEditor = userLocalDatabase.edit();
     spEditor.putString("firebase_id", user.getFirebaseId());
@@ -47,6 +53,9 @@ public class UserLocalStore {
     return userLocalDatabase.getString("firebase_id", "");
   }
 
+  public String getStoredAddress() {
+    return userLocalDatabase.getString("address", "");
+  }
 
   public void setUserLoggedIn(Boolean loggedIn) {
     SharedPreferences.Editor spEditor = userLocalDatabase.edit();

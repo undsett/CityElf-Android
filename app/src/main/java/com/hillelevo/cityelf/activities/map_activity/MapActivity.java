@@ -166,15 +166,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.action_enter:
-        //// TODO: 17.07.17 This step depends from status-registred
-        if (registered) {
+      case R.id.settings:
+        //// TODO: 17.07.17 This step depends from status-registered
           Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
           startActivity(intentLogin);
-        } else {
-          Intent intentLogin = new Intent(MapActivity.this, AuthorizationActivity.class);
-          startActivity(intentLogin);
-        }
         return true;
     }
     return super.onOptionsItemSelected(item);
@@ -356,7 +351,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             startActivity(intentMain);
           }
         }} else {
-          getToast("Неверный адресс");
+          getToast("Неверный адрес");
         }
         break;
     }

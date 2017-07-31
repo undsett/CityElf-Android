@@ -18,8 +18,8 @@
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
     android:minSdkVersion="8"
-    android:supportsRtl="true"
     android:name=".CityElf"
+    android:supportsRtl="true"
     android:theme="@style/AppTheme">
 
     <!-- Splash activity -->
@@ -43,16 +43,20 @@
         <action android:name="com.hillelevo.cityelf.MapActivity" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
-      </activity>
+    </activity>
 
     <activity android:name=".activities.MainActivity" />
 
     <activity
       android:label="@string/title_activity_settings"
-      android:name=".activities.setting_activity.SettingsActivity"/>
+      android:name=".activities.setting_activity.SettingsActivity" />
 
-    <activity
-        android:name=".activities.authorization.AuthorizationActivity" />
+    <activity android:name=".activities.authorization.AuthorizationActivity">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AuthorizationActivity" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
 
     <activity android:name=".activities.setting_activity.AboutProgram">
       <intent-filter>
@@ -93,7 +97,7 @@
              Note that the API key is linked to the encryption key used to sign the APK.
              You need a different API key for each encryption key, including the release key that is used to
              sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
     <meta-data
       android:name="com.google.android.geo.API_KEY"

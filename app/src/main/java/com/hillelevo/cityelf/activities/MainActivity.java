@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     }
 
-    //settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
     saveToSharedPrefs(Prefs.REGISTERED, true);
     saveToSharedPrefs(Prefs.OSMD_ADMIN, true);
@@ -173,17 +172,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       case R.id.addPoll:
 
         return true;
-      case R.id.action_enter:
+      case R.id.settings:
 
         //// TODO: 17.07.17 This step depends from status-registred
+        Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intentLogin);
 
-        if (registered) {
-          Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
-          startActivity(intentLogin);
-        } else {
-          Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
-          startActivity(intentLogin);
-        }
+        return true;
+      case R.id.btnMap:
+        Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
+        startActivity(intentMap);
         return true;
     }
     return super.onOptionsItemSelected(item);

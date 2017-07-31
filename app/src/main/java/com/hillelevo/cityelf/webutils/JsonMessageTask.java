@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.os.Build.VERSION_CODES;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
 
 public class JsonMessageTask extends AsyncTask<String, Void, String> {
 
@@ -71,10 +74,18 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         } catch (IOException e) {
           e.printStackTrace();
         }
-      } else {
+      } else if (params[1] != null && params[1].equals("GET")) {
         url = new URL(params[0]);
         connection = (HttpURLConnection) url.openConnection();
+
+//        connection.setRequestMethod("GET");
         connection.connect();
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpsURLConnection.HTTP_OK) {
+          Log.d(TAG, "Response Code is: " + responseCode);
+        }
+
       }
 
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));

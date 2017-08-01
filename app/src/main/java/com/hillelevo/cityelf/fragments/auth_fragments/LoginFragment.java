@@ -1,7 +1,5 @@
-package com.hillelevo.cityelf.activities.authorization;
+package com.hillelevo.cityelf.fragments.auth_fragments;
 
-
-import static com.hillelevo.cityelf.Constants.TAG;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,9 +16,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 import org.json.JSONArray;
@@ -38,7 +37,6 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   private String password = null;
 
   UserLocalStore userLocalStore;
-  User loggedInUser = new User(null, null, 0, null, null);
   String responseMessage;
 
 
@@ -62,7 +60,6 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     btnLogin.setOnClickListener(this);
     tvRegisteraitUser.setOnClickListener(this);
 
-    userLocalStore = new UserLocalStore(getContext());
     return view;
   }
 
@@ -127,17 +124,14 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
           JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
           String address = addressJsonObject.getString("address");
-          loggedInUser = new User(userLocalStore.getStoredToken(), email, phone, address, password);
 
-          authenticate(loggedInUser);
+          authenticate(email, address, password);
 
         }else{
           showMessage(message);
-          loggedInUser = null;
         }
       } else {
         showMessage("Incorrect user details");
-        loggedInUser = null;
       }
 
 
@@ -149,14 +143,18 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
   }
 
-  private void authenticate(User loggedInUser) {
-
-    Log.d(TAG, loggedInUser.getEmail() + " Logged In");
+  private void authenticate(String email, String address, String password) {
 
     showMessage("All OK");
 
-    userLocalStore.storeUserData(loggedInUser);
-    userLocalStore.setUserLoggedIn(true);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
+        email);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
+        address);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
+        password);
+    UserLocalStore.saveBooleanToSharedPrefs(getActivity().getApplicationContext(), Prefs.REGISTERED,
+        true);
 
     Intent intent = new Intent(getContext(), MainActivity.class);
     LoginFragment.this.startActivity(intent);

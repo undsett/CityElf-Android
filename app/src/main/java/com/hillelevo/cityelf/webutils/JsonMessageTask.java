@@ -5,9 +5,9 @@ import static com.hillelevo.cityelf.Constants.TAG;
 import android.os.AsyncTask;
 import android.os.Build.VERSION_CODES;
 import android.support.annotation.RequiresApi;
+import android.util.Base64;
 import android.util.Log;
 import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.WebUrls;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,7 +53,6 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 //          String bodyParams = "email=" + params[2] + "&password=" + params[3];
           String bodyParams = params[2];
 
-
 //          connection.setRequestProperty(Constants.AUTH, params[2]);
 
           outputStream = connection.getOutputStream();
@@ -63,6 +62,40 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           int responseCode = connection.getResponseCode();
 
           Log.d(TAG, "Response Code is: " + responseCode);
+
+          if (responseCode != 200) {
+
+          }
+        } catch (MalformedURLException e) {
+          e.printStackTrace();
+        } catch (ProtocolException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      } else if (params[1] != null && params[1].equals("PUT")) {
+
+        try {
+          url = new URL(params[0]);
+          connection = (HttpURLConnection) url.openConnection();
+          connection.setRequestMethod("PUT");
+          connection.setDoInput(true);
+          connection.setDoOutput(true);
+
+          String authCertificate = "Basic " + Base64
+              .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
+                  Base64.URL_SAFE | Base64.NO_WRAP);
+
+          connection.setRequestProperty(Constants.AUTH, authCertificate);
+          connection.setRequestProperty("Accept", "application/json");
+          connection.setRequestProperty("content-type", "application/json");
+          connection.connect();
+
+          outputStream = connection.getOutputStream();
+          outputStream.write(params[2].getBytes());
+          outputStream.close();
+
+          int responseCode = connection.getResponseCode();
 
           if (responseCode != 200) {
 
@@ -88,6 +121,7 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 
       }
 
+      //receive & read data response
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       buffer = new StringBuffer();
 
@@ -96,11 +130,19 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
       while ((line = reader.readLine()) != null) {
         buffer.append(line);
       }
-    } catch (MalformedURLException e) {
+    } catch(
+        MalformedURLException e)
+
+    {
       e.printStackTrace();
-    } catch (IOException e) {
+    } catch(
+        IOException e)
+
+    {
       e.printStackTrace();
-    } finally {
+    } finally
+
+    {
       if (connection != null) {
         connection.disconnect();
       }
@@ -112,9 +154,13 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         e.printStackTrace();
       }
     }
-    if (buffer == null) {
+    if(buffer ==null)
+
+    {
       return null;
-    } else {
+    } else
+
+    {
       return buffer.toString();
     }
   }

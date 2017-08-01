@@ -1,10 +1,18 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
+import static android.R.attr.key;
+
 import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +37,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 public class SettingsActivity extends PreferenceActivity implements
-    OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
+    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse {
 
   private SwitchPreference notificationSwitch;
   private SwitchPreference notificationSMS;
@@ -38,7 +46,10 @@ public class SettingsActivity extends PreferenceActivity implements
   private EditTextPreference emailPref;
   private Preference exit;
   private RingtonePreference ringtonePref;
+  private Preference pref;
 
+  private String key;
+  private String res = null;
   private boolean registered;
 
   private SharedPreferences sharedPreferences;
@@ -55,7 +66,7 @@ public class SettingsActivity extends PreferenceActivity implements
     prefMgr.setSharedPreferencesMode(Context.MODE_PRIVATE);
 
     addPreferencesFromResource(R.xml.preferences);
-    registered = MainActivity.loadBooleanStatusFromSharedPrefs(Prefs.REGISTERED);
+    registered = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
     sharedPreferences = prefMgr.getSharedPreferences();
     category = (PreferenceCategory) findPreference("registered_user");
 
@@ -91,9 +102,7 @@ public class SettingsActivity extends PreferenceActivity implements
       exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-          UserLocalStore userLocalStore = new UserLocalStore(
-              SettingsActivity.super.getBaseContext());
-          userLocalStore.clearUserData();
+          UserLocalStore.clearUserData(getApplicationContext());
           return false;
         }
       });
@@ -233,17 +242,47 @@ public class SettingsActivity extends PreferenceActivity implements
   }
 
   @Override
-  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    Preference pref = findPreference(key);
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String _key) {
+    pref = findPreference(key);
+    key = _key;
+
     if (pref instanceof EditTextPreference && !key.equals("password")) {
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
-      String s = ((EditTextPreference) pref).getText();
-      if (key.equals("email")) {
-        pref.setSummary(getShortAddress(s));
-      } else if (key.equals("address")) {
-        pref.setSummary(s);
+      JSONObject updatePreferenceObject = new JSONObject();
+
+      try {
+        // HARDCODED!
+        updatePreferenceObject.put("id", "13");
+        //updatePreferenceObject.put("phone", "0975555555");
+//        updatePreferenceObject.put("id", sharedPref.getId);
+        updatePreferenceObject.put(key, editTextPref.getText());
+
+      } catch (JSONException e) {
+        e.printStackTrace();
       }
+      String jsonData = updatePreferenceObject.toString();
+
+      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
+
+      if (res.isEmpty()) {
+        String s = ((EditTextPreference) pref).getText();
+        if (key.equals("email")) {
+          pref.setSummary(getShortAddress(s));
+        } else if (key.equals("address")) {
+          pref.setSummary(s);
+        }
+      }
+    }
+  }
+
+  @Override
+
+  public void messageResponse(String output) {
+    res =output;
+
+    if (output.isEmpty()) {
+//   TODO
     }
   }
 }

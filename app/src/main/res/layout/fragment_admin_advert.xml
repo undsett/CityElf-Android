@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <TextView
+        android:id="@+id/tvAdminAdvertHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/fragment_admin_advert_header"
+        android:textAppearance="@style/TextFontBold" />
+
+      <TextView
+        android:id="@+id/tvAdminAdvertName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/fragment_admin_advert_name"
+        android:textAppearance="@style/TextFontBold" />
+
+      <EditText
+        android:id="@+id/etAdminAdvertName"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:background="@drawable/background_admin_et"
+        android:gravity="center_vertical"
+        android:textSize="14sp" />
+
+      <TextView
+        android:id="@+id/tvAdminAdvertAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/fragment_admin_advert_address"
+        android:textAppearance="@style/TextFontBold" />
+
+      <TextView
+        android:id="@+id/tvAdminAdvertAddressContent"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:background="@drawable/background_admin_tv"
+        android:gravity="center_vertical"
+        android:textSize="14sp" />
+
+      <TextView
+        android:id="@+id/tvAdminAdvertContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/fragment_admin_advert_content"
+        android:textAppearance="@style/TextFontBold" />
+
+      <EditText
+        android:id="@+id/etAdminAdvertContent"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:padding="5dp"
+        android:background="@drawable/background_admin_et"
+        android:gravity="start"
+        android:textSize="14sp" />
+
+      <Button
+        android:id="@+id/btnAdminAdvertAdd"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/background_admin_et"
+        android:text="@string/fragment_admin_advert_add_button"
+        android:textAllCaps="false"
+        android:textAppearance="@style/TextFontBold" />
+
+    </LinearLayout>
+
+  </ScrollView>
+
+  <View
+    android:id="@+id/view"
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginBottom="15dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:background="@android:color/darker_gray" />
+
+  <ListView
+    android:id="@+id/lvAdminAdvertList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+</LinearLayout>

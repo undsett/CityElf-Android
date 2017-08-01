@@ -103,11 +103,12 @@
 
   <!-- Dialog fragment-->
   <string name="dialog_header">Выберите коммунальные услуги и адрес</string>
+  <string name="dialog_header_unreg">Для отправки отчёта об отключении необходимо авторизироваться</string>
   <string name="dialog_electricity">Отключение электричества</string>
   <string name="dialog_gas">Отключение газа</string>
   <string name="dialog_water">Отключение воды</string>
   <string name="dialog_report">Отправить</string>
-  <string name="dialog_login">Логин</string>
+  <string name="dialog_login">Логин/Регистрация</string>
   <string name="dialog_register">Регистрация</string>
 
   <!--Main activity-->
@@ -146,4 +147,25 @@
   <string name="you_document">Добавьте документ, подтверждающий Вашу должность</string>
   <string name="add_document">Добавить документ</string>
   <string name="send_requet">Отправить запрос</string>
+
+  <!-- Advert Admin fragment -->
+
+  <string name="fragment_admin_advert_header">Добавить новое объявление</string>
+  <string name="fragment_admin_advert_name">Название</string>
+  <string name="fragment_admin_advert_address">Адрес</string>
+  <string name="fragment_admin_advert_content">Описание</string>
+  <string name="fragment_admin_advert_add_button">Добавить</string>
+
+  <!-- Poll Admin fragment -->
+
+  <string name="fragment_admin_poll_header">Добавить новый опрос</string>
+  <string name="fragment_admin_poll_name">Название</string>
+  <string name="fragment_admin_poll_address">Адрес</string>
+  <string name="fragment_admin_poll_content">Описание</string>
+  <string name="fragment_admin_poll_add_button">Добавить</string>
+  <string name="fragment_admin_poll_variants">Варианты ответа</string>
+  <string name="fragment_admin_poll_add_variant">Добавить вариант ответа</string>
+  <string name="fragment_admin_poll_period">Период голосования</string>
+  <string name="fragment_admin_poll_start">Начальная дата</string>
+  <string name="fragment_admin_poll_finish">Конечная дата</string>
 </resources>

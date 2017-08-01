@@ -51,7 +51,7 @@
       android:label="@string/title_activity_settings"
       android:name=".activities.setting_activity.SettingsActivity" />
 
-    <activity android:name=".activities.authorization.AuthorizationActivity">
+    <activity android:name=".activities.AuthorizationActivity">
       <intent-filter>
         <action android:name="com.hillelevo.cityelf.AuthorizationActivity" />
         <category android:name="android.intent.category.DEFAULT" />
@@ -75,6 +75,13 @@
     <activity android:name=".activities.setting_activity.ManyAddress">
       <intent-filter>
         <action android:name="com.hillelevo.cityelf.ManyAddress" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
+    <activity android:name=".activities.AdminActivity">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AdminActvity" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>

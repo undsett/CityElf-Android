@@ -24,12 +24,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.AuthorizationActivity;
+import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -135,7 +136,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     btnClear.setVisibility(View.INVISIBLE);
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
 
-    registered = MainActivity.loadBooleanStatusFromSharedPrefs(Prefs.OSMD_ADMIN);
+    registered = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN);
 
     geocoder = new Geocoder(this, ruLocale);
 
@@ -324,8 +325,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //todo send request to status
         if (nameOfStreet != null) {
           new JsonMessageTask(this)
-              .execute(WebUrls.ADDRESS_URL + getFormatedAddressToJSON(nameOfStreet) + WebUrls.API_KEY_URL,
-                  null);
+              .execute(WebUrls.ADDRESS_URL + getFormatedAddressToJSON(nameOfStreet)
+                      + WebUrls.API_KEY_URL,
+                  Constants.GET);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Неверный адрес");
@@ -336,26 +338,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         btnClear.setVisibility(View.INVISIBLE);
         break;
       case R.id.btnCheckStatus:
-        /*
-        *You need to send to the server variable - "nameOfStreet"
-        */
-
-        if (status){
-            status = false;
-        if (nameOfStreet != null && mAutocompleteTextView != null
-            && mAutocompleteTextView.length() != 0) {
-          if (getVerificationCity(nameOfStreet)) {
-            //todo If the street is not in Odessa
-            MainActivity.saveToSharedPrefs("address", nameOfStreet);
-            Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
-            startActivity(intentMain);
+        if (status) {
+          status = false;
+          if (nameOfStreet != null && mAutocompleteTextView != null
+              && mAutocompleteTextView.length() != 0) {
+            if (getVerificationCity(nameOfStreet)) {
+              //todo If the street is not in Odessa
+              UserLocalStore
+                  .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, nameOfStreet);
+              Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
+              intentMain.putExtra("AddUser", true);
+              startActivity(intentMain);
+            }
           }
-        }} else {
+        } else {
           getToast("Неверный адрес");
         }
         break;
     }
-
   }
 
 
@@ -490,7 +490,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onReceive(Context context, Intent intent) {
 
       String action = intent.getAction();
-      String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
+      String token = intent.getStringExtra(Prefs.FIREBASE_ID);
       Log.d(TAG, "MapActivity onReceive: " + action);
       Log.d(TAG, "MapActivity onReceive: " + token);
       if (active) {

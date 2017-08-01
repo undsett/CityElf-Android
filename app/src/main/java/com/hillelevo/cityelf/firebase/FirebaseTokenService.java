@@ -8,8 +8,8 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
-import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.data.UserLocalStore;
 
 
 public class FirebaseTokenService extends FirebaseInstanceIdService {
@@ -21,8 +21,9 @@ public class FirebaseTokenService extends FirebaseInstanceIdService {
     Log.d(TAG, "FBTokenService refreshed token: " + refreshedToken);
 
 
-    UserLocalStore userLocalStore = new UserLocalStore(getApplicationContext());
-    userLocalStore.storeToken(refreshedToken);
+//    UserLocalStore userLocalStore = new UserLocalStore(getApplicationContext());
+    UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID, refreshedToken);
+//    userLocalStore.storeToken(refreshedToken);
 
     // Send the Instance ID token to MainActivity
     sendLocalBroadcast(Actions.BROADCAST_ACTION_FIREBASE_TOKEN, refreshedToken);
@@ -34,7 +35,7 @@ public class FirebaseTokenService extends FirebaseInstanceIdService {
    */
   private void sendLocalBroadcast(String action, String token) {
     Intent localIntent = new Intent(action);
-    localIntent.putExtra(Params.FIREBASE_TOKEN, token);
+    localIntent.putExtra(Prefs.FIREBASE_ID, token);
 
     LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
   }

@@ -92,23 +92,22 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    // Check intent, send AddNewUser request to server
+    Intent intent = getIntent();
+    if(intent.hasExtra("AddUser")) {
+      Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
+      //TODO Send AddNewUser request to server
+    }
+
     firstStartApp = new FirstStartApp(this);
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
     if (firstStartApp.isFirstLaunch()) {
-
       launchFirstTime();
       finish();
-
     }
+
     showLoadingAlertDialog();
-
-    //settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
-    // Add user registration status to Shared Prefs, HARDCODED!
-//    saveToSharedPrefs(Prefs.REGISTERED, true);
-//    saveToSharedPrefs(Prefs.OSMD_ADMIN, true);
-
-    //TODO Add real registration status
 
     // Load registered status from Shared Prefs
     registered = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
@@ -117,13 +116,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
     // Fill ViewPager with data
-
     startJsonResponse();
-    // TODO !!! Replace test Notifications, Adverts and Polls with real ones from server
-    // Generate test Notifications, Adverts and Polls
-//    fillTestData();
     ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
-
     pagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
     pager.setAdapter(pagerAdapter);
 
@@ -159,15 +153,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_TOKEN));
     messageBroadcastManager.registerReceiver(MessageReceiver,
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
-
-    // Add test address to Shared Prefs, HARDCODED!
-//    saveToSharedPrefs(Prefs.ADDRESS_1, "Test street, 1");
-//    saveToSharedPrefs(Prefs.ADDRESS_2, "Test street, 2");
-//    UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_3, "Test street, 3");
-    //TODO Add to Shared Prefs real address from Map Activity and Registration form
-
-//    fillTestData(null);
-//    updateData();
   }
 
   private void launchFirstTime() {
@@ -194,17 +179,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         Intent intent = new Intent(MainActivity.this, AdminActivity.class);
         startActivity(intent);
         return true;
-      case R.id.action_enter:
+      case R.id.settings:
 
         //// TODO: 17.07.17 This step depends from status-registred
+        Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intentLogin);
 
-        if (registered) {
-          Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
-          startActivity(intentLogin);
-        } else {
-          Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
-          startActivity(intentLogin);
-        }
+        return true;
+      case R.id.btnMap:
+        Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
+        startActivity(intentMap);
         return true;
     }
     return super.onOptionsItemSelected(item);

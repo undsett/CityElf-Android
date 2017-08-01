@@ -247,6 +247,16 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
       String nameOfStreet = String.valueOf(item.description);
 
+      if (getVerificationCity(nameOfStreet)) {
+        mAutocompleteTextView.setText(shortAddress(nameOfStreet) + " ");
+        mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
+      } else {
+        Toast toast = Toast.makeText(RegistrationFragment.super.getContext(),
+            "Возможно этот адрес не находится в Одессе", Toast.LENGTH_LONG);
+        toast.show();
+        mAutocompleteTextView.setText("");
+      }
+
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
       placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
@@ -282,5 +292,20 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
   }
 
+
+  public boolean getVerificationCity(String street) {
+    return street.contains("Одеса") || street.contains("Одесса");
+  }
+
+  private CharSequence shortAddress(String userAddress) {
+    if (getVerificationCity(userAddress)) {
+      return userAddress.substring(0, userAddress.indexOf(", Одес"));
+    } else {
+      Toast toast = Toast.makeText(this.getContext(),
+          "Возможно этот адрес не находится в Одессе", Toast.LENGTH_LONG);
+      toast.show();
+      return userAddress;
+    }
+  }
 }
 

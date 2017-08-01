@@ -138,6 +138,10 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
           userName.setText("");
           filePath = "";
           imageName.setText("");
+        } else {
+          Toast toast = Toast.makeText(getApplicationContext(),
+              "Заполните все поля", Toast.LENGTH_LONG);
+          toast.show();
         }
         break;
     }

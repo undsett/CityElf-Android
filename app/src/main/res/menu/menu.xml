@@ -2,7 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
-    android:id="@+id/action_enter"
+    android:id="@+id/btnMap"
+    android:icon="@drawable/btn_icon"
+    android:orderInCategory="100"
+    android:title="@string/osmdInfo"
+    app:showAsAction="always" />
+  <item
+    android:id="@+id/settings"
     android:icon="@drawable/user_white_png"
     android:orderInCategory="100"
     android:title="@string/action_enter"

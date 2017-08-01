@@ -22,7 +22,7 @@ import android.util.Log;
 
 public class FirebaseMessageService extends FirebaseMessagingService {
 
-
+  SharedPreferences settings = getApplicationContext().getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
   @Override
   public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -66,13 +66,12 @@ public class FirebaseMessageService extends FirebaseMessagingService {
   }
 
   public Uri getSoundFromPref() {
-    SharedPreferences settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     Uri notification = null;
-    if (settings!=null && settings.contains(Prefs.RINGTONE)){
-      notification = Uri.parse(UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.RINGTONE));
+    if (settings.contains("ringtonePref")) {
+      notification = Uri.parse(UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), "ringtonePref"));
       Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
       r.play();
-    } else{
+    } else {
       notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
       Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
       r.play();

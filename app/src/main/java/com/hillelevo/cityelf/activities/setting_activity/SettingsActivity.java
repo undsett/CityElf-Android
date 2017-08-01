@@ -4,7 +4,7 @@ package com.hillelevo.cityelf.activities.setting_activity;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
+import com.hillelevo.cityelf.data.UserLocalStore;
 
 import android.content.Context;
 import android.content.Intent;
@@ -77,8 +77,8 @@ public class SettingsActivity extends PreferenceActivity implements
     exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
       @Override
       public boolean onPreferenceClick(Preference preference) {
-        UserLocalStore userLocalStore = new UserLocalStore(SettingsActivity.super.getBaseContext());
-        userLocalStore.clearUserData();
+//        UserLocalStore userLocalStore = new UserLocalStore(SettingsActivity.super.getBaseContext());
+        UserLocalStore.clearUserData(getApplicationContext());
         return false;
       }
     });

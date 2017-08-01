@@ -1,4 +1,4 @@
-package com.hillelevo.cityelf.fragments;
+package com.hillelevo.cityelf.fragments.admin_fragments;
 
 import com.hillelevo.cityelf.R;
 

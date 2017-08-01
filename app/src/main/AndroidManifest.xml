@@ -52,7 +52,7 @@
       android:name=".activities.setting_activity.SettingsActivity"/>
 
     <activity
-        android:name=".activities.authorization.AuthorizationActivity" />
+        android:name=".activities.AuthorizationActivity" />
 
     <activity android:name=".activities.setting_activity.AboutProgram">
       <intent-filter>

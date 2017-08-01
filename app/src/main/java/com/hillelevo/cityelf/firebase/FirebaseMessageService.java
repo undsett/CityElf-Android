@@ -6,6 +6,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.data.UserLocalStore;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -21,7 +22,6 @@ import android.util.Log;
 
 public class FirebaseMessageService extends FirebaseMessagingService {
 
-  SharedPreferences settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
 
   @Override
@@ -51,7 +51,7 @@ public class FirebaseMessageService extends FirebaseMessagingService {
             .setContentTitle("Новое событие:")
             .setContentText(notification)
             .setSound(getSoundFromPref())
-            .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000});
+            .setVibrate(new long[] { 1000, 1000});
 
     int NOTIFICATION_ID = 1;
 
@@ -66,9 +66,10 @@ public class FirebaseMessageService extends FirebaseMessagingService {
   }
 
   public Uri getSoundFromPref() {
+    SharedPreferences settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     Uri notification = null;
-    if (settings.contains("ringtonePref")){
-      notification = Uri.parse(MainActivity.loadStringFromSharedPRefs("ringtonePref"));
+    if (settings!=null && settings.contains(Prefs.RINGTONE)){
+      notification = Uri.parse(UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.RINGTONE));
       Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
       r.play();
     } else{

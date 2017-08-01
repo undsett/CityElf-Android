@@ -4,11 +4,13 @@ import static com.hillelevo.cityelf.Constants.TAG;
 
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.AuthorizationActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -32,6 +34,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
   private boolean isRegistered;
 
   private Spinner spinner;
+  TextView tvTitle;
 
   private SharedPreferences settings;
 
@@ -66,23 +69,21 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM);
       getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-    TextView textViewTitle = (TextView) v.findViewById(R.id.textViewDialogTitle);
+    tvTitle = (TextView) v.findViewById(R.id.textViewDialogTitle);
     RadioButton radioButtonElectricity =
         (RadioButton) v.findViewById(R.id.radioButtonDialogElectricity);
     RadioButton radioButtonGas = (RadioButton) v.findViewById(R.id.radioButtonDialogGas);
     RadioButton radioButtonWater = (RadioButton) v.findViewById(R.id.radioButtonDialogWater);
     Button buttonReport = (Button) v.findViewById(R.id.buttonDialogReport);
-    Button buttonRegister = (Button) v.findViewById(R.id.buttonDialogRegister);
     Button buttonLogin = (Button) v.findViewById(R.id.buttonDialogLogin);
     spinner = (Spinner) v.findViewById(R.id.spinnerDialog);
 
     // Change fragment elements - registered and non-registered variants
 
     if (!isRegistered) {
+      tvTitle.setText(R.string.dialog_header_unreg);
       buttonLogin.setVisibility(View.VISIBLE);
-      buttonRegister.setVisibility(View.VISIBLE);
       buttonReport.setVisibility(View.GONE);
-      textViewTitle.setVisibility(View.GONE);
       radioButtonElectricity.setVisibility(View.GONE);
       radioButtonGas.setVisibility(View.GONE);
       radioButtonWater.setVisibility(View.GONE);
@@ -93,7 +94,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     radioButtonGas.setOnClickListener(this);
     radioButtonWater.setOnClickListener(this);
     buttonReport.setOnClickListener(this);
-    buttonRegister.setOnClickListener(this);
+    buttonLogin.setOnClickListener(this);
 
     // Radio buttons click init
     RadioGroup radioGroup = (RadioGroup) v.findViewById(R.id.radioGroupDialog);
@@ -123,7 +124,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     List<String> addressList = new ArrayList<>();
     String address;
 
-    for (int i = 1; i < Prefs.MAX_ADDRESS_QUANTITY; i++) {
+    for (int i = 0; i < Prefs.MAX_ADDRESS_QUANTITY; i++) {
       address = loadFromSharedPrefs(Prefs.ADDRESS + i);
       if (!address.equals("Error")) {
         Log.d(TAG, "Dialog add to Spinner in Dialog: " + address);
@@ -149,14 +150,13 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     switch (view.getId()) {
       case R.id.buttonDialogReport:
         Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
+        //TODO Send report request to server
         break;
 
       case R.id.buttonDialogLogin:
         Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
-        break;
-
-      case R.id.buttonDialogRegister:
-        Toast.makeText(getActivity(), "Dialog Register clicked", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(getActivity(), AuthorizationActivity.class);
+        startActivity(intent);
         break;
     }
   }

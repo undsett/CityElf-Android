@@ -2,8 +2,8 @@ package com.hillelevo.cityelf.activities;
 
 
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.fragments.AdminAdvertFragment;
-import com.hillelevo.cityelf.fragments.AdminPollFragment;
+import com.hillelevo.cityelf.fragments.admin_fragments.AdminAdvertFragment;
+import com.hillelevo.cityelf.fragments.admin_fragments.AdminPollFragment;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;

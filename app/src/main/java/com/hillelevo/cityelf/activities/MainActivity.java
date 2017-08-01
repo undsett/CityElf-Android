@@ -2,15 +2,13 @@ package com.hillelevo.cityelf.activities;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -36,12 +34,10 @@ import android.widget.Toast;
 
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Params;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.authorization.AuthorizationActivity;
-import com.hillelevo.cityelf.activities.authorization.UserLocalStore;
+import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 import com.hillelevo.cityelf.data.Advert;
@@ -54,11 +50,12 @@ import com.hillelevo.cityelf.fragments.PollFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
@@ -67,7 +64,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
-  UserLocalStore userLocalStore = null;
+  private UserLocalStore userLocalStore = null;
+  private CustomPagerAdapter pagerAdapter;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
   private ArrayList<Poll> polls = new ArrayList<>();
@@ -98,34 +96,36 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
     if (firstStartApp.isFirstLaunch()) {
+
       launchFirstTime();
       finish();
 
     }
+    showLoadingAlertDialog();
 
     //settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.REGISTERED, false);
-
-    saveToSharedPrefs(Prefs.OSMD_ADMIN, false);
+//    saveToSharedPrefs(Prefs.REGISTERED, true);
+//    saveToSharedPrefs(Prefs.OSMD_ADMIN, true);
 
     //TODO Add real registration status
 
     // Load registered status from Shared Prefs
-    registered = loadBooleanStatusFromSharedPrefs(Prefs.REGISTERED);
-    osmd_admin = loadBooleanStatusFromSharedPrefs(Prefs.OSMD_ADMIN);
+    registered = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
+    osmd_admin = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN);
 
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
     // Fill ViewPager with data
 
-//    startJsonResponse();
+    startJsonResponse();
     // TODO !!! Replace test Notifications, Adverts and Polls with real ones from server
     // Generate test Notifications, Adverts and Polls
 //    fillTestData();
     ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
 
-    pager.setAdapter(new CustomPagerAdapter(getSupportFragmentManager()));
+    pagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
+    pager.setAdapter(pagerAdapter);
 
     // Set custom tabs for ViewPager
     tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -161,9 +161,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
 
     // Add test address to Shared Prefs, HARDCODED!
-    saveToSharedPrefs(Prefs.ADDRESS_1, "Test street, 1");
-    saveToSharedPrefs(Prefs.ADDRESS_2, "Test street, 2");
+//    saveToSharedPrefs(Prefs.ADDRESS_1, "Test street, 1");
+//    saveToSharedPrefs(Prefs.ADDRESS_2, "Test street, 2");
+//    UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_3, "Test street, 3");
     //TODO Add to Shared Prefs real address from Map Activity and Registration form
+
+//    fillTestData(null);
+//    updateData();
   }
 
   private void launchFirstTime() {
@@ -187,7 +191,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.addPoll:
-
+        Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+        startActivity(intent);
         return true;
       case R.id.action_enter:
 
@@ -221,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     public void onReceive(Context context, Intent intent) {
 
       String action = intent.getAction();
-      String token = intent.getStringExtra(Params.FIREBASE_TOKEN);
+      String token = intent.getStringExtra(Prefs.FIREBASE_ID);
       Log.d(TAG, "MainActivity onReceive: " + action);
       Log.d(TAG, "MainActivity onReceive: " + token);
       if (active) {
@@ -232,40 +237,40 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   //Save and load data to Shared Prefs
 
-  public static void saveToSharedPrefs(String type, String data) {
-    Log.d(TAG, "MainActivity savedToSharedPrefs: " + type + ", " + data);
-    SharedPreferences.Editor editor = settings.edit();
-    editor.putString(type, data);
-    editor.apply();
-  }
-
-  private void saveToSharedPrefs(String type, boolean registered) {
-    Log.d(TAG, "MainActivity savedToSharedPrefs: " + type + ", " + registered);
-    SharedPreferences.Editor editor = settings.edit();
-    editor.putBoolean(type, registered);
-    editor.apply();
-  }
-
-  public static String loadStringFromSharedPRefs(String prefKey) {
-    if (settings != null && settings.contains(prefKey)) {
-      Log.d(TAG, "MainActivity mSettings != null, loading registration status");
-      return settings.getString(prefKey, "");
-    } else {
-      Log.d(TAG, "MainActivity mSettings != null, no registration status");
-      return "";
-    }
-  }
-
-  public static boolean loadBooleanStatusFromSharedPrefs(String prefKey) {
-    //Check for data by id
-    if (settings != null && settings.contains(prefKey)) {
-      Log.d(TAG, "MainActivity mSettings != null, loading registration status");
-      return settings.getBoolean(prefKey, true);
-    } else {
-      Log.d(TAG, "MainActivity mSettings != null, no registration status");
-      return false;
-    }
-  }
+//  public static void saveToSharedPrefs(String type, String data) {
+//    Log.d(TAG, "MainActivity savedToSharedPrefs: " + type + ", " + data);
+//    SharedPreferences.Editor editor = settings.edit();
+//    editor.putString(type, data);
+//    editor.apply();
+//  }
+//
+//  private void saveToSharedPrefs(String type, boolean registered) {
+//    Log.d(TAG, "MainActivity savedToSharedPrefs: " + type + ", " + registered);
+//    SharedPreferences.Editor editor = settings.edit();
+//    editor.putBoolean(type, registered);
+//    editor.apply();
+//  }
+//
+//  public static String loadStringFromSharedPRefs(String prefKey) {
+//    if (settings != null && settings.contains(prefKey)) {
+//      Log.d(TAG, "MainActivity mSettings != null, loading registration status");
+//      return settings.getString(prefKey, "");
+//    } else {
+//      Log.d(TAG, "MainActivity mSettings != null, no registration status");
+//      return "";
+//    }
+//  }
+//
+//  public static boolean loadBooleanStatusFromSharedPrefs(String prefKey) {
+//    //Check for data by id
+//    if (settings != null && settings.contains(prefKey)) {
+//      Log.d(TAG, "MainActivity mSettings != null, loading registration status");
+//      return settings.getBoolean(prefKey, true);
+//    } else {
+//      Log.d(TAG, "MainActivity mSettings != null, no registration status");
+//      return false;
+//    }
+//  }
 
   // AlertDialog for firebase testing
 
@@ -290,6 +295,14 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     builder.show();
   }
 
+  // ProgressDialog for loading data
+
+  private ProgressDialog progressDialog;
+
+  private void showLoadingAlertDialog() {
+     progressDialog = ProgressDialog.show(MainActivity.this, "", "Загрузка данных...", true);
+  }
+
   /**
    * Custom Adapter for ViewPager
    */
@@ -297,6 +310,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     public CustomPagerAdapter(FragmentManager fm) {
       super(fm);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+      return POSITION_NONE;
     }
 
     @Override
@@ -311,6 +329,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         default:
           return NotificationFragment.newInstance(notifications);
       }
+
+
     }
 
     /**
@@ -333,9 +353,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private void startJsonResponse() {
     if (firstStartApp.isFirstLaunch()) {
-      userLocalStore.storeAddress(null);
+      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
-      String address = userLocalStore.getStoredAddress();
+      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
+          Prefs.ADDRESS_1);
       try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
@@ -350,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   @Override
   public void messageResponse(String output) {
     showMessage(output);
-    fillTestData(output);
+    fillData(output);
   }
 
   public void showMessage(String message) {
@@ -360,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
-  private void fillTestData(String message) {
+  private void fillData(String message) {
     JSONObject jsonObject = null;
     JSONObject addressJsonObject = null;
     String title = null;
@@ -386,6 +407,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
             addressJsonObject = waterJsonObject.getJSONObject("address");
             address = addressJsonObject.getString("address");
+            notifications
+                .add(new Notification(title, address, "2 часа", start,
+                    "", 0));
+            count++;
             continue;
           } else if (jsonObject.getJSONObject("Gas") != null) {
             JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
@@ -395,6 +420,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
             addressJsonObject = gasJsonObject.getJSONObject("address");
             address = addressJsonObject.getString("address");
+            notifications
+                .add(new Notification(title, address, "2 часа", start,
+                    "", 0));
+            count++;
             continue;
           } else if (jsonObject.getJSONObject("Electricity") != null) {
 
@@ -406,52 +435,32 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
             addressJsonObject = electricityJsonObject.getJSONObject("address");
             address = addressJsonObject.getString("address");
+            notifications
+                .add(new Notification(title, address, "2 часа", start,
+                    "", 0));
+            count++;
             continue;
           }
 
           count++;
 
-          notifications
-              .add(new Notification(title, "Тестовая улица, 1", "2 часа", start,
-                  "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-                      + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-                      + "тест тест тест тест тест тест тест ", 0));
-//      notifications.add(new Notification("Уведомление 2", "Тестовая улица, 1", "2 часа", "сегодня",
-//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест ", 0));
-//      notifications.add(new Notification("Уведомление 3", "Тестовая улица, 1", "2 часа", "сегодня",
-//          "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест ", 0));
 //      adverts.add(new Advert("Объявление 1", "Тестовая улица, 1", "сегодня",
 //          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
 //              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
 //              + "тест тест тест тест тест тест тест "));
-//      adverts.add(new Advert("Объявление 2", "Тестовая улица, 1", "сегодня",
-//          "Тестовое уведомление тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест "));
-//      adverts.add(new Advert("Объявление 3", "Тестовая улица, 1", "сегодня",
-//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест "));
+//
 //      polls.add(new Poll("Опрос 1", "Тестовая улица, 1", "2 часа", "сегодня",
 //          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
 //              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
 //              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
 //          "Вариант 3", "Вариант 4", 10));
-//      polls.add(new Poll("Опрос 2", "Тестовая улица, 1", "2 часа", "сегодня",
-//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
-//          "Вариант 3", "", 30));
-//      polls.add(new Poll("Опрос 3", "Тестовая улица, 1", "2 часа", "сегодня",
-//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
-//          "", "", 20));
+//
         }
+
+        // Add new data to ViewPager
+        pagerAdapter.notifyDataSetChanged();
+        setupTabs();
+        progressDialog.dismiss();
 
       } catch (JSONException e) {
         e.printStackTrace();
@@ -467,6 +476,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);
     tabOne.setText(R.string.tab_notifications_title);
     tabLayout.getTabAt(0).setCustomView(tabOne);
+    if (!registered)
+      tabLayout.setSelectedTabIndicatorColor(00000000);
 
     if (registered) {
       TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);

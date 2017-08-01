@@ -1,4 +1,4 @@
-package com.hillelevo.cityelf.activities.authorization;
+package com.hillelevo.cityelf.fragments.auth_fragments;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
@@ -30,10 +30,12 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.PlaceArrayAdapter;
+import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 import org.json.JSONException;
@@ -52,8 +54,8 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
   private String address = "";
   private String password = null;
 
-  UserLocalStore userLocalStore;
-  User registeredUser = new User(null, null, 0, null, null);
+//  UserLocalStore userLocalStore;
+//  User registeredUser = new User(null, null, 0, null, null);
 
   private static final int GOOGLE_API_CLIENT_ID = 0;
   private View view;
@@ -78,7 +80,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
     btnRegister.setOnClickListener(this);
 
-    userLocalStore = new UserLocalStore(getContext());
+//    userLocalStore = new UserLocalStore(getContext());
     return view;
   }
 
@@ -96,7 +98,8 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
         if (etAddress.getText().length() != 0) {
           address = etAddress.getText().toString();
         } else {
-          address = userLocalStore.getStoredAddress();
+          address = UserLocalStore.loadStringFromSharedPrefs(getActivity().getApplicationContext(),
+              Prefs.ADDRESS_1);
         }
         password = etPassword.getText().toString();
 
@@ -123,12 +126,16 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
               Toast.LENGTH_SHORT).show();
           break;
         } else {
-          Toast.makeText(getContext(), "FIREBASE ID IS " + userLocalStore.getStoredToken(),
+          Toast.makeText(getContext(), "FIREBASE ID IS " + UserLocalStore.loadStringFromSharedPrefs(
+              getActivity().getApplicationContext(), Prefs.FIREBASE_ID),
               Toast.LENGTH_SHORT).show();
 
+//          "firebaseid=" + UserLocalStore.loadStringFromSharedPRefs(getActivity()
+//              .getApplicationContext(), Prefs.FIREBASE_ID)
+
           String bodyParams =
-              "firebaseid=" + userLocalStore.getStoredToken() + "&email=" + email + "&password="
-                  + password;
+              "firebaseid=" + "Web" + "&email=" + email +
+                  "&password=" + password;
           new JsonMessageTask(RegistrationFragment.this)
               .execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams);
           break;
@@ -140,7 +147,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
   public void messageResponse(String output) {
     if (output == null || output.isEmpty()) {
       showMessage("Registration failed");
-      registeredUser = null;
+//      registeredUser = null;
     } else {
       try {
         JSONObject jsonObject = new JSONObject(output);
@@ -152,15 +159,15 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
           if (code == 11 && message.equals("User registration OK")) {
 
-            registeredUser = new User(userLocalStore.getStoredToken(), email, phone, address,
-                password);
+//            registeredUser = new User(userLocalStore.getStoredToken(), email, phone, address,
+//                password);
 
-            authenticate(registeredUser);
+            authenticate(email, address, password);
             showMessage(message);
 
           } else {
             showMessage(message);
-            registeredUser = null;
+//            registeredUser = null;
           }
         } else {
           showMessage("Registration failed");
@@ -173,12 +180,18 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     }
   }
 
-  private void authenticate(User registeredUser) {
+  private void authenticate(String email, String address, String password) {
 
-    Log.d(TAG, registeredUser.getEmail() + " Registered");
+    Log.d(TAG, email + " Registered");
 
-    userLocalStore.storeUserData(registeredUser);
-    userLocalStore.setUserLoggedIn(true);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
+        email);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
+        address);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
+        password);
+    UserLocalStore.saveBooleanToSharedPrefs(getActivity().getApplicationContext(), Prefs.REGISTERED,
+        true);
 
     showMessage("На Ваш email выслана ссылка для подтверждения регистрации.");
 

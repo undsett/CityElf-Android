@@ -107,6 +107,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private MarkerOptions markerOptions;
   private Marker marker;
 
+  boolean status;
+
   @Override
   protected void onResume() {
     super.onResume();
@@ -164,15 +166,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.action_enter:
-        //// TODO: 17.07.17 This step depends from status-registred
-        if (registered) {
+      case R.id.settings:
+        //// TODO: 17.07.17 This step depends from status-registered
           Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
           startActivity(intentLogin);
-        } else {
-          Intent intentLogin = new Intent(MapActivity.this, AuthorizationActivity.class);
-          startActivity(intentLogin);
-        }
         return true;
     }
     return super.onOptionsItemSelected(item);
@@ -255,10 +252,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
       @Override
       public void onMarkerDragEnd(Marker marker) {
+        status = true;
         coordinate = marker.getPosition();
         userAddress = sendGeo(coordinate, marker);
-        mAutocompleteTextView.setText(shortAddress(userAddress));
+        mAutocompleteTextView.setText(shortAddress(userAddress) + " ");
         nameOfStreet = userAddress;
+        mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
         getToast(userAddress);
       }
     });
@@ -278,8 +277,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   }
 
+  public boolean getVerificationCity(String street) {
+    return street.contains("Одеса") || street.contains("Одесса");
+  }
+
   private CharSequence shortAddress(String userAddress) {
-    if (getVerificationCity()) {
+    if (getVerificationCity(userAddress)) {
       return userAddress.substring(0, userAddress.indexOf(", Одес"));
     } else {
       getToast("Возможно этот адрес не находится в Одессе");
@@ -320,10 +323,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       case R.id.btnSearchAddress:
         //todo send request to status
         if (nameOfStreet != null) {
-
-          new JsonMessageTask(this).execute(WebUrls.ADDRESS_URL + getFormatedAddress(nameOfStreet) + WebUrls.API_KEY_URL,
-              Constants.GET);
-
+          new JsonMessageTask(this)
+              .execute(WebUrls.ADDRESS_URL + getFormatedAddressToJSON(nameOfStreet) + WebUrls.API_KEY_URL,
+                  null);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Неверный адрес");
@@ -338,27 +340,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         *You need to send to the server variable - "nameOfStreet"
         */
 
+        if (status){
+            status = false;
         if (nameOfStreet != null && mAutocompleteTextView != null
             && mAutocompleteTextView.length() != 0) {
-          if (getVerificationCity()) {
+          if (getVerificationCity(nameOfStreet)) {
             //todo If the street is not in Odessa
             MainActivity.saveToSharedPrefs("address", nameOfStreet);
             Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
             startActivity(intentMain);
           }
-        } else {
-          getToast("Неверный адресс");
+        }} else {
+          getToast("Неверный адрес");
         }
         break;
     }
 
   }
 
-  public boolean getVerificationCity() {
-    return nameOfStreet.contains("Одеса") || nameOfStreet.contains("Одесса");
-  }
 
-  private String getFormatedAddress(String userAddress) {
+
+  private String getFormatedAddressToJSON(String userAddress) {
     String result = null;
     result = userAddress.replaceAll(",", "").replaceAll(" ", "+");
 
@@ -415,15 +417,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
       final PlaceArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
       final String placeId = String.valueOf(item.placeId);
-      Log.i(LOG_TAG, "Selected: " + item.description);
+      Log.d(TAG, "Selected: " + item.description);
 
       nameOfStreet = String.valueOf(item.description);
-      mAutocompleteTextView.setText(shortAddress(nameOfStreet));
+      mAutocompleteTextView.setText(shortAddress(nameOfStreet) + " ");
+      mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
 
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
       placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-      Log.i(LOG_TAG, "Fetching details for ID: " + item.placeId);
+      Log.d(TAG, "Fetching details for ID: " + item.placeId);
     }
   };
 
@@ -432,12 +435,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onResult(PlaceBuffer places) {
       if (!places.getStatus().isSuccess()) {
-        Log.e(LOG_TAG, "Place query did not complete. Error: " +
+        Log.d(TAG, "Place query did not complete. Error: " +
             places.getStatus().toString());
         return;
       }
       // Selecting the first object buffer.
       final Place place = places.get(0);
+      status = true;
       CharSequence attributions = places.getAttributions();
     }
   };
@@ -445,18 +449,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   @Override
   public void onConnected(@Nullable Bundle bundle) {
     mPlaceArrayAdapter.setGoogleApiClient(mGoogleApiClient);
-    Log.i(LOG_TAG, "Google Places API connected.");
+    Log.d(TAG, "Google Places API connected.");
   }
 
   @Override
   public void onConnectionSuspended(int i) {
     mPlaceArrayAdapter.setGoogleApiClient(null);
-    Log.e(LOG_TAG, "Google Places API connection suspended.");
+    Log.d(TAG, "Google Places API connection suspended.");
   }
 
   @Override
   public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-    Log.e(LOG_TAG, "Google Places API connection failed with error code: "
+    Log.d(TAG, "Google Places API connection failed with error code: "
         + connectionResult.getErrorCode());
 
     Toast.makeText(this,

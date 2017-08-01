@@ -18,7 +18,9 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
@@ -37,9 +39,12 @@ public class SettingsActivity extends PreferenceActivity implements
   private Preference exit;
   private RingtonePreference ringtonePref;
 
+  private boolean registered;
+
   private SharedPreferences sharedPreferences;
 
   private AppCompatDelegate delegate;
+  PreferenceCategory category;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +55,50 @@ public class SettingsActivity extends PreferenceActivity implements
     prefMgr.setSharedPreferencesMode(Context.MODE_PRIVATE);
 
     addPreferencesFromResource(R.xml.preferences);
-
+    registered = MainActivity.loadBooleanStatusFromSharedPrefs(Prefs.REGISTERED);
     sharedPreferences = prefMgr.getSharedPreferences();
+    category = (PreferenceCategory) findPreference("registered_user");
+
+    if (!registered) {
+      Preference logout1 = findPreference("email");
+      category.removePreference(logout1);
+      Preference logout2 = findPreference("password");
+      category.removePreference(logout2);
+      Preference logout3 = findPreference("address");
+      category.removePreference(logout3);
+      Preference logout4 = findPreference("manyAddressPref");
+      category.removePreference(logout4);
+      PreferenceCategory category2 = (PreferenceCategory) findPreference("aboutPref");
+      Preference logout5 = findPreference("osmdReg");
+      category2.removePreference(logout5);
+      PreferenceScreen screen = getPreferenceScreen();
+      Preference pref = getPreferenceManager().findPreference("exitCategory");
+      screen.removePreference(pref);
+
+    } else {
+      Preference logout = findPreference("register");
+      category.removePreference(logout);
+
+      emailPref = (EditTextPreference) findPreference("email");
+      emailPref.setSummary(getShortAddress(sharedPreferences.getString("email", "")));
+      emailPref.setOnPreferenceChangeListener(this);
+
+      addressPref = (EditTextPreference) findPreference("address");
+      addressPref.setSummary(sharedPreferences.getString("address", ""));
+      addressPref.setOnPreferenceChangeListener(this);
+
+      exit = (Preference) findPreference("exit");
+      exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          UserLocalStore userLocalStore = new UserLocalStore(
+              SettingsActivity.super.getBaseContext());
+          userLocalStore.clearUserData();
+          return false;
+        }
+      });
+
+    }
 
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);
@@ -62,26 +109,8 @@ public class SettingsActivity extends PreferenceActivity implements
     languagePref = (ListPreference) findPreference("languagePref");
     languagePref.setOnPreferenceChangeListener(this);
 
-    addressPref = (EditTextPreference) findPreference("address");
-    addressPref.setSummary(sharedPreferences.getString("address", ""));
-    addressPref.setOnPreferenceChangeListener(this);
-
-    emailPref = (EditTextPreference) findPreference("email");
-    emailPref.setSummary(getShortAddress(sharedPreferences.getString("email", "")));
-    emailPref.setOnPreferenceChangeListener(this);
-
     ringtonePref = (RingtonePreference) findPreference("ringtonePref");
     ringtonePref.setOnPreferenceChangeListener(this);
-
-    exit = (Preference) findPreference("exit");
-    exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-      @Override
-      public boolean onPreferenceClick(Preference preference) {
-        UserLocalStore userLocalStore = new UserLocalStore(SettingsActivity.super.getBaseContext());
-        userLocalStore.clearUserData();
-        return false;
-      }
-    });
 
 
   }
@@ -137,8 +166,6 @@ public class SettingsActivity extends PreferenceActivity implements
       case "notificationSms":
         //// TODO: 17.06.17 send sms status
       case "notificationPush":
-        boolean isVibrateOn = (Boolean) newValue;
-        getToast(isVibrateOn);
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(80L);
         break;
@@ -156,7 +183,7 @@ public class SettingsActivity extends PreferenceActivity implements
       case "email":
         emailPref.setSummary(getShortAddress(emailPref.getText()));
         break;
-      }
+    }
     return true;
   }
 
@@ -212,7 +239,6 @@ public class SettingsActivity extends PreferenceActivity implements
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
       String s = ((EditTextPreference) pref).getText();
-
       if (key.equals("email")) {
         pref.setSummary(getShortAddress(s));
       } else if (key.equals("address")) {

@@ -8,9 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -101,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     }
 
-    //settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
     // Add user registration status to Shared Prefs, HARDCODED!
     saveToSharedPrefs(Prefs.REGISTERED, false);
 
@@ -187,17 +183,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       case R.id.addPoll:
 
         return true;
-      case R.id.action_enter:
+      case R.id.settings:
 
         //// TODO: 17.07.17 This step depends from status-registred
+        Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intentLogin);
 
-        if (registered) {
-          Intent intentLogin = new Intent(MainActivity.this, SettingsActivity.class);
-          startActivity(intentLogin);
-        } else {
-          Intent intentLogin = new Intent(MainActivity.this, AuthorizationActivity.class);
-          startActivity(intentLogin);
-        }
+        return true;
+      case R.id.btnMap:
+        Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
+        startActivity(intentMap);
         return true;
     }
     return super.onOptionsItemSelected(item);

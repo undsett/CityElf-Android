@@ -10,6 +10,7 @@ public class Constants {
   public static final String AUTH = "Authorization";
   public static final int CONNECTION_TIMEOUT = 1000 * 15;
   public static final String RESPONSE_TO_A_REQUEST = "Ваш запрос отправлен. Мы рассмотрим его в течение 3 рабочих дней, о результате сообщим по электронной почте";
+  public static final String ERROR_INPUT_ADDRESS = "Возможно этот адрес не находится в Одессе";
 
   public class WebUrls {
     public static final String GET_ALL_FORECASTS = "test:8088/services/allforecasts/get?address=";

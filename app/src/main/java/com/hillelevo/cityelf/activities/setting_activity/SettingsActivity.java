@@ -85,7 +85,6 @@ public class SettingsActivity extends PreferenceActivity implements
     prefMgr.setSharedPreferencesMode(Context.MODE_PRIVATE);
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
-
     //HARDCODE
     UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
@@ -173,9 +172,9 @@ public class SettingsActivity extends PreferenceActivity implements
   }
 
 
-  private void getToast(Object obj) {
+  private void getToast(Object obj, int length) {
     Toast toast = Toast.makeText(getApplicationContext(),
-        String.valueOf(obj), Toast.LENGTH_SHORT);
+        String.valueOf(obj), length);
     toast.show();
   }
 
@@ -195,12 +194,18 @@ public class SettingsActivity extends PreferenceActivity implements
         Place place = PlaceAutocomplete.getPlace(this, data);
 
         userAddress = sendGeo(place.getLatLng());
-        addressPref.setSummary(getFormatedStreetName(userAddress));
-        UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
-        Log.d(Constants.TAG, "Place: " + place.getName());
+        if (userAddress.contains(", Одес")) {
+          addressPref.setSummary(getFormatedStreetName(userAddress));
+          //// TODO: 03.08.17 send userUpdate address
+          UserLocalStore
+              .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
+          Log.d(Constants.TAG, "Place: " + place.getName());
+        } else {
+          getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+        }
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
         Status status = PlaceAutocomplete.getStatus(this, data);
-        // TODO: Handle the error.
+        //  Handle the error.
         Log.d(Constants.TAG, status.getStatusMessage());
 
       } else if (resultCode == RESULT_CANCELED) {
@@ -233,6 +238,7 @@ public class SettingsActivity extends PreferenceActivity implements
     assert sb != null;
     return address.getAddressLine(0);
   }
+
   //btnBack home
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
@@ -274,9 +280,9 @@ public class SettingsActivity extends PreferenceActivity implements
       case "languagePref":
         Integer language = Integer.valueOf(String.valueOf(newValue));
         if (language == 1) {
-          getToast("Русский");
+          getToast("Русский", Toast.LENGTH_SHORT);
         } else {
-          getToast("Украинский");
+          getToast("Украинский", Toast.LENGTH_SHORT);
         }
         break;
       case "email":

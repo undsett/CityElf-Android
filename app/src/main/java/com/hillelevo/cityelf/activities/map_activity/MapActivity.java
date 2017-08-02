@@ -287,7 +287,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     if (getVerificationCity(userAddress)) {
       return userAddress.substring(0, userAddress.indexOf(", Одес"));
     } else {
-      getToast("Возможно этот адрес не находится в Одессе");
+      getToast(Constants.ERROR_INPUT_ADDRESS);
       return userAddress;
     }
   }

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable.ClassLoaderCreator;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private TabLayout tabLayout;
 
   private FirstStartApp firstStartApp;
+  private JSONObject jsonObject = null;
 
   @Override
   protected void onResume() {
@@ -100,6 +102,14 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
       //TODO Send AddNewUser request to server
 
+      String firebseId = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
+      String address = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+      String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
+
+      new JsonMessageTask(MainActivity.this)
+          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
     }
 
     firstStartApp = new FirstStartApp(this);
@@ -109,11 +119,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
-    showLoadingAlertDialog();
+    //showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
-    registered = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
-    osmd_admin = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN);
+    registered = UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
+    osmd_admin = UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN);
 
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
@@ -286,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private ProgressDialog progressDialog;
 
   private void showLoadingAlertDialog() {
-     progressDialog = ProgressDialog.show(MainActivity.this, "", "Загрузка данных...", true);
+    progressDialog = ProgressDialog.show(MainActivity.this, "", "Загрузка данных...", true);
   }
 
   /**
@@ -356,9 +368,15 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   //message from JsonMessageTask
   @Override
   public void messageResponse(String output) {
+    try {
+      JSONObject jsn = new JSONObject(output);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
     showMessage(output);
     fillData(output);
   }
+
 
   public void showMessage(String message) {
     Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
@@ -462,8 +480,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);
     tabOne.setText(R.string.tab_notifications_title);
     tabLayout.getTabAt(0).setCustomView(tabOne);
-    if (!registered)
+    if (!registered) {
       tabLayout.setSelectedTabIndicatorColor(00000000);
+    }
 
     if (registered) {
       TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);

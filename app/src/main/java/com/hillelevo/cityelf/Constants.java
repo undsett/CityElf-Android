@@ -35,6 +35,7 @@ public class Constants {
 
   public class Prefs {
     public static final String APP_PREFERENCES = "CityElfPrefs";
+    public static final String ANOMYMOUS = "Anonymous";
     public static final String REGISTERED = "Registered";
     public static final String OSMD_ADMIN = "OsmdAdmin";
     public static final String FIREBASE_ID = "FirebaseId";

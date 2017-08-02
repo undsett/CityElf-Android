@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private TabLayout tabLayout;
 
-  private static SharedPreferences settings;
   private FirstStartApp firstStartApp;
 
   @Override
@@ -94,13 +93,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
-    if(intent.hasExtra("AddUser")) {
+    if(intent.hasExtra("AddUser") && !UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(),
+            Prefs.ANOMYMOUS)) {
       Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
       //TODO Send AddNewUser request to server
+
     }
 
     firstStartApp = new FirstStartApp(this);
-    settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
     if (firstStartApp.isFirstLaunch()) {
       launchFirstTime();

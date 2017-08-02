@@ -101,7 +101,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private AutoCompleteTextView mAutocompleteTextView;
   private static GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
-  private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
+  public static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
   private CameraPosition cameraPosition;
 

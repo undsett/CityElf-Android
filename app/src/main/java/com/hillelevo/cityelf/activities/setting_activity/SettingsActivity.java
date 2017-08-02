@@ -1,24 +1,32 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
-import static android.R.attr.key;
-
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.model.LatLng;
+import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
-import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
-import android.support.annotation.NonNull;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.EditTextPreference;
@@ -34,8 +42,10 @@ import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+import org.json.JSONObject;
 
 public class SettingsActivity extends PreferenceActivity implements
     OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse {
@@ -43,11 +53,17 @@ public class SettingsActivity extends PreferenceActivity implements
   private SwitchPreference notificationSwitch;
   private SwitchPreference notificationSMS;
   private ListPreference languagePref;
-  private EditTextPreference addressPref;
+  private Preference addressPref;
   private EditTextPreference emailPref;
   private Preference exit;
   private RingtonePreference ringtonePref;
   private Preference pref;
+  private Geocoder geocoder;
+  private String userAddress;
+
+
+  private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+
 
   private String key;
   private String res = null;
@@ -56,7 +72,9 @@ public class SettingsActivity extends PreferenceActivity implements
   private SharedPreferences sharedPreferences;
 
   private AppCompatDelegate delegate;
-  PreferenceCategory category;
+  private PreferenceCategory category;
+
+  Preference pref2;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +83,11 @@ public class SettingsActivity extends PreferenceActivity implements
     PreferenceManager prefMgr = getPreferenceManager();
     prefMgr.setSharedPreferencesName(Prefs.APP_PREFERENCES);
     prefMgr.setSharedPreferencesMode(Context.MODE_PRIVATE);
+    geocoder = new Geocoder(this, new Locale("ru", "RU"));
+
 
     //HARDCODE
-    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
+    UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore
@@ -102,12 +122,30 @@ public class SettingsActivity extends PreferenceActivity implements
           (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL))));
       emailPref.setOnPreferenceChangeListener(this);
 
-      addressPref = (EditTextPreference) findPreference("address");
+      addressPref = (Preference) findPreference("address");
+      addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          try {
+            AutocompleteFilter filter = new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                .setCountry("UA")
+                .build();
+            Intent intent =
+                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                    .setBoundsBias(MapActivity.BOUNDS_VIEW)
+                    .setFilter(filter)
+                    .build(SettingsActivity.this);
+
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+          } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+          }
+          return false;
+        }
+      });
       addressPref.setSummary(getFormatedStreetName(
           UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
-      addressPref.setText(getFormatedStreetName(
-          UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
-      addressPref.setOnPreferenceChangeListener(this);
 
       exit = (Preference) findPreference("exit");
       exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -132,7 +170,6 @@ public class SettingsActivity extends PreferenceActivity implements
     ringtonePref = (RingtonePreference) findPreference("ringtonePref");
     ringtonePref.setOnPreferenceChangeListener(this);
 
-
   }
 
 
@@ -150,7 +187,52 @@ public class SettingsActivity extends PreferenceActivity implements
     }
   }
 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+      if (resultCode == RESULT_OK) {
+        Place place = PlaceAutocomplete.getPlace(this, data);
 
+        userAddress = sendGeo(place.getLatLng());
+        addressPref.setSummary(getFormatedStreetName(userAddress));
+        UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
+        Log.d(Constants.TAG, "Place: " + place.getName());
+      } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+        Status status = PlaceAutocomplete.getStatus(this, data);
+        // TODO: Handle the error.
+        Log.d(Constants.TAG, status.getStatusMessage());
+
+      } else if (resultCode == RESULT_CANCELED) {
+        // The user canceled the operation.
+      }
+    }
+
+  }
+
+  private String sendGeo(LatLng coordinate) {
+    List<Address> addresses = new ArrayList<>();
+    try {
+      addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 1);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    android.location.Address address = addresses.get(0);
+    StringBuilder sb = null;
+    if (address != null) {
+      sb = new StringBuilder();
+      for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+        if (i == 1) {
+          continue;
+        }
+        sb.append(address.getAddressLine(i) + "\n");
+      }
+    }
+
+    assert sb != null;
+    return address.getAddressLine(0);
+  }
   //btnBack home
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
@@ -196,9 +278,6 @@ public class SettingsActivity extends PreferenceActivity implements
         } else {
           getToast("Украинский");
         }
-        break;
-      case "address":
-        addressPref.setSummary(addressPref.getText());
         break;
       case "email":
         emailPref.setSummary(getShortAddress(emailPref.getText()));

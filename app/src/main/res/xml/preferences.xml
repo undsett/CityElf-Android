@@ -4,9 +4,8 @@
   <PreferenceCategory android:title="Настройки"
     android:key="registered_user">
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
-      android:key="register"
+      android:key="login"
       android:title="Авторизироваться/Зарегистрироваться">
-      <intent android:action="com.hillelevo.cityelf.AuthorizationActivity" />
     </Preference>
     <EditTextPreference
       android:key="email"

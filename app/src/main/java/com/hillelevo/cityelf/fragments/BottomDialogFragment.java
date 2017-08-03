@@ -2,24 +2,15 @@ package com.hillelevo.cityelf.fragments;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.Constants.Resource;
-import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.webutils.JsonMessageTask;
-import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -37,22 +28,27 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-public class BottomDialogFragment extends DialogFragment implements OnClickListener,
-    JsonMessageResponse {
+public class BottomDialogFragment extends DialogFragment implements OnClickListener {
 
   private boolean isRegistered;
+  private String type;
+  private String address;
 
   private Spinner spinner;
+  private TextView tvTitle;
   private RadioButton radioButtonElectricity;
   private RadioButton radioButtonGas;
   private RadioButton radioButtonWater;
-  private String shutdownResource;
-  TextView tvTitle;
 
   private SharedPreferences settings;
+  private OnDialogReportClickListener listener;
+
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    listener = (OnDialogReportClickListener) activity;
+  }
 
   /**
    * Create a new instance of MyDialogFragment
@@ -122,12 +118,15 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
         switch (checkedId) {
           case R.id.radioButtonDialogElectricity:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogElectricity");
+            type = getString(R.string.dialog_electricity);
             break;
           case R.id.radioButtonDialogGas:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogGas");
+            type = getString(R.string.dialog_gas);
             break;
           case R.id.radioButtonDialogWater:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogWater");
+            type = getString(R.string.dialog_water);
             break;
         }
       }
@@ -166,49 +165,13 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     switch (view.getId()) {
       case R.id.buttonDialogReport:
         Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
-        // Send report request to server
-
-        sendReportToServer();
-
+        listener.onDialogReportClick(type, spinner.getSelectedItem().toString());
         break;
       case R.id.buttonDialogLogin:
         Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(getActivity(), AuthorizationActivity.class);
-        startActivity(intent);
-        break;
-      case R.id.radioButtonDialogElectricity:
-        shutdownResource = Resource.ELECTRICITY;
-        break;
-      case R.id.radioButtonDialogGas:
-        shutdownResource = Resource.GAS;
-        break;
-      case R.id.radioButtonDialogWater:
-        shutdownResource = Resource.WATER;
+        listener.onDialogLoginClick();
         break;
     }
-  }
-
-  private void sendReportToServer() {
-    JSONObject request = new JSONObject();
-    try {
-      JSONObject shutdown = new JSONObject();
-
-      if (shutdownResource != null) {
-        shutdown.put("forecastType", shutdownResource);
-        shutdown.put("start", getSystemTime());
-        JSONObject address = new JSONObject();
-        address.put("id", "133");//HARDCODE address_id
-        shutdown.put("address", address);
-
-        request.put("userId", "10");//HARDCODE user_id
-      }
-      request.put("shutdownReport", shutdown);
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-
-    String report = request.toString();
-    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report);
   }
 
   //Load data from Shared Prefs
@@ -224,17 +187,10 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     }
   }
 
-  @Override
-  public void messageResponse(String output) {
-    String result = output;
-  }
+  public interface OnDialogReportClickListener {
 
-  public String getSystemTime() {
-    Date cal = (Date) Calendar.getInstance().getTime();
-    //2017-08-03T16:49:00
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String systemTime = formatter.format(cal).replace(" ", "T");
+    void onDialogReportClick(String type, String address);
 
-    return systemTime;
+    void onDialogLoginClick();
   }
 }

@@ -36,16 +36,10 @@ public class Constants {
 
   }
 
-  public class Resource {
-    public static final String WATER = "Water";
-    public static final String GAS = "Gas";
-    public static final String ELECTRICITY = "Electricity";
-
-
-  }
-
   public class Prefs {
     public static final String APP_PREFERENCES = "CityElfPrefs";
+    public static final String NOT_FIRST_START = "NotFirstStart";
+    public static final String ANOMYMOUS = "Anonymous";
     public static final String REGISTERED = "Registered";
     public static final String OSMD_ADMIN = "OsmdAdmin";
     public static final String FIREBASE_ID = "FirebaseId";

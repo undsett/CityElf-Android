@@ -22,7 +22,10 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -30,7 +33,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -53,13 +55,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment.OnDialogReportClickListener;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
+public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
+    OnDialogReportClickListener {
 
   private static String result;
+//  private boolean anonymous;
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
@@ -71,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private TabLayout tabLayout;
 
-  private static SharedPreferences settings;
-  private FirstStartApp firstStartApp;
   private JSONObject jsonObject = null;
 
   @Override
@@ -94,30 +116,37 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
-    if (intent.hasExtra("AddUser")) {
+    if(intent.hasExtra("AddUser") && !UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(),
+            Prefs.ANOMYMOUS)) {
       Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+
       //TODO Send AddNewUser request to server
+
       String firebseId = UserLocalStore
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
       String address = UserLocalStore
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
       String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
 
-      new JsonMessageTask(MainActivity.this)
-          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+//      new JsonMessageTask(MainActivity.this)
+//          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
     }
 
-    firstStartApp = new FirstStartApp(this);
-    settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
-    if (firstStartApp.isFirstLaunch()) {
-      launchFirstTime();
+    if(!UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+      Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+      startActivity(firstStart);
       finish();
     }
 
-    //showLoadingAlertDialog();
+//    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
+//    anonymous = UserLocalStore
+//        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS);
     registered = UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
     osmd_admin = UserLocalStore
@@ -165,11 +194,27 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
   }
 
-  private void launchFirstTime() {
-    firstStartApp.setFirstLaunch(false);
-    Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
-    startActivity(firstStart);
-    finish();
+  /**
+   * Click on ReportDialog Report button
+   * @param type type of event: 0 - Electricity, 1 - Gas, 2 - Water
+   * @param address address of event
+   */
+  @Override
+  public void onDialogReportClick(String type, String address) {
+    sendReportToServer(type, address);
+  }
+
+  @Override
+  public void onDialogLoginClick() {
+    if(UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
+      Intent intent = new Intent(MainActivity.this, AuthorizationActivity.class);
+      startActivity(intent);
+    }
+    else {
+      Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
+      startActivity(intentMap);
+      Toast.makeText(this, "Please enter your address first", Toast.LENGTH_SHORT).show();
+    }
   }
 
   @Override
@@ -346,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   private void startJsonResponse() {
-    if (firstStartApp.isFirstLaunch()) {
+    if (!UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
@@ -364,11 +409,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   //message from JsonMessageTask
   @Override
   public void messageResponse(String output) {
-    try {
+   /* try {
       JSONObject jsn = new JSONObject(output);
     } catch (JSONException e) {
       e.printStackTrace();
-    }
+    }*/
     showMessage(output);
     fillData(output);
   }
@@ -392,9 +437,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     if (message == null || message.isEmpty()) {
       showMessage("No Forecast");
+      progressDialog.dismiss();
     } else {
       try {
         jsonObject = new JSONObject(message);
+        progressDialog.dismiss();
 
         while (count < jsonObject.length()) {
 
@@ -460,7 +507,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         // Add new data to ViewPager
         pagerAdapter.notifyDataSetChanged();
         setupTabs();
-        progressDialog.dismiss();
 
       } catch (JSONException e) {
         e.printStackTrace();
@@ -468,6 +514,43 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     }
   }
+
+  //TODO Change addressStreet to address ID!
+  private void sendReportToServer(String type, String addressStreet) {
+    JSONObject request = new JSONObject();
+    try {
+      JSONObject shutdown = new JSONObject();
+
+        shutdown.put("forecastType", type);
+        shutdown.put("start", getSystemTime());
+        JSONObject address = new JSONObject();
+        address.put("id", "133");//HARDCODE address_id
+        shutdown.put("address", address);
+
+        request.put("userId", "10");//HARDCODE user_id
+
+      request.put("shutdownReport", shutdown);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    String report = request.toString();
+    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report);
+  }
+
+  public String getSystemTime() {
+    Date cal = (Date) Calendar.getInstance().getTime();
+    //2017-08-03T16:49:00
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String systemTime = formatter.format(cal).replace(" ", "T");
+
+    return systemTime;
+  }
+
+//  @Override
+//  public void messageResponse(String output) {
+//    String result = output;
+//  }
 
   /**
    * Set up tabs for ViewPager

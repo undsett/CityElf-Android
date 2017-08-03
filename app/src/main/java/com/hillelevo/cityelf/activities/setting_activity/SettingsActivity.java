@@ -12,6 +12,7 @@ import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
@@ -47,12 +48,14 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SettingsActivity extends PreferenceActivity implements
-    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse, OnPreferenceClickListener {
+    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse,
+    OnPreferenceClickListener {
 
   private SwitchPreference notificationSwitch;
   private SwitchPreference notificationSMS;
@@ -119,9 +122,15 @@ public class SettingsActivity extends PreferenceActivity implements
       login.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-          //// TODO: 04.08.17 Туууут
-          Intent firstStart = new Intent(SettingsActivity.this, MapActivity.class);
-          startActivity(firstStart);
+          if (UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
+            Intent intent = new Intent(SettingsActivity.this, AuthorizationActivity.class);
+            startActivity(intent);
+          } else {
+            Intent firstStart = new Intent(SettingsActivity.this, MapActivity.class);
+            startActivity(firstStart);
+            Toast.makeText(SettingsActivity.this, "Please enter your address first",
+                Toast.LENGTH_SHORT).show();
+          }
           return false;
         }
       });
@@ -173,7 +182,6 @@ public class SettingsActivity extends PreferenceActivity implements
       });
 
     }
-
 
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);

@@ -32,7 +32,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   EditText etLogEmail, etLogPassword;
   TextView tvRegisteraitUser;
   Button btnLogin;
-  OnRegisteraitNewClickListener listner;
+  OnRegistrationClickListener listner;
 
   private String password = null;
 
@@ -43,7 +43,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
-    listner = (OnRegisteraitNewClickListener) activity;
+    listner = (OnRegistrationClickListener) activity;
   }
 
   @Nullable
@@ -88,7 +88,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
 
       case R.id.tvRegisteraitUser:
-        listner.onRegistraitClick();
+        listner.onRegistrationClick();
         break;
     }
   }
@@ -168,8 +168,8 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   }
 
 
-  public interface OnRegisteraitNewClickListener {
+  public interface OnRegistrationClickListener {
 
-    void onRegistraitClick();
+    void onRegistrationClick();
   }
 }

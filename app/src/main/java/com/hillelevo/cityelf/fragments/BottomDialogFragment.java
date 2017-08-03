@@ -2,11 +2,20 @@ package com.hillelevo.cityelf.fragments;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.Resource;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -28,12 +37,19 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class BottomDialogFragment extends DialogFragment implements OnClickListener {
+public class BottomDialogFragment extends DialogFragment implements OnClickListener,
+    JsonMessageResponse {
 
   private boolean isRegistered;
 
   private Spinner spinner;
+  private RadioButton radioButtonElectricity;
+  private RadioButton radioButtonGas;
+  private RadioButton radioButtonWater;
+  private String shutdownResource;
   TextView tvTitle;
 
   private SharedPreferences settings;
@@ -66,14 +82,14 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.fragment_bottom_dialog, container, true);
 
-      getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM);
-      getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+    getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM);
+    getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
     tvTitle = (TextView) v.findViewById(R.id.textViewDialogTitle);
-    RadioButton radioButtonElectricity =
+    radioButtonElectricity =
         (RadioButton) v.findViewById(R.id.radioButtonDialogElectricity);
-    RadioButton radioButtonGas = (RadioButton) v.findViewById(R.id.radioButtonDialogGas);
-    RadioButton radioButtonWater = (RadioButton) v.findViewById(R.id.radioButtonDialogWater);
+    radioButtonGas = (RadioButton) v.findViewById(R.id.radioButtonDialogGas);
+    radioButtonWater = (RadioButton) v.findViewById(R.id.radioButtonDialogWater);
     Button buttonReport = (Button) v.findViewById(R.id.buttonDialogReport);
     Button buttonLogin = (Button) v.findViewById(R.id.buttonDialogLogin);
     spinner = (Spinner) v.findViewById(R.id.spinnerDialog);
@@ -128,7 +144,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       address = loadFromSharedPrefs(Prefs.ADDRESS + i);
       if (!address.equals("Error")) {
         Log.d(TAG, "Dialog add to Spinner in Dialog: " + address);
-        addressList.add(address);
+        addressList.add(SettingsActivity.getFormatedStreetName(address));
       }
     }
 
@@ -150,15 +166,49 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     switch (view.getId()) {
       case R.id.buttonDialogReport:
         Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
-        //TODO Send report request to server
-        break;
+        // Send report request to server
 
+        sendReportToServer();
+
+        break;
       case R.id.buttonDialogLogin:
         Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(getActivity(), AuthorizationActivity.class);
         startActivity(intent);
         break;
+      case R.id.radioButtonDialogElectricity:
+        shutdownResource = Resource.ELECTRICITY;
+        break;
+      case R.id.radioButtonDialogGas:
+        shutdownResource = Resource.GAS;
+        break;
+      case R.id.radioButtonDialogWater:
+        shutdownResource = Resource.WATER;
+        break;
     }
+  }
+
+  private void sendReportToServer() {
+    JSONObject request = new JSONObject();
+    try {
+      JSONObject shutdown = new JSONObject();
+
+      if (shutdownResource != null) {
+        shutdown.put("forecastType", shutdownResource);
+        shutdown.put("start", getSystemTime());
+        JSONObject address = new JSONObject();
+        address.put("id", "133");//HARDCODE address_id
+        shutdown.put("address", address);
+
+        request.put("userId", "10");//HARDCODE user_id
+      }
+      request.put("shutdownReport", shutdown);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    String report = request.toString();
+    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report);
   }
 
   //Load data from Shared Prefs
@@ -172,5 +222,19 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       Log.d(TAG, "Dialog mSettings != null, not contains " + id);
       return "Error";
     }
+  }
+
+  @Override
+  public void messageResponse(String output) {
+    String result = output;
+  }
+
+  public String getSystemTime() {
+    Date cal = (Date) Calendar.getInstance().getTime();
+    //2017-08-03T16:49:00
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String systemTime = formatter.format(cal).replace(" ", "T");
+
+    return systemTime;
   }
 }

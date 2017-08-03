@@ -90,7 +90,7 @@ public class SettingsActivity extends PreferenceActivity implements
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
     //HARDCODE
-    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
+    UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore
@@ -351,7 +351,7 @@ public class SettingsActivity extends PreferenceActivity implements
     }
   }
 
-  private String getFormatedStreetName(String userAddress) {
+  public static String getFormatedStreetName(String userAddress) {
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
         return userAddress.substring(0, userAddress.indexOf(", Одес"));

@@ -10,10 +10,12 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
@@ -45,6 +47,8 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SettingsActivity extends PreferenceActivity implements
@@ -86,7 +90,7 @@ public class SettingsActivity extends PreferenceActivity implements
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
     //HARDCODE
-    UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
+    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore
@@ -196,7 +200,8 @@ public class SettingsActivity extends PreferenceActivity implements
         userAddress = sendGeo(place.getLatLng());
         if (userAddress.contains(", Одес")) {
           addressPref.setSummary(getFormatedStreetName(userAddress));
-          //// TODO: 03.08.17 send userUpdate address
+          // send userUpdate address
+          updateUserAddress(userAddress);
           UserLocalStore
               .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
           Log.d(Constants.TAG, "Place: " + place.getName());
@@ -213,6 +218,29 @@ public class SettingsActivity extends PreferenceActivity implements
       }
     }
 
+  }
+
+  private void updateUserAddress(String address) {
+    JSONObject updatePreferenceObject = new JSONObject();
+    try {
+      updatePreferenceObject.put("id", 13);
+      updatePreferenceObject.put("phone", "09364646464");
+
+      JSONObject newAddress = new JSONObject();
+      newAddress.put("id", 133); //тут блять id дома какого-то хрена требует сервер, хотя не должен
+      newAddress.put("address", address);
+      JSONArray array = new JSONArray();
+      array.put(newAddress);
+
+      updatePreferenceObject.put("addresses", array);
+
+
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+    String jsonData = updatePreferenceObject.toString();
+
+    new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
   }
 
   private String sendGeo(LatLng coordinate) {

@@ -351,13 +351,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
           Prefs.ADDRESS_1);
-      try {
+      /*try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
                 Constants.GET);
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
-      }
+      }*/
     }
   }
 

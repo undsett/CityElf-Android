@@ -2,6 +2,28 @@ package com.hillelevo.cityelf.activities;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,7 +32,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable.ClassLoaderCreator;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -32,31 +53,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.hillelevo.cityelf.Constants;
-import com.hillelevo.cityelf.Constants.Actions;
-import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.Constants.WebUrls;
-import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.data.UserLocalStore;
-import com.hillelevo.cityelf.activities.map_activity.MapActivity;
-import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
-import com.hillelevo.cityelf.data.Advert;
-import com.hillelevo.cityelf.data.Notification;
-import com.hillelevo.cityelf.data.Poll;
-import com.hillelevo.cityelf.fragments.AdvertFragment;
-import com.hillelevo.cityelf.fragments.BottomDialogFragment;
-import com.hillelevo.cityelf.fragments.NotificationFragment;
-import com.hillelevo.cityelf.fragments.PollFragment;
-import com.hillelevo.cityelf.webutils.JsonMessageTask;
-import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
@@ -353,13 +351,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
           Prefs.ADDRESS_1);
-      try {
+      /*try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
                 Constants.GET);
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
-      }
+      }*/
     }
   }
 

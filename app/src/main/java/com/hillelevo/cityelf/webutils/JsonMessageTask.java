@@ -2,12 +2,8 @@ package com.hillelevo.cityelf.webutils;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import android.os.AsyncTask;
-import android.os.Build.VERSION_CODES;
-import android.support.annotation.RequiresApi;
-import android.util.Base64;
-import android.util.Log;
 import com.hillelevo.cityelf.Constants;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +12,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+
+import android.os.AsyncTask;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
+import android.util.Base64;
+import android.util.Log;
 import javax.net.ssl.HttpsURLConnection;
 
 public class JsonMessageTask extends AsyncTask<String, Void, String> {

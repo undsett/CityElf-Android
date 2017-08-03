@@ -2,6 +2,31 @@ package com.hillelevo.cityelf.activities;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -52,10 +77,6 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
@@ -121,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
-    showLoadingAlertDialog();
+//    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
 //    anonymous = UserLocalStore
@@ -179,8 +200,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
    * @param address address of event
    */
   @Override
-  public void onDialogReportClick(int type, String address) {
-    //TODO Send report request
+  public void onDialogReportClick(String type, String address) {
+    sendReportToServer(type, address);
   }
 
   @Override
@@ -375,13 +396,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
           Prefs.ADDRESS_1);
-      try {
+      /*try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
                 Constants.GET);
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
-      }
+      }*/
     }
   }
 
@@ -493,6 +514,43 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     }
   }
+
+  //TODO Change addressStreet to address ID!
+  private void sendReportToServer(String type, String addressStreet) {
+    JSONObject request = new JSONObject();
+    try {
+      JSONObject shutdown = new JSONObject();
+
+        shutdown.put("forecastType", type);
+        shutdown.put("start", getSystemTime());
+        JSONObject address = new JSONObject();
+        address.put("id", "133");//HARDCODE address_id
+        shutdown.put("address", address);
+
+        request.put("userId", "10");//HARDCODE user_id
+
+      request.put("shutdownReport", shutdown);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    String report = request.toString();
+    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report);
+  }
+
+  public String getSystemTime() {
+    Date cal = (Date) Calendar.getInstance().getTime();
+    //2017-08-03T16:49:00
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String systemTime = formatter.format(cal).replace(" ", "T");
+
+    return systemTime;
+  }
+
+//  @Override
+//  public void messageResponse(String output) {
+//    String result = output;
+//  }
 
   /**
    * Set up tabs for ViewPager

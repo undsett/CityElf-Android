@@ -101,7 +101,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private AutoCompleteTextView mAutocompleteTextView;
   private static GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
-  private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
+  public static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
   private CameraPosition cameraPosition;
 
@@ -287,7 +287,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     if (getVerificationCity(userAddress)) {
       return userAddress.substring(0, userAddress.indexOf(", Одес"));
     } else {
-      getToast("Возможно этот адрес не находится в Одессе");
+      getToast(Constants.ERROR_INPUT_ADDRESS);
       return userAddress;
     }
   }

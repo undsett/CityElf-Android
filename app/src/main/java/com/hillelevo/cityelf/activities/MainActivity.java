@@ -8,9 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable.ClassLoaderCreator;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -46,6 +44,7 @@ import com.hillelevo.cityelf.data.Notification;
 import com.hillelevo.cityelf.data.Poll;
 import com.hillelevo.cityelf.fragments.AdvertFragment;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment.OnDialogReportClickListener;
 import com.hillelevo.cityelf.fragments.NotificationFragment;
 import com.hillelevo.cityelf.fragments.PollFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
@@ -59,9 +58,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements JsonMessageResponse {
+public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
+    OnDialogReportClickListener {
 
   private static String result;
+//  private boolean anonymous;
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private TabLayout tabLayout;
 
-  private FirstStartApp firstStartApp;
   private JSONObject jsonObject = null;
 
   @Override
@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             Prefs.ANOMYMOUS)) {
       Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
       UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+
       //TODO Send AddNewUser request to server
 
       String firebseId = UserLocalStore
@@ -108,20 +110,22 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
       String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
 
-      new JsonMessageTask(MainActivity.this)
-          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+//      new JsonMessageTask(MainActivity.this)
+//          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
     }
 
-    firstStartApp = new FirstStartApp(this);
 
-    if (firstStartApp.isFirstLaunch()) {
-      launchFirstTime();
+    if(!UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+      Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+      startActivity(firstStart);
       finish();
     }
 
-    //showLoadingAlertDialog();
+    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
+//    anonymous = UserLocalStore
+//        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS);
     registered = UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
     osmd_admin = UserLocalStore
@@ -169,11 +173,27 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
   }
 
-  private void launchFirstTime() {
-    firstStartApp.setFirstLaunch(false);
-    Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
-    startActivity(firstStart);
-    finish();
+  /**
+   * Click on ReportDialog Report button
+   * @param type type of event: 0 - Electricity, 1 - Gas, 2 - Water
+   * @param address address of event
+   */
+  @Override
+  public void onDialogReportClick(int type, String address) {
+    //TODO Send report request
+  }
+
+  @Override
+  public void onDialogLoginClick() {
+    if(UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
+      Intent intent = new Intent(MainActivity.this, AuthorizationActivity.class);
+      startActivity(intent);
+    }
+    else {
+      Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
+      startActivity(intentMap);
+      Toast.makeText(this, "Please enter your address first", Toast.LENGTH_SHORT).show();
+    }
   }
 
   @Override
@@ -350,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   private void startJsonResponse() {
-    if (firstStartApp.isFirstLaunch()) {
+    if (!UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
@@ -368,11 +388,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   //message from JsonMessageTask
   @Override
   public void messageResponse(String output) {
-    try {
+   /* try {
       JSONObject jsn = new JSONObject(output);
     } catch (JSONException e) {
       e.printStackTrace();
-    }
+    }*/
     showMessage(output);
     fillData(output);
   }
@@ -396,9 +416,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     if (message == null || message.isEmpty()) {
       showMessage("No Forecast");
+      progressDialog.dismiss();
     } else {
       try {
         jsonObject = new JSONObject(message);
+        progressDialog.dismiss();
 
         while (count < jsonObject.length()) {
 
@@ -464,7 +486,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         // Add new data to ViewPager
         pagerAdapter.notifyDataSetChanged();
         setupTabs();
-        progressDialog.dismiss();
 
       } catch (JSONException e) {
         e.printStackTrace();

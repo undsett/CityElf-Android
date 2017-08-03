@@ -9,6 +9,7 @@ import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,11 +33,20 @@ import android.widget.Toast;
 public class BottomDialogFragment extends DialogFragment implements OnClickListener {
 
   private boolean isRegistered;
+  private int type;
+  private String address;
 
   private Spinner spinner;
-  TextView tvTitle;
+  private TextView tvTitle;
 
   private SharedPreferences settings;
+  private OnDialogReportClickListener listener;
+
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    listener = (OnDialogReportClickListener) activity;
+  }
 
   /**
    * Create a new instance of MyDialogFragment
@@ -106,12 +116,15 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
         switch (checkedId) {
           case R.id.radioButtonDialogElectricity:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogElectricity");
+            type = 0;
             break;
           case R.id.radioButtonDialogGas:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogGas");
+            type = 1;
             break;
           case R.id.radioButtonDialogWater:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogWater");
+            type = 2;
             break;
         }
       }
@@ -150,13 +163,12 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     switch (view.getId()) {
       case R.id.buttonDialogReport:
         Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
-        //TODO Send report request to server
+        listener.onDialogReportClick(type, spinner.getSelectedItem().toString());
         break;
 
       case R.id.buttonDialogLogin:
         Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(getActivity(), AuthorizationActivity.class);
-        startActivity(intent);
+        listener.onDialogLoginClick();
         break;
     }
   }
@@ -172,5 +184,10 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       Log.d(TAG, "Dialog mSettings != null, not contains " + id);
       return "Error";
     }
+  }
+
+  public interface OnDialogReportClickListener {
+    void onDialogReportClick(int type, String address);
+    void onDialogLoginClick();
   }
 }

@@ -52,7 +52,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SettingsActivity extends PreferenceActivity implements
-    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse {
+    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse, OnPreferenceClickListener {
 
   private SwitchPreference notificationSwitch;
   private SwitchPreference notificationSMS;
@@ -64,6 +64,7 @@ public class SettingsActivity extends PreferenceActivity implements
   private Preference pref;
   private Geocoder geocoder;
   private String userAddress;
+  private Preference login;
 
 
   private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -90,7 +91,7 @@ public class SettingsActivity extends PreferenceActivity implements
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
     //HARDCODE
-    UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
+    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore
@@ -114,8 +115,20 @@ public class SettingsActivity extends PreferenceActivity implements
       Preference pref = getPreferenceManager().findPreference("exitCategory");
       screen.removePreference(pref);
 
+      login = (Preference) findPreference("login");
+      login.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          //// TODO: 04.08.17 Туууут
+          Intent firstStart = new Intent(SettingsActivity.this, MapActivity.class);
+          startActivity(firstStart);
+          return false;
+        }
+      });
+
+
     } else {
-      Preference logout = findPreference("register");
+      Preference logout = findPreference("login");
       category.removePreference(logout);
 
       emailPref = (EditTextPreference) findPreference("email");
@@ -160,6 +173,7 @@ public class SettingsActivity extends PreferenceActivity implements
       });
 
     }
+
 
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);
@@ -223,12 +237,12 @@ public class SettingsActivity extends PreferenceActivity implements
   private void updateUserAddress(String address) {
     JSONObject updatePreferenceObject = new JSONObject();
     try {
-      updatePreferenceObject.put("id", 13);
+      updatePreferenceObject.put("id", 13);//hardcode
       updatePreferenceObject.put("phone", "09364646464");
 
       JSONObject newAddress = new JSONObject();
-      newAddress.put("id", 133); //тут блять id дома какого-то хрена требует сервер, хотя не должен
       newAddress.put("address", address);
+      newAddress.put("addressUa", address);
       JSONArray array = new JSONArray();
       array.put(newAddress);
 
@@ -418,5 +432,11 @@ public class SettingsActivity extends PreferenceActivity implements
     if (output.isEmpty()) {
 //   TODO
     }
+  }
+
+  @Override
+  public boolean onPreferenceClick(Preference preference) {
+
+    return false;
   }
 }

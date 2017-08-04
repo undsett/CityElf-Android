@@ -10,14 +10,16 @@ import android.widget.Toast;
 
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.fragments.auth_fragments.ForgotPasswordFragment;
 import com.hillelevo.cityelf.fragments.auth_fragments.LoginFragment;
 import com.hillelevo.cityelf.fragments.auth_fragments.LoginFragment.OnRegisteraitNewClickListener;
 import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.auth_fragments.LoginFragment.OnRestorePasswordNewClickListener;
 import com.hillelevo.cityelf.fragments.auth_fragments.RegistrationFragment;
 
 
 public class AuthorizationActivity extends FragmentActivity implements
-    OnRegisteraitNewClickListener {
+    OnRegisteraitNewClickListener, OnRestorePasswordNewClickListener {
 
   TextView textView;
 
@@ -26,7 +28,7 @@ public class AuthorizationActivity extends FragmentActivity implements
 
   LoginFragment loginFragment;
   RegistrationFragment registrationFragment;
-  UserLocalStore userLocalStore;
+  ForgotPasswordFragment forgotPasswordFragment;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class AuthorizationActivity extends FragmentActivity implements
     setContentView(R.layout.activity_authorization);
 
     textView = (TextView) findViewById(R.id.tvRegisteraitUser);
+    textView = (TextView) findViewById(R.id.tvRestorePassword);
 
     fragmentManager = getSupportFragmentManager();
     fragmentTransaction = fragmentManager.beginTransaction();
@@ -41,7 +44,6 @@ public class AuthorizationActivity extends FragmentActivity implements
     fragmentTransaction.add(R.id.fragment_container, loginFragment);
     fragmentTransaction.commit();
 
-//    userLocalStore = new UserLocalStore(this);
   }
 
   @Override
@@ -53,27 +55,22 @@ public class AuthorizationActivity extends FragmentActivity implements
     fragmentTransaction.commit();
   }
 
-//  @Override
-//  protected void onStart(){
-//    super.onStart();
-//
-//    if(authenticate() == true){
-//      displayUserDetails();
-//    }else{
-//      startActivity(new Intent(AuthorizationActivity.this, LoginFragment.class));
-//    }
-//  }
-
-  private void displayUserDetails() {
-    String message =
-        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)
-            + UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
-    Toast toast = Toast.makeText(AuthorizationActivity.this, message, Toast.LENGTH_LONG);
-    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-    toast.show();
+  @Override
+  public void onRestorePasswordClick() {
+    fragmentManager = getSupportFragmentManager();
+    fragmentTransaction = fragmentManager.beginTransaction();
+    forgotPasswordFragment = new ForgotPasswordFragment();
+    fragmentTransaction.replace(R.id.fragment_container, forgotPasswordFragment);
+    fragmentTransaction.commit();
   }
 
-//  private boolean authenticate() {
-//    return userLocalStore.getUserLoggedIn();
+//  private void displayUserDetails() {
+//    String message =
+//        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)
+//            + UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+//    Toast toast = Toast.makeText(AuthorizationActivity.this, message, Toast.LENGTH_LONG);
+//    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+//    toast.show();
 //  }
+
 }

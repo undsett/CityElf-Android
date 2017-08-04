@@ -18,11 +18,11 @@ import java.net.ProtocolException;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
-public class JsonMessageTask extends AsyncTask<String, Void, String> {
+public class PoolsTask extends AsyncTask<String, Void, String> {
 
-  private JsonMessageResponse response = null;
+  private PoolsResponse response = null;
 
-  public JsonMessageTask(JsonMessageResponse listener) {
+  public PoolsTask(PoolsResponse listener) {
     response = listener;
   }
 
@@ -60,9 +60,11 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           outputStream.close();
 
           int responseCode = connection.getResponseCode();
-          if (responseCode != HttpsURLConnection.HTTP_OK) {
-            Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error" + Constants.POST + responseCode;
+
+          Log.d(TAG, "Response Code is: " + responseCode);
+
+          if (responseCode != 200) {
+
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();
@@ -95,9 +97,8 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 
           int responseCode = connection.getResponseCode();
 
-          if (responseCode != HttpsURLConnection.HTTP_OK) {
-            Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error" + Constants.PUT + responseCode;
+          if (responseCode != 200) {
+
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();
@@ -116,7 +117,6 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpsURLConnection.HTTP_OK) {
           Log.d(TAG, "Response Code is: " + responseCode);
-          return "Error" + Constants.GET + responseCode;
         }
 
       }
@@ -168,12 +168,12 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    response.messageResponse(result);
+    response. poolsResponse(result);
   }
 
-  public interface JsonMessageResponse {
+  public interface PoolsResponse {
 
-    void messageResponse(String output);
+    void poolsResponse(String output);
   }
 
 }

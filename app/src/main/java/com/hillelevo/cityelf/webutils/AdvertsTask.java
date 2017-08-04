@@ -18,11 +18,12 @@ import java.net.ProtocolException;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
-public class JsonMessageTask extends AsyncTask<String, Void, String> {
+public class AdvertsTask extends AsyncTask<String, Void, String> {
 
-  private JsonMessageResponse response = null;
+  int responseCode;
+  private AdvertsResponse response = null;
 
-  public JsonMessageTask(JsonMessageResponse listener) {
+  public AdvertsTask(AdvertsResponse listener) {
     response = listener;
   }
 
@@ -60,9 +61,11 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           outputStream.close();
 
           int responseCode = connection.getResponseCode();
-          if (responseCode != HttpsURLConnection.HTTP_OK) {
-            Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error" + Constants.POST + responseCode;
+
+          Log.d(TAG, "Response Code is: " + responseCode);
+
+          if (responseCode != 200) {
+
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();
@@ -93,11 +96,10 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           outputStream.write(params[2].getBytes());
           outputStream.close();
 
-          int responseCode = connection.getResponseCode();
+          responseCode = connection.getResponseCode();
 
-          if (responseCode != HttpsURLConnection.HTTP_OK) {
-            Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error" + Constants.PUT + responseCode;
+          if (responseCode != 200) {
+
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();
@@ -110,13 +112,19 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         url = new URL(params[0]);
         connection = (HttpURLConnection) url.openConnection();
 
+        String authCertificate = "Basic " + Base64
+            .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
+                Base64.URL_SAFE | Base64.NO_WRAP);
+
+        connection.setRequestProperty(Constants.AUTH, authCertificate);
+
 //        connection.setRequestMethod("GET");
         connection.connect();
 
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpsURLConnection.HTTP_OK) {
           Log.d(TAG, "Response Code is: " + responseCode);
-          return "Error" + Constants.GET + responseCode;
+          return "error" + responseCode;
         }
 
       }
@@ -168,12 +176,12 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    response.messageResponse(result);
+    response.advertsResponse(result);
   }
 
-  public interface JsonMessageResponse {
+  public interface AdvertsResponse {
 
-    void messageResponse(String output);
+    void advertsResponse(String output);
   }
 
 }

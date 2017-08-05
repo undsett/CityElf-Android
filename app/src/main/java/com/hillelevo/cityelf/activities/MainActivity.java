@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf.activities;
 
+import static android.R.attr.type;
+import static android.R.id.message;
 import static com.hillelevo.cityelf.Constants.TAG;
 
 import com.hillelevo.cityelf.Constants;
@@ -72,22 +74,25 @@ import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment.OnDialogReportClickListener;
 import com.hillelevo.cityelf.fragments.NotificationFragment;
 import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.AdvertsTask;
+import com.hillelevo.cityelf.webutils.AdvertsTask.AdvertsResponse;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
+import com.hillelevo.cityelf.webutils.PoolsTask;
+import com.hillelevo.cityelf.webutils.PoolsTask.PoolsResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
-    OnDialogReportClickListener {
+    OnDialogReportClickListener,
+    AdvertsResponse, PoolsResponse {
 
-  private static String result;
-//  private boolean anonymous;
+  //  private boolean anonymous;
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
-  private UserLocalStore userLocalStore = null;
   private CustomPagerAdapter pagerAdapter;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
@@ -96,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private TabLayout tabLayout;
 
   private JSONObject jsonObject = null;
+
 
   @Override
   protected void onResume() {
@@ -116,14 +122,18 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
-    if(intent.hasExtra("AddUser") && !UserLocalStore
+
+    if (intent.hasExtra("AddUser") && !UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(),
             Prefs.ANOMYMOUS)) {
+
       Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
-      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
-      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
 
       //TODO Send AddNewUser request to server
+
+      startAddNewUserResponse();
 
       String firebseId = UserLocalStore
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
@@ -135,8 +145,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 //          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
     }
 
-
-    if(!UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
       startActivity(firstStart);
       finish();
@@ -145,8 +155,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 //    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
+
 //    anonymous = UserLocalStore
 //        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS);
+
     registered = UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
     osmd_admin = UserLocalStore
@@ -155,7 +167,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
     // Fill ViewPager with data
-    startJsonResponse();
+    startForecastsResponse();
+
+    if (UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED)) {
+      startGetAllAdverts();
+      startGetAllPools();
+    }
     ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
     pagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
     pager.setAdapter(pagerAdapter);
@@ -196,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   /**
    * Click on ReportDialog Report button
+   *
    * @param type type of event: 0 - Electricity, 1 - Gas, 2 - Water
    * @param address address of event
    */
@@ -206,11 +224,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   @Override
   public void onDialogLoginClick() {
-    if(UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
+    if (UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
       Intent intent = new Intent(MainActivity.this, AuthorizationActivity.class);
       startActivity(intent);
-    }
-    else {
+    } else {
       Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
       startActivity(intentMap);
       Toast.makeText(this, "Please enter your address first", Toast.LENGTH_SHORT).show();
@@ -342,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     progressDialog = ProgressDialog.show(MainActivity.this, "", "Загрузка данных...", true);
   }
 
+
   /**
    * Custom Adapter for ViewPager
    */
@@ -390,25 +408,96 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
   }
 
-  private void startJsonResponse() {
-    if (!UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
-      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
+  private void startAddNewUserResponse() {
+    String firebseId = UserLocalStore
+        .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
+    String address = UserLocalStore
+        .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+    String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
+
+    new JsonMessageTask(MainActivity.this)
+        .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+  }
+
+  private void startForecastsResponse() {
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+//      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
           Prefs.ADDRESS_1);
-      /*try {
+      showMessage(address);
+      try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
                 Constants.GET);
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
-      }*/
+      }
+    }
+  }
+
+  private void startGetAllAdverts() {
+    //for test 2341
+    long addressId = UserLocalStore
+        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_ID);
+    new AdvertsTask(this)
+        .execute(WebUrls.GET_ALL_ADVERTS + addressId,
+            Constants.GET);
+  }
+
+
+  private void startGetAllPools() {
+    String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
+        Prefs.ADDRESS_1);
+    try {
+      new PoolsTask(this)
+          .execute(WebUrls.GET_ALL_ADVERTS + URLEncoder.encode(address, "UTF-8"),
+              Constants.GET);
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
     }
   }
 
   //message from JsonMessageTask
   @Override
   public void messageResponse(String output) {
+
+    if (output.equals("Error")) {
+      showMessage(output);
+    }
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+      try {
+        jsonObject = new JSONObject(output);
+        int userId = jsonObject.getInt("id");
+        UserLocalStore.saveIntToSharedPrefs(this.getApplicationContext(), Prefs.USER_ID,
+            userId);
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+      String msg = Integer.toString(UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
+          Prefs.USER_ID));
+          showMessage(msg);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+      startForecastsResponse();
+    } else {
+      showMessage(output);
+      fillData(output);
+    }
+  }
+
+  //message from PoolsTask
+  @Override
+  public void poolsResponse(String output) {
+
+  }
+
+  //message from AdvertsTask
+  @Override
+  public void advertsResponse(String output) {
+
    /* try {
       JSONObject jsn = new JSONObject(output);
     } catch (JSONException e) {
@@ -427,7 +516,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
   private void fillData(String message) {
-    JSONObject jsonObject = null;
     JSONObject addressJsonObject = null;
     String title = null;
     String start = null;
@@ -435,13 +523,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String address = null;
     int count = 0;
 
-    if (message == null || message.isEmpty()) {
-      showMessage("No Forecast");
-      progressDialog.dismiss();
+    if (message == null || message.isEmpty() || message.equals("{}")) {
+      showMessage("По Вашему адресу нет запланированных отключений");
+//      progressDialog.dismiss();
     } else {
       try {
         jsonObject = new JSONObject(message);
-        progressDialog.dismiss();
+//        progressDialog.dismiss();
 
         while (count < jsonObject.length()) {
 
@@ -488,8 +576,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             count++;
             continue;
           }
+        }
+      } catch (JSONException e1) {
+        e1.printStackTrace();
+      }
 
-          count++;
+      count++;
 
 //      adverts.add(new Advert("Объявление 1", "Тестовая улица, 1", "сегодня",
 //          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
@@ -502,17 +594,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 //              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
 //          "Вариант 3", "Вариант 4", 10));
 //
-        }
-
-        // Add new data to ViewPager
-        pagerAdapter.notifyDataSetChanged();
-        setupTabs();
-
-      } catch (JSONException e) {
-        e.printStackTrace();
-      }
-
     }
+
+    // Add new data to ViewPager
+    pagerAdapter.notifyDataSetChanged();
+    setupTabs();
   }
 
   //TODO Change addressStreet to address ID!
@@ -521,13 +607,15 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     try {
       JSONObject shutdown = new JSONObject();
 
-        shutdown.put("forecastType", type);
-        shutdown.put("start", getSystemTime());
-        JSONObject address = new JSONObject();
-        address.put("id", "133");//HARDCODE address_id
-        shutdown.put("address", address);
+      shutdown.put("forecastType", type);
+      shutdown.put("start", getSystemTime());
+      JSONObject address = new JSONObject();
+      address.put("id", UserLocalStore
+          .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_ID));//HARDCODE address_id
+      shutdown.put("address", address);
 
-        request.put("userId", "10");//HARDCODE user_id
+      request.put("userId", UserLocalStore
+          .loadIntFromSharedPrefs(getApplicationContext(), Prefs.USER_ID));//HARDCODE user_id
 
       request.put("shutdownReport", shutdown);
     } catch (JSONException e) {
@@ -547,11 +635,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     return systemTime;
   }
 
-//  @Override
-//  public void messageResponse(String output) {
-//    String result = output;
-//  }
-
   /**
    * Set up tabs for ViewPager
    */
@@ -564,7 +647,20 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
 
     if (registered) {
-      TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);
+      TextView tabTwo = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabTwo.setText(R.string.tab_adverts_title);
+      tabLayout.getTabAt(1).setCustomView(tabTwo);
+
+      TextView tabThree = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabThree.setText(R.string.tab_polls_title);
+      tabLayout.getTabAt(2).setCustomView(tabThree);
+    }
+
+    if (registered) {
+      TextView tabTwo = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
       tabTwo.setText(R.string.tab_adverts_title);
       tabLayout.getTabAt(1).setCustomView(tabTwo);
 

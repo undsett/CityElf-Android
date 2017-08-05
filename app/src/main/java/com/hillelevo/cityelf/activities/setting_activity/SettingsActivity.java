@@ -21,9 +21,6 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,6 +45,11 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+import java.util.List;
+import java.util.Locale;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +70,6 @@ public class SettingsActivity extends PreferenceActivity implements
   private Geocoder geocoder;
   private String userAddress;
   private Preference login;
-
 
   private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
@@ -256,7 +257,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
       updatePreferenceObject.put("addresses", array);
 
-
     } catch (JSONException e) {
       e.printStackTrace();
     }
@@ -411,8 +411,10 @@ public class SettingsActivity extends PreferenceActivity implements
       try {
         // HARDCODED!
         updatePreferenceObject.put("id", "13");
-        //updatePreferenceObject.put("phone", "0975555555");
-//        updatePreferenceObject.put("id", sharedPref.getId);
+//        updatePreferenceObject.put("phone", "0975555555");
+
+//        updatePreferenceObject.put("id", UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
+//        Prefs.USER_ID));
         updatePreferenceObject.put(key, editTextPref.getText());
 
       } catch (JSONException e) {
@@ -420,6 +422,17 @@ public class SettingsActivity extends PreferenceActivity implements
       }
       String jsonData = updatePreferenceObject.toString();
 
+<<<<<<< HEAD
+      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData);
+
+      if (res.isEmpty()) {
+        String s = ((EditTextPreference) pref).getText();
+        if (key.equals("email")) {
+          pref.setSummary(getShortAddress(s));
+        } else if (key.equals("address")) {
+          pref.setSummary(s);
+        }
+=======
       new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
 */
       String s = ((EditTextPreference) pref).getText();
@@ -427,6 +440,7 @@ public class SettingsActivity extends PreferenceActivity implements
         pref.setSummary(getShortAddress(s));
       } else if (key.equals("address")) {
         pref.setSummary(s);
+
       }
 
     }

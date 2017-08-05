@@ -14,15 +14,15 @@ public class Constants {
   public static final String ERROR_INPUT_ADDRESS = "Возможно этот адрес не находится в Одессе";
 
   public class WebUrls {
-    public static final String GET_ALL_FORECASTS = "http://URL:8088/services/allforecasts/get?address=";
-    public static final String GET_ALL_ADVERTS = "http://URL:8088/services/advertisements/getAll?addressid=";
-    public static final String GET_ALL_POOLS = "http://URL:8088/services/polls/getPoll?id=";
-    public static final String ADD_NEW_USER = "http://URL:8088/services/registration/adduser";
-    public static final String AUTHORIZATION_URL = "http://URL:8088/services/registration/login";
-    public static final String REGISTRATION_URL = "http://URL:8088/services/registration/register";
-    public static final String FORGOT_PASSWORD_URL = "http://URL:8088/services/forgot/reset?email=";
-    public static final String UPDATE_USER_URL = "http://URL:8088/services/users/updateUser";
-    public static final String USER_REPORT_SHUTDOWN = "http://URL:8088/services/peoplereport/add";
+    public static final String GET_ALL_FORECASTS = "test:8088/services/allforecasts/get?address=";
+    public static final String GET_ALL_ADVERTS = "test:8088/services/advertisements/getAll?addressid=";
+    public static final String GET_ALL_POOLS = "test:8088/services/polls/getPoll?id=";
+    public static final String ADD_NEW_USER = "test:8088/services/registration/adduser";
+    public static final String AUTHORIZATION_URL = "test:8088/services/registration/login";
+    public static final String REGISTRATION_URL = "test:8088/services/registration/register";
+    public static final String FORGOT_PASSWORD_URL = "test:8088/services/forgot/reset?email=";
+    public static final String UPDATE_USER_URL = "test:8088/services/users/updateUser";
+    public static final String USER_REPORT_SHUTDOWN = "test:8088/services/peoplereport/add";
     public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
     public static final String USER_UPLOAD_URL = "http://localhost:8088/services/users/upload";
@@ -49,7 +49,7 @@ public class Constants {
     public static final String USER_ID = "userId";
     public static final String EMAIL = "Email";
     public static final String PASSWORD = "Password";
-    public static final String ADDRESS_ID = "addressId";
+    public static final String ADDRESS_1_ID = "Address1Id";
     public static final String ADDRESS_1 = "Address1";
     public static final String ADDRESS_2 = "Address2";
     public static final String ADDRESS_3 = "Address3";

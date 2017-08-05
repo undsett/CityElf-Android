@@ -28,42 +28,13 @@
     android:hint="@string/password"
     android:inputType="textPassword" />
 
-  <AutoCompleteTextView
-    android:id="@+id/etAddress"
-    android:layout_width="match_parent"
-    android:layout_height="30dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginLeft="40dp"
-    android:layout_marginRight="40dp"
-    android:layout_above="@id/etPassword"
-    android:background="@drawable/background_authorization_et"
-    android:gravity="center"
-    android:hint="@string/address"
-    android:inputType="textPostalAddress"
-    android:maxLines="1"
-    android:singleLine="true" />
-
-  <EditText
-    android:id="@+id/etPhone"
-    android:layout_width="match_parent"
-    android:layout_height="30dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginLeft="40dp"
-    android:layout_marginRight="40dp"
-    android:layout_above="@id/etAddress"
-    android:layout_gravity="center_vertical"
-    android:background="@drawable/background_authorization_et"
-    android:gravity="center"
-    android:hint="@string/phone"
-    android:inputType="phone" />
-
-  <EditText
+   <EditText
     android:id="@+id/etEmail"
     android:layout_width="match_parent"
     android:layout_height="30dp"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
-    android:layout_above="@id/etPhone"
+    android:layout_above="@id/etPassword"
     android:layout_gravity="center_vertical"
     android:background="@drawable/background_authorization_et"
     android:gravity="center"

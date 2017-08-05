@@ -92,7 +92,7 @@
   <string name="email">Email</string>
   <string name="login">Войти</string>
   <string name="registerait_user">Зарегистрироваться</string>
-  <string name="restore_password">Восстановить пароль</string>
+  <string name="restore_password">Забыл пароль</string>
   <string name="password">Пароль</string>
   <string name="address">Адрес</string>
   <string name="phone">Телефон</string>

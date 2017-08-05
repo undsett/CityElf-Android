@@ -347,7 +347,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (getVerificationCity(nameOfStreet)) {
               //todo If the street is not in Odessa
               UserLocalStore
-                  .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, nameOfStreet);
+                  .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_1, nameOfStreet);
               Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
               intentMain.putExtra("AddUser", true);
               startActivity(intentMain);

@@ -30,20 +30,22 @@ import org.json.JSONObject;
 public class LoginFragment extends Fragment implements JsonMessageResponse, OnClickListener {
 
   EditText etLogEmail, etLogPassword;
-  TextView tvRegisteraitUser;
+  TextView tvRegisteraitUser, tvRestorePassword;
   Button btnLogin;
-  OnRegistrationClickListener listner;
+
+  OnRegistrationClickListener registeraitListner;
+  OnRestorePasswordClickListener restorePasswordListner;
+
 
   private String password = null;
-
-  UserLocalStore userLocalStore;
-  String responseMessage;
-
 
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
-    listner = (OnRegistrationClickListener) activity;
+
+    registeraitListner = (OnRegistrationClickListener) activity;
+    restorePasswordListner = (OnRestorePasswordClickListener) activity;
+
   }
 
   @Nullable
@@ -55,10 +57,12 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     etLogEmail = (EditText) view.findViewById(R.id.etLogEmail);
     etLogPassword = (EditText) view.findViewById(R.id.etLogPassword);
     tvRegisteraitUser = (TextView) view.findViewById(R.id.tvRegisteraitUser);
+    tvRestorePassword = (TextView) view.findViewById(R.id.tvRestorePassword);
     btnLogin = (Button) view.findViewById(R.id.btnLogin);
 
     btnLogin.setOnClickListener(this);
     tvRegisteraitUser.setOnClickListener(this);
+    tvRestorePassword.setOnClickListener(this);
 
     return view;
   }
@@ -75,7 +79,8 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
         if (!email.isEmpty() && !password.isEmpty()) {
 
-            new JsonMessageTask(LoginFragment.this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
+          new JsonMessageTask(LoginFragment.this)
+              .execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
 //          new JsonMessageTask(this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, returnedUser.getAuthCertificate());
           break;
         } else if (email.equals("")) {
@@ -86,9 +91,11 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           break;
         }
 
-
       case R.id.tvRegisteraitUser:
-        listner.onRegistrationClick();
+        registeraitListner.onRegistrationClick();
+        break;
+      case R.id.tvRestorePassword:
+        restorePasswordListner.onRestorePasswordClick();
         break;
     }
   }
@@ -98,57 +105,64 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     checkResponse(output);
   }
 
-  public void checkResponse(String output){
+  public void checkResponse(String output) {
     if (output == null || output.isEmpty()) {
 
       showMessage("LoggedIn failed");
-    } else {try {
-      JSONObject jsonObject = new JSONObject(output);
-      if (jsonObject != null) {
+    } else {
+      try {
+        JSONObject jsonObject = new JSONObject(output);
+        if (jsonObject != null) {
 
-        JSONObject statusJsonObject = jsonObject.getJSONObject("status");
+          JSONObject statusJsonObject = jsonObject.getJSONObject("status");
 
-        int code = statusJsonObject.getInt("code");
-        String message = statusJsonObject.getString("message");
+          int code = statusJsonObject.getInt("code");
+          String message = statusJsonObject.getString("message");
 
-        showMessage(message);
-
-        if (code == 33 && message.equals("Your login and password is correct")) {
-
-          JSONObject userJsonObject = jsonObject.getJSONObject("user");
-//          TODO: set id in User and UserLocalStore
-          int id = userJsonObject.getInt("id");
-          String email = userJsonObject.getString("email");
-          int phone = userJsonObject.getInt("phone");
-
-          JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
-          JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
-          String address = addressJsonObject.getString("address");
-
-          authenticate(email, address, password);
-
-        }else{
           showMessage(message);
+
+          if (code == 33 && message.equals("Your login and password is correct")) {
+
+            JSONObject userJsonObject = jsonObject.getJSONObject("user");
+
+            int userId = userJsonObject.getInt("id");
+            String email = userJsonObject.getString("email");
+//            int phone = userJsonObject.getInt("phone");
+
+            JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
+            JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
+            int addressId = addressJsonArray.getInt(Integer.parseInt("id"));
+            String address = addressJsonObject.getString("address");
+
+            authenticate(userId, email, addressId, address, password);
+
+          } else {
+            showMessage(message);
+          }
+        } else {
+          showMessage("Incorrect user details");
         }
-      } else {
-        showMessage("Incorrect user details");
+
+
+      } catch (JSONException e) {
+        e.printStackTrace();
       }
-
-
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
 
     }
 
   }
 
-  private void authenticate(String email, String address, String password) {
+  private void authenticate(int userId, String email, int addressId, String address,
+      String password) {
 
     showMessage("All OK");
 
+    UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
+        userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
         email);
+    UserLocalStore
+        .saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_ID, addressId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
         address);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
@@ -171,5 +185,10 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   public interface OnRegistrationClickListener {
 
     void onRegistrationClick();
+  }
+
+  public interface OnRestorePasswordClickListener {
+
+    void onRestorePasswordClick();
   }
 }

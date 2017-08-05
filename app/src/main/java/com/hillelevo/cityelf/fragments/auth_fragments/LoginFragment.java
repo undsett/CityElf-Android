@@ -32,16 +32,20 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   EditText etLogEmail, etLogPassword;
   TextView tvRegisteraitUser, tvRestorePassword;
   Button btnLogin;
-  OnRegisteraitNewClickListener registeraitListner;
-  OnRestorePasswordNewClickListener restorePasswordListner;
+
+  OnRegistrationClickListener registeraitListner;
+  OnRestorePasswordClickListener restorePasswordListner;
+
 
   private String password = null;
 
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
-    registeraitListner = (OnRegisteraitNewClickListener) activity;
-    restorePasswordListner = (OnRestorePasswordNewClickListener) activity;
+
+    registeraitListner = (OnRegistrationClickListener) activity;
+    restorePasswordListner = (OnRestorePasswordClickListener) activity;
+
   }
 
   @Nullable
@@ -75,7 +79,8 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
         if (!email.isEmpty() && !password.isEmpty()) {
 
-            new JsonMessageTask(LoginFragment.this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
+          new JsonMessageTask(LoginFragment.this)
+              .execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
 //          new JsonMessageTask(this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, returnedUser.getAuthCertificate());
           break;
         } else if (email.equals("")) {
@@ -86,9 +91,8 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           break;
         }
 
-
       case R.id.tvRegisteraitUser:
-        registeraitListner.onRegistraitClick();
+        registeraitListner.onRegistrationClick();
         break;
       case R.id.tvRestorePassword:
         restorePasswordListner.onRestorePasswordClick();
@@ -101,52 +105,55 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     checkResponse(output);
   }
 
-  public void checkResponse(String output){
+  public void checkResponse(String output) {
     if (output == null || output.isEmpty()) {
 
       showMessage("LoggedIn failed");
-    } else {try {
-      JSONObject jsonObject = new JSONObject(output);
-      if (jsonObject != null) {
+    } else {
+      try {
+        JSONObject jsonObject = new JSONObject(output);
+        if (jsonObject != null) {
 
-        JSONObject statusJsonObject = jsonObject.getJSONObject("status");
+          JSONObject statusJsonObject = jsonObject.getJSONObject("status");
 
-        int code = statusJsonObject.getInt("code");
-        String message = statusJsonObject.getString("message");
+          int code = statusJsonObject.getInt("code");
+          String message = statusJsonObject.getString("message");
 
-        showMessage(message);
-
-        if (code == 33 && message.equals("Your login and password is correct")) {
-
-          JSONObject userJsonObject = jsonObject.getJSONObject("user");
-
-          int userId = userJsonObject.getInt("id");
-          String email = userJsonObject.getString("email");
-          int phone = userJsonObject.getInt("phone");
-
-          JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
-          JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
-          String address = addressJsonObject.getString("address");
-
-          authenticate(userId, email, address, password);
-
-        }else{
           showMessage(message);
+
+          if (code == 33 && message.equals("Your login and password is correct")) {
+
+            JSONObject userJsonObject = jsonObject.getJSONObject("user");
+
+            int userId = userJsonObject.getInt("id");
+            String email = userJsonObject.getString("email");
+//            int phone = userJsonObject.getInt("phone");
+
+            JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
+            JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
+            int addressId = addressJsonArray.getInt(Integer.parseInt("id"));
+            String address = addressJsonObject.getString("address");
+
+            authenticate(userId, email, addressId, address, password);
+
+          } else {
+            showMessage(message);
+          }
+        } else {
+          showMessage("Incorrect user details");
         }
-      } else {
-        showMessage("Incorrect user details");
+
+
+      } catch (JSONException e) {
+        e.printStackTrace();
       }
-
-
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
 
     }
 
   }
 
-  private void authenticate(int userId, String email, String address, String password) {
+  private void authenticate(int userId, String email, int addressId, String address,
+      String password) {
 
     showMessage("All OK");
 
@@ -154,6 +161,8 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
         userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
         email);
+    UserLocalStore
+        .saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_ID, addressId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
         address);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
@@ -173,11 +182,13 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   }
 
 
-  public interface OnRegisteraitNewClickListener {
-    void onRegistraitClick();
+  public interface OnRegistrationClickListener {
+
+    void onRegistrationClick();
   }
 
-  public interface OnRestorePasswordNewClickListener {
+  public interface OnRestorePasswordClickListener {
+
     void onRestorePasswordClick();
   }
 }

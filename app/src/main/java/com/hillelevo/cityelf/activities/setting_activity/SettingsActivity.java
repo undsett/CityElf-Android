@@ -8,11 +8,11 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
@@ -21,12 +21,6 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -51,12 +45,19 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+import java.util.List;
+import java.util.Locale;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SettingsActivity extends PreferenceActivity implements
-    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse {
+    OnPreferenceChangeListener, OnSharedPreferenceChangeListener, JsonMessageResponse,
+    OnPreferenceClickListener {
 
   private SwitchPreference notificationSwitch;
   private SwitchPreference notificationSMS;
@@ -68,8 +69,7 @@ public class SettingsActivity extends PreferenceActivity implements
   private Preference pref;
   private Geocoder geocoder;
   private String userAddress;
-  public static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
-      new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
+  private Preference login;
 
   private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
@@ -95,7 +95,7 @@ public class SettingsActivity extends PreferenceActivity implements
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
     //HARDCODE
-    UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
+    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore
@@ -119,8 +119,26 @@ public class SettingsActivity extends PreferenceActivity implements
       Preference pref = getPreferenceManager().findPreference("exitCategory");
       screen.removePreference(pref);
 
+      login = (Preference) findPreference("login");
+      login.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          if (UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
+            Intent intent = new Intent(SettingsActivity.this, AuthorizationActivity.class);
+            startActivity(intent);
+          } else {
+            Intent firstStart = new Intent(SettingsActivity.this, MapActivity.class);
+            startActivity(firstStart);
+            Toast.makeText(SettingsActivity.this, "Please enter your address first",
+                Toast.LENGTH_SHORT).show();
+          }
+          return false;
+        }
+      });
+
+
     } else {
-      Preference logout = findPreference("register");
+      Preference logout = findPreference("login");
       category.removePreference(logout);
 
       emailPref = (EditTextPreference) findPreference("email");
@@ -141,7 +159,7 @@ public class SettingsActivity extends PreferenceActivity implements
                 .build();
             Intent intent =
                 new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                    .setBoundsBias(BOUNDS_VIEW)
+                    .setBoundsBias(MapActivity.BOUNDS_VIEW)
                     .setFilter(filter)
                     .build(SettingsActivity.this);
 
@@ -211,7 +229,7 @@ public class SettingsActivity extends PreferenceActivity implements
               .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
           Log.d(Constants.TAG, "Place: " + place.getName());
         } else {
-          getToast("Адрес не в Одессе", Toast.LENGTH_LONG);
+          getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
         }
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
         Status status = PlaceAutocomplete.getStatus(this, data);
@@ -228,13 +246,14 @@ public class SettingsActivity extends PreferenceActivity implements
   private void updateUserAddress(String address) {
     JSONObject updatePreferenceObject = new JSONObject();
     try {
-      updatePreferenceObject.put("id", "2");
+      updatePreferenceObject.put("id", 13);//hardcode
       updatePreferenceObject.put("phone", "09364646464");
 
-      JSONObject o = new JSONObject();
-      o.put("address", address);
+      JSONObject newAddress = new JSONObject();
+      newAddress.put("address", address);
+      newAddress.put("addressUa", address);
       JSONArray array = new JSONArray();
-      array.put(o);
+      array.put(newAddress);
 
       updatePreferenceObject.put("addresses", array);
 
@@ -354,7 +373,7 @@ public class SettingsActivity extends PreferenceActivity implements
     }
   }
 
-  private String getFormatedStreetName(String userAddress) {
+  public static String getFormatedStreetName(String userAddress) {
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
         return userAddress.substring(0, userAddress.indexOf(", Одес"));
@@ -388,7 +407,7 @@ public class SettingsActivity extends PreferenceActivity implements
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
       JSONObject updatePreferenceObject = new JSONObject();
-
+/*
       try {
         // HARDCODED!
         updatePreferenceObject.put("id", "13");
@@ -403,6 +422,7 @@ public class SettingsActivity extends PreferenceActivity implements
       }
       String jsonData = updatePreferenceObject.toString();
 
+<<<<<<< HEAD
       new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData);
 
       if (res.isEmpty()) {
@@ -412,17 +432,33 @@ public class SettingsActivity extends PreferenceActivity implements
         } else if (key.equals("address")) {
           pref.setSummary(s);
         }
+=======
+      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
+*/
+      String s = ((EditTextPreference) pref).getText();
+      if (key.equals("email")) {
+        pref.setSummary(getShortAddress(s));
+      } else if (key.equals("address")) {
+        pref.setSummary(s);
+
       }
+
     }
   }
 
   @Override
 
   public void messageResponse(String output) {
-    res =output;
+    res = output;
 
     if (output.isEmpty()) {
 //   TODO
     }
+  }
+
+  @Override
+  public boolean onPreferenceClick(Preference preference) {
+
+    return false;
   }
 }

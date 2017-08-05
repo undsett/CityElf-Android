@@ -4,13 +4,13 @@ import static com.hillelevo.cityelf.Constants.TAG;
 
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
-import com.hillelevo.cityelf.activities.AuthorizationActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -32,11 +32,23 @@ import android.widget.Toast;
 public class BottomDialogFragment extends DialogFragment implements OnClickListener {
 
   private boolean isRegistered;
+  private String type;
+  private String address;
 
   private Spinner spinner;
-  TextView tvTitle;
+  private TextView tvTitle;
+  private RadioButton radioButtonElectricity;
+  private RadioButton radioButtonGas;
+  private RadioButton radioButtonWater;
 
   private SharedPreferences settings;
+  private OnDialogReportClickListener listener;
+
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    listener = (OnDialogReportClickListener) activity;
+  }
 
   /**
    * Create a new instance of MyDialogFragment
@@ -66,14 +78,14 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.fragment_bottom_dialog, container, true);
 
-      getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM);
-      getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+    getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM);
+    getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
     tvTitle = (TextView) v.findViewById(R.id.textViewDialogTitle);
-    RadioButton radioButtonElectricity =
+    radioButtonElectricity =
         (RadioButton) v.findViewById(R.id.radioButtonDialogElectricity);
-    RadioButton radioButtonGas = (RadioButton) v.findViewById(R.id.radioButtonDialogGas);
-    RadioButton radioButtonWater = (RadioButton) v.findViewById(R.id.radioButtonDialogWater);
+    radioButtonGas = (RadioButton) v.findViewById(R.id.radioButtonDialogGas);
+    radioButtonWater = (RadioButton) v.findViewById(R.id.radioButtonDialogWater);
     Button buttonReport = (Button) v.findViewById(R.id.buttonDialogReport);
     Button buttonLogin = (Button) v.findViewById(R.id.buttonDialogLogin);
     spinner = (Spinner) v.findViewById(R.id.spinnerDialog);
@@ -106,12 +118,15 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
         switch (checkedId) {
           case R.id.radioButtonDialogElectricity:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogElectricity");
+            type = getString(R.string.dialog_electricity);
             break;
           case R.id.radioButtonDialogGas:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogGas");
+            type = getString(R.string.dialog_gas);
             break;
           case R.id.radioButtonDialogWater:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogWater");
+            type = getString(R.string.dialog_water);
             break;
         }
       }
@@ -128,7 +143,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       address = loadFromSharedPrefs(Prefs.ADDRESS + i);
       if (!address.equals("Error")) {
         Log.d(TAG, "Dialog add to Spinner in Dialog: " + address);
-        addressList.add(address);
+        addressList.add(SettingsActivity.getFormatedStreetName(address));
       }
     }
 
@@ -150,13 +165,11 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
     switch (view.getId()) {
       case R.id.buttonDialogReport:
         Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
-        //TODO Send report request to server
+        listener.onDialogReportClick(type, spinner.getSelectedItem().toString());
         break;
-
       case R.id.buttonDialogLogin:
         Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(getActivity(), AuthorizationActivity.class);
-        startActivity(intent);
+        listener.onDialogLoginClick();
         break;
     }
   }
@@ -172,5 +185,12 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       Log.d(TAG, "Dialog mSettings != null, not contains " + id);
       return "Error";
     }
+  }
+
+  public interface OnDialogReportClickListener {
+
+    void onDialogReportClick(String type, String address);
+
+    void onDialogLoginClick();
   }
 }

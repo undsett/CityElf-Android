@@ -2,12 +2,13 @@ package com.hillelevo.cityelf.webutils;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import android.os.AsyncTask;
-import android.os.Build.VERSION_CODES;
-import android.support.annotation.RequiresApi;
-import android.util.Base64;
-import android.util.Log;
+import android.content.Context;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import com.hillelevo.cityelf.Constants;
+
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.data.UserLocalStore;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +17,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+
+import android.os.AsyncTask;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
+import android.util.Base64;
+import android.util.Log;
 import javax.net.ssl.HttpsURLConnection;
 
 public class JsonMessageTask extends AsyncTask<String, Void, String> {
@@ -62,7 +69,7 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           int responseCode = connection.getResponseCode();
           if (responseCode != HttpsURLConnection.HTTP_OK) {
             Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error" + Constants.POST + responseCode;
+            return "Error " + Constants.POST + " " + responseCode;
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();
@@ -80,6 +87,14 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           connection.setDoInput(true);
           connection.setDoOutput(true);
 
+//          String authCertificate = "Basic " + Base64
+//              .encodeToString((
+//                  UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)
+//                  + ":" + UserLocalStore
+//                  .loadStringFromSharedPrefs(Context.getApplicationContext(), Prefs.PASSWORD)).getBytes(),
+//                  Base64.URL_SAFE | Base64.NO_WRAP);
+
+// HARDCOD
           String authCertificate = "Basic " + Base64
               .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
                   Base64.URL_SAFE | Base64.NO_WRAP);
@@ -97,7 +112,7 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 
           if (responseCode != HttpsURLConnection.HTTP_OK) {
             Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error" + Constants.PUT + responseCode;
+            return "Error " + Constants.PUT + " " + responseCode;
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();
@@ -116,7 +131,7 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpsURLConnection.HTTP_OK) {
           Log.d(TAG, "Response Code is: " + responseCode);
-          return "Error" + Constants.GET + responseCode;
+          return "Error " + Constants.GET + " " + responseCode;
         }
 
       }

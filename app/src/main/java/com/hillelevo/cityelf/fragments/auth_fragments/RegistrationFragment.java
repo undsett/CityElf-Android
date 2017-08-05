@@ -24,6 +24,7 @@ import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,10 +79,11 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
               Toast.LENGTH_SHORT).show();
 
           String bodyParams = "firebaseid=" + UserLocalStore.loadStringFromSharedPrefs(
-              getActivity().getApplicationContext(), Prefs.FIREBASE_ID);
+              getActivity().getApplicationContext(), Prefs.FIREBASE_ID) + "&email=" + email +
+                  "&password=" + password;
 
 //          String bodyParams =
-//              "firebaseid=" + "Web" + "&email=" + email +
+//              "firebaseid=" + "WEB" + "&email=" + email +
 //                  "&password=" + password;
           new JsonMessageTask(RegistrationFragment.this)
               .execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams);
@@ -98,14 +100,26 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
       try {
         JSONObject jsonObject = new JSONObject(output);
         if (jsonObject != null) {
-          int code = jsonObject.getInt("code");
-          String message = jsonObject.getString("message");
+          JSONObject statusJsonObject = jsonObject.getJSONObject("status");
 
-          showMessage(message + code);
+          int code = statusJsonObject.getInt("code");
+          String message = statusJsonObject.getString("message");
+
+          showMessage(message);
 
           if (code == 11 && message.equals("User registration OK")) {
-            authenticate(email, password);
-            showMessage(message);
+            JSONObject userJsonObject = jsonObject.getJSONObject("user");
+
+            int userId = userJsonObject.getInt("id");
+            String email = userJsonObject.getString("email");
+//            int phone = userJsonObject.getInt("phone");
+
+            JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
+            JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
+            int addressId = addressJsonArray.getInt(Integer.parseInt("id"));
+            String address = addressJsonObject.getString("address");
+
+            authenticate(userId, email, addressId, address, password);
 
           } else {
             showMessage(message);
@@ -121,12 +135,18 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     }
   }
 
-  private void authenticate(String email, String password) {
+  private void authenticate(int userId, String email, int addressId, String address, String password) {
 
-    Log.d(TAG, email + " Registered");
+    showMessage("All OK");
 
+    UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
+        userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
         email);
+    UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_ID,
+        addressId);
+    UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
+        address);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
         password);
     UserLocalStore.saveBooleanToSharedPrefs(getActivity().getApplicationContext(), Prefs.REGISTERED,

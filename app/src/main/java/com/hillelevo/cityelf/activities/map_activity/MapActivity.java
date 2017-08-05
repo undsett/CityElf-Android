@@ -60,6 +60,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -100,7 +101,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private AutoCompleteTextView mAutocompleteTextView;
   private static GoogleApiClient mGoogleApiClient;
   private PlaceArrayAdapter mPlaceArrayAdapter;
-  private static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
+  public static final LatLngBounds BOUNDS_VIEW = new LatLngBounds(
       new LatLng(46.325628, 30.677791), new LatLng(46.598067, 30.797954));
   private CameraPosition cameraPosition;
 
@@ -286,7 +287,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     if (getVerificationCity(userAddress)) {
       return userAddress.substring(0, userAddress.indexOf(", Одес"));
     } else {
-      getToast("Возможно этот адрес не находится в Одессе");
+      getToast(Constants.ERROR_INPUT_ADDRESS);
       return userAddress;
     }
   }
@@ -323,6 +324,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     switch (v.getId()) {
       case R.id.btnSearchAddress:
         //todo send request to status
+        hideKeyboard();
         if (nameOfStreet != null) {
           new JsonMessageTask(this)
               .execute(WebUrls.ADDRESS_URL + getFormatedAddressToJSON(nameOfStreet)
@@ -345,7 +347,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (getVerificationCity(nameOfStreet)) {
               //todo If the street is not in Odessa
               UserLocalStore
-                  .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, nameOfStreet);
+                  .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_1, nameOfStreet);
               Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
               intentMain.putExtra("AddUser", true);
               startActivity(intentMain);
@@ -422,6 +424,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       nameOfStreet = String.valueOf(item.description);
       mAutocompleteTextView.setText(shortAddress(nameOfStreet) + " ");
       mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
+      hideKeyboard();
+
 
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
@@ -520,5 +524,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     });
 
     builder.show();
+  }
+
+  private void hideKeyboard() {
+    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+    inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
   }
 }

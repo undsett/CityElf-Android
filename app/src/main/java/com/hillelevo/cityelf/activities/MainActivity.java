@@ -1,7 +1,33 @@
 package com.hillelevo.cityelf.activities;
 
+import static android.R.attr.type;
 import static android.R.id.message;
 import static com.hillelevo.cityelf.Constants.TAG;
+
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.Advert;
+import com.hillelevo.cityelf.data.Notification;
+import com.hillelevo.cityelf.data.Poll;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.AdvertFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.NotificationFragment;
+import com.hillelevo.cityelf.fragments.PollFragment;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -9,7 +35,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -46,6 +71,7 @@ import com.hillelevo.cityelf.data.Notification;
 import com.hillelevo.cityelf.data.Poll;
 import com.hillelevo.cityelf.fragments.AdvertFragment;
 import com.hillelevo.cityelf.fragments.BottomDialogFragment;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment.OnDialogReportClickListener;
 import com.hillelevo.cityelf.fragments.NotificationFragment;
 import com.hillelevo.cityelf.fragments.PollFragment;
 import com.hillelevo.cityelf.webutils.AdvertsTask;
@@ -58,20 +84,15 @@ import com.hillelevo.cityelf.webutils.PoolsTask.PoolsResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
+    OnDialogReportClickListener,
     AdvertsResponse, PoolsResponse {
 
-  private JSONObject jsonObject = null;
-  private static String result;
+  //  private boolean anonymous;
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
-  private UserLocalStore userLocalStore = null;
   private CustomPagerAdapter pagerAdapter;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
@@ -79,8 +100,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private TabLayout tabLayout;
 
-  private static SharedPreferences settings;
-  private FirstStartApp firstStartApp;
+  private JSONObject jsonObject = null;
 
 
   @Override
@@ -102,23 +122,43 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
-    if (intent.hasExtra("AddUser")) {
+
+    if (intent.hasExtra("AddUser") && !UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(),
+            Prefs.ANOMYMOUS)) {
+
       Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+
       //TODO Send AddNewUser request to server
+
       startAddNewUserResponse();
+
+      String firebseId = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
+      String address = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+      String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
+
+//      new JsonMessageTask(MainActivity.this)
+//          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
     }
 
-    firstStartApp = new FirstStartApp(this);
-    settings = getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
-
-    if (firstStartApp.isFirstLaunch()) {
-      launchFirstTime();
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+      Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+      startActivity(firstStart);
       finish();
     }
 
-    showLoadingAlertDialog();
+//    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
+
+//    anonymous = UserLocalStore
+//        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS);
+
     registered = UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
     osmd_admin = UserLocalStore
@@ -171,11 +211,27 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
   }
 
-  private void launchFirstTime() {
-    firstStartApp.setFirstLaunch(false);
-    Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
-    startActivity(firstStart);
-    finish();
+  /**
+   * Click on ReportDialog Report button
+   *
+   * @param type type of event: 0 - Electricity, 1 - Gas, 2 - Water
+   * @param address address of event
+   */
+  @Override
+  public void onDialogReportClick(String type, String address) {
+    sendReportToServer(type, address);
+  }
+
+  @Override
+  public void onDialogLoginClick() {
+    if (UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS)) {
+      Intent intent = new Intent(MainActivity.this, AuthorizationActivity.class);
+      startActivity(intent);
+    } else {
+      Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
+      startActivity(intentMap);
+      Toast.makeText(this, "Please enter your address first", Toast.LENGTH_SHORT).show();
+    }
   }
 
   @Override
@@ -364,11 +420,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   private void startForecastsResponse() {
-    if (firstStartApp.isFirstLaunch()) {
-      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+//      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
           Prefs.ADDRESS_1);
+      showMessage(address);
       try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
@@ -380,7 +438,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   private void startGetAllAdverts() {
-    long addressId = 2341;
+    //for test 2341
+    long addressId = UserLocalStore
+        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_ID);
     new AdvertsTask(this)
         .execute(WebUrls.GET_ALL_ADVERTS + addressId,
             Constants.GET);
@@ -402,27 +462,30 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   //message from JsonMessageTask
   @Override
   public void messageResponse(String output) {
+
     if (output.equals("Error")) {
       showMessage(output);
     }
-    if (output == null || output.isEmpty()) {
-      showMessage("No Forecast");
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+      try {
+        jsonObject = new JSONObject(output);
+        int userId = jsonObject.getInt("id");
+        UserLocalStore.saveIntToSharedPrefs(this.getApplicationContext(), Prefs.USER_ID,
+            userId);
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+      String msg = Integer.toString(UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
+          Prefs.USER_ID));
+          showMessage(msg);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+      startForecastsResponse();
     } else {
-//      try {
-//        jsonObject = new JSONObject(output);
-//        if (jsonObject.getInt("id") > 0) {
-//          int userId = jsonObject.getInt("id");
-//          UserLocalStore.saveIntToSharedPrefs(getApplicationContext(), Prefs.USER_ID, userId);
-//        } else if (jsonObject.getJSONObject("Water") != null){
-          showMessage(output);
-          fillData();
-        }
-//      } catch (JSONException e1) {
-//        e1.printStackTrace();
-//      }
-//    }
-
-
+      showMessage(output);
+      fillData(output);
+    }
   }
 
   //message from PoolsTask
@@ -435,6 +498,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   @Override
   public void advertsResponse(String output) {
 
+   /* try {
+      JSONObject jsn = new JSONObject(output);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }*/
+    showMessage(output);
+    fillData(output);
   }
 
 
@@ -445,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
-  private void fillData() {
+  private void fillData(String message) {
     JSONObject addressJsonObject = null;
     String title = null;
     String start = null;
@@ -453,57 +523,59 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String address = null;
     int count = 0;
 
-//    if (message == null || message.isEmpty()) {
-//      showMessage("No Forecast");
-//    } else {
-//      try {
-//        jsonObject = new JSONObject(message);
-
-    while (count < jsonObject.length()) {
-
+    if (message == null || message.isEmpty() || message.equals("{}")) {
+      showMessage("По Вашему адресу нет запланированных отключений");
+//      progressDialog.dismiss();
+    } else {
       try {
-        if (jsonObject.getJSONObject("Water") != null) {
+        jsonObject = new JSONObject(message);
+//        progressDialog.dismiss();
 
-          JSONObject waterJsonObject = jsonObject.getJSONObject("Water");
-          title = "Отключение воды";
-          start = waterJsonObject.getString("start");
-          estimatedStop = waterJsonObject.getString("estimatedStop");
+        while (count < jsonObject.length()) {
 
-          addressJsonObject = waterJsonObject.getJSONObject("address");
-          address = addressJsonObject.getString("address");
-          notifications
-              .add(new Notification(title, address, "2 часа", start,
-                  "", 0));
-          count++;
-          continue;
-        } else if (jsonObject.getJSONObject("Gas") != null) {
-          JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
-          title = "Отключение газа";
-          start = gasJsonObject.getString("start");
-          estimatedStop = gasJsonObject.getString("estimatedStop");
+          if (jsonObject.getJSONObject("Water") != null) {
 
-          addressJsonObject = gasJsonObject.getJSONObject("address");
-          address = addressJsonObject.getString("address");
-          notifications
-              .add(new Notification(title, address, "2 часа", start,
-                  "", 0));
-          count++;
-          continue;
-        } else if (jsonObject.getJSONObject("Electricity") != null) {
+            JSONObject waterJsonObject = jsonObject.getJSONObject("Water");
+            title = "Отключение воды";
+            start = waterJsonObject.getString("start");
+            estimatedStop = waterJsonObject.getString("estimatedStop");
 
-          JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
+            addressJsonObject = waterJsonObject.getJSONObject("address");
+            address = addressJsonObject.getString("address");
+            notifications
+                .add(new Notification(title, address, "2 часа", start,
+                    "", 0));
+            count++;
+            continue;
+          } else if (jsonObject.getJSONObject("Gas") != null) {
+            JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
+            title = "Отключение газа";
+            start = gasJsonObject.getString("start");
+            estimatedStop = gasJsonObject.getString("estimatedStop");
 
-          title = "Отключение света";
-          start = electricityJsonObject.getString("start");
-          estimatedStop = electricityJsonObject.getString("estimatedStop");
+            addressJsonObject = gasJsonObject.getJSONObject("address");
+            address = addressJsonObject.getString("address");
+            notifications
+                .add(new Notification(title, address, "2 часа", start,
+                    "", 0));
+            count++;
+            continue;
+          } else if (jsonObject.getJSONObject("Electricity") != null) {
 
-          addressJsonObject = electricityJsonObject.getJSONObject("address");
-          address = addressJsonObject.getString("address");
-          notifications
-              .add(new Notification(title, address, "2 часа", start,
-                  "", 0));
-          count++;
-          continue;
+            JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
+
+            title = "Отключение света";
+            start = electricityJsonObject.getString("start");
+            estimatedStop = electricityJsonObject.getString("estimatedStop");
+
+            addressJsonObject = electricityJsonObject.getJSONObject("address");
+            address = addressJsonObject.getString("address");
+            notifications
+                .add(new Notification(title, address, "2 часа", start,
+                    "", 0));
+            count++;
+            continue;
+          }
         }
       } catch (JSONException e1) {
         e1.printStackTrace();
@@ -527,31 +599,75 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     // Add new data to ViewPager
     pagerAdapter.notifyDataSetChanged();
     setupTabs();
-    progressDialog.dismiss();
+  }
 
-}
+  //TODO Change addressStreet to address ID!
+  private void sendReportToServer(String type, String addressStreet) {
+    JSONObject request = new JSONObject();
+    try {
+      JSONObject shutdown = new JSONObject();
 
+      shutdown.put("forecastType", type);
+      shutdown.put("start", getSystemTime());
+      JSONObject address = new JSONObject();
+      address.put("id", UserLocalStore
+          .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_ID));//HARDCODE address_id
+      shutdown.put("address", address);
 
-/**
- * Set up tabs for ViewPager
- */
-private void setupTabs(){
-    TextView tabOne=(TextView)LayoutInflater.from(this).inflate(R.layout.view_pager_tab,null);
+      request.put("userId", UserLocalStore
+          .loadIntFromSharedPrefs(getApplicationContext(), Prefs.USER_ID));//HARDCODE user_id
+
+      request.put("shutdownReport", shutdown);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    String report = request.toString();
+    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report);
+  }
+
+  public String getSystemTime() {
+    Date cal = (Date) Calendar.getInstance().getTime();
+    //2017-08-03T16:49:00
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String systemTime = formatter.format(cal).replace(" ", "T");
+
+    return systemTime;
+  }
+
+  /**
+   * Set up tabs for ViewPager
+   */
+  private void setupTabs() {
+    TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.view_pager_tab, null);
     tabOne.setText(R.string.tab_notifications_title);
     tabLayout.getTabAt(0).setCustomView(tabOne);
-    if(!registered){
-    tabLayout.setSelectedTabIndicatorColor(00000000);
+    if (!registered) {
+      tabLayout.setSelectedTabIndicatorColor(00000000);
     }
 
-    if(registered){
-    TextView tabTwo=(TextView)LayoutInflater.from(this).inflate(R.layout.view_pager_tab,null);
-    tabTwo.setText(R.string.tab_adverts_title);
-    tabLayout.getTabAt(1).setCustomView(tabTwo);
+    if (registered) {
+      TextView tabTwo = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabTwo.setText(R.string.tab_adverts_title);
+      tabLayout.getTabAt(1).setCustomView(tabTwo);
 
-    TextView tabThree=(TextView)LayoutInflater.from(this)
-    .inflate(R.layout.view_pager_tab,null);
-    tabThree.setText(R.string.tab_polls_title);
-    tabLayout.getTabAt(2).setCustomView(tabThree);
+      TextView tabThree = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabThree.setText(R.string.tab_polls_title);
+      tabLayout.getTabAt(2).setCustomView(tabThree);
     }
+
+    if (registered) {
+      TextView tabTwo = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabTwo.setText(R.string.tab_adverts_title);
+      tabLayout.getTabAt(1).setCustomView(tabTwo);
+
+      TextView tabThree = (TextView) LayoutInflater.from(this)
+          .inflate(R.layout.view_pager_tab, null);
+      tabThree.setText(R.string.tab_polls_title);
+      tabLayout.getTabAt(2).setCustomView(tabThree);
     }
-    }
+  }
+}

@@ -164,11 +164,11 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.buttonDialogReport:
-        Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
-        listener.onDialogReportClick(type, spinner.getSelectedItem().toString());
+//        Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
+        listener.onDialogReportClick(type, spinner.getSelectedItemPosition());
         break;
       case R.id.buttonDialogLogin:
-        Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
+//        Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();
         listener.onDialogLoginClick();
         break;
     }
@@ -189,7 +189,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
 
   public interface OnDialogReportClickListener {
 
-    void onDialogReportClick(String type, String address);
+    void onDialogReportClick(String type, int addressNumber);
 
     void onDialogLoginClick();
   }

@@ -21,6 +21,7 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,8 +46,10 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import java.util.List;
 import java.util.Locale;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -256,13 +259,16 @@ public class SettingsActivity extends PreferenceActivity implements
       array.put(newAddress);
 
       updatePreferenceObject.put("addresses", array);
+      updatePreferenceObject.put("phone", "09364646464");
 
     } catch (JSONException e) {
       e.printStackTrace();
     }
     String jsonData = updatePreferenceObject.toString();
 
-    new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
+    new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData,
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL),
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD));
   }
 
   private String sendGeo(LatLng coordinate) {

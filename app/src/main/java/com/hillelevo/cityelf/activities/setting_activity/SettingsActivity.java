@@ -98,7 +98,7 @@ public class SettingsActivity extends PreferenceActivity implements
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
     //HARDCODE
-    UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
+    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
 
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore

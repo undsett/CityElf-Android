@@ -131,7 +131,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
             JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
             JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
-            int addressId = addressJsonArray.getInt(Integer.parseInt("id"));
+            int addressId = addressJsonObject.getInt("id");
             String address = addressJsonObject.getString("address");
 
             authenticate(userId, email, addressId, address, password);

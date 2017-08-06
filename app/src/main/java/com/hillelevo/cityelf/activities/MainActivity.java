@@ -128,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             Prefs.ANOMYMOUS)) {
 
       Toast.makeText(getApplicationContext(), "AddUser request sent", Toast.LENGTH_SHORT).show();
-//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
-//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
 
       //TODO Send AddNewUser request to server
 
@@ -426,6 +426,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     } else {
       String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
           Prefs.ADDRESS_1);
+//      String address = "Рождественская 4";
       showMessage(address);
       try {
         new JsonMessageTask(this)
@@ -478,9 +479,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       }
       String msg = Integer.toString(UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
           Prefs.USER_ID));
-          showMessage(msg);
-      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
-      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
+      showMessage(msg);
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
       startForecastsResponse();
     } else {
       showMessage(output);
@@ -523,58 +524,64 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String address = null;
     int count = 0;
 
-    if (message == null || message.isEmpty() || message.equals("{}")) {
-      showMessage("По Вашему адресу нет запланированных отключений");
+    if (message == null || message.isEmpty()) {
+      showMessage(message);
 //      progressDialog.dismiss();
+
     } else {
       try {
         jsonObject = new JSONObject(message);
 //        progressDialog.dismiss();
 
-        while (count < jsonObject.length()) {
+        if (jsonObject.length() == 0){
+          showMessage("По Вашему адресу нет запланированных отключений");
+        } else {
 
-          if (jsonObject.getJSONObject("Water") != null) {
+          while (count < jsonObject.length()) {
 
-            JSONObject waterJsonObject = jsonObject.getJSONObject("Water");
-            title = "Отключение воды";
-            start = waterJsonObject.getString("start");
-            estimatedStop = waterJsonObject.getString("estimatedStop");
+            if (jsonObject.has("Water")) {
 
-            addressJsonObject = waterJsonObject.getJSONObject("address");
-            address = addressJsonObject.getString("address");
-            notifications
-                .add(new Notification(title, address, "2 часа", start,
-                    "", 0));
-            count++;
-            continue;
-          } else if (jsonObject.getJSONObject("Gas") != null) {
-            JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
-            title = "Отключение газа";
-            start = gasJsonObject.getString("start");
-            estimatedStop = gasJsonObject.getString("estimatedStop");
+              JSONObject waterJsonObject = jsonObject.getJSONObject("Water");
+              title = "Отключение воды";
+              start = waterJsonObject.getString("start");
+              estimatedStop = waterJsonObject.getString("estimatedStop");
 
-            addressJsonObject = gasJsonObject.getJSONObject("address");
-            address = addressJsonObject.getString("address");
-            notifications
-                .add(new Notification(title, address, "2 часа", start,
-                    "", 0));
-            count++;
-            continue;
-          } else if (jsonObject.getJSONObject("Electricity") != null) {
+              addressJsonObject = waterJsonObject.getJSONObject("address");
+              address = addressJsonObject.getString("address");
+              notifications
+                  .add(new Notification(title, address, "2 часа", start,
+                      "", 0));
+              count++;
+              continue;
+            } else if (jsonObject.has("Gas")) {
+              JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
+              title = "Отключение газа";
+              start = gasJsonObject.getString("start");
+              estimatedStop = gasJsonObject.getString("estimatedStop");
 
-            JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
+              addressJsonObject = gasJsonObject.getJSONObject("address");
+              address = addressJsonObject.getString("address");
+              notifications
+                  .add(new Notification(title, address, "2 часа", start,
+                      "", 0));
+              count++;
+              continue;
+            } else if (jsonObject.has("Electricity")) {
 
-            title = "Отключение света";
-            start = electricityJsonObject.getString("start");
-            estimatedStop = electricityJsonObject.getString("estimatedStop");
+              JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
 
-            addressJsonObject = electricityJsonObject.getJSONObject("address");
-            address = addressJsonObject.getString("address");
-            notifications
-                .add(new Notification(title, address, "2 часа", start,
-                    "", 0));
-            count++;
-            continue;
+              title = "Отключение света";
+              start = electricityJsonObject.getString("start");
+              estimatedStop = electricityJsonObject.getString("estimatedStop");
+
+              addressJsonObject = electricityJsonObject.getJSONObject("address");
+              address = addressJsonObject.getString("address");
+              notifications
+                  .add(new Notification(title, address, "2 часа", start,
+                      "", 0));
+              count++;
+              continue;
+            }
           }
         }
       } catch (JSONException e1) {
@@ -644,18 +651,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     tabLayout.getTabAt(0).setCustomView(tabOne);
     if (!registered) {
       tabLayout.setSelectedTabIndicatorColor(00000000);
-    }
-
-    if (registered) {
-      TextView tabTwo = (TextView) LayoutInflater.from(this)
-          .inflate(R.layout.view_pager_tab, null);
-      tabTwo.setText(R.string.tab_adverts_title);
-      tabLayout.getTabAt(1).setCustomView(tabTwo);
-
-      TextView tabThree = (TextView) LayoutInflater.from(this)
-          .inflate(R.layout.view_pager_tab, null);
-      tabThree.setText(R.string.tab_polls_title);
-      tabLayout.getTabAt(2).setCustomView(tabThree);
     }
 
     if (registered) {

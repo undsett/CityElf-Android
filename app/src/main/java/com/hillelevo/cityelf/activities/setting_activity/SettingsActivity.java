@@ -1,6 +1,7 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
+import android.util.Base64;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
@@ -246,8 +247,6 @@ public class SettingsActivity extends PreferenceActivity implements
   private void updateUserAddress(String address) {
     JSONObject updatePreferenceObject = new JSONObject();
     try {
-      updatePreferenceObject.put("id", 13);//hardcode
-      updatePreferenceObject.put("phone", "09364646464");
 
       JSONObject newAddress = new JSONObject();
       newAddress.put("address", address);
@@ -262,7 +261,7 @@ public class SettingsActivity extends PreferenceActivity implements
     }
     String jsonData = updatePreferenceObject.toString();
 
-    new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
+    new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData, getauthCertificate());
   }
 
   private String sendGeo(LatLng coordinate) {
@@ -407,14 +406,14 @@ public class SettingsActivity extends PreferenceActivity implements
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
       JSONObject updatePreferenceObject = new JSONObject();
-/*
+
       try {
         // HARDCODED!
-        updatePreferenceObject.put("id", "13");
+//        updatePreferenceObject.put("id", "13");
 //        updatePreferenceObject.put("phone", "0975555555");
-
-//        updatePreferenceObject.put("id", UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
-//        Prefs.USER_ID));
+        int userId = (UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
+            Prefs.USER_ID));
+        updatePreferenceObject.put("id", userId);
         updatePreferenceObject.put(key, editTextPref.getText());
 
       } catch (JSONException e) {
@@ -422,26 +421,7 @@ public class SettingsActivity extends PreferenceActivity implements
       }
       String jsonData = updatePreferenceObject.toString();
 
-<<<<<<< HEAD
-      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData);
-
-      if (res.isEmpty()) {
-        String s = ((EditTextPreference) pref).getText();
-        if (key.equals("email")) {
-          pref.setSummary(getShortAddress(s));
-        } else if (key.equals("address")) {
-          pref.setSummary(s);
-        }
-=======
-      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
-*/
-      String s = ((EditTextPreference) pref).getText();
-      if (key.equals("email")) {
-        pref.setSummary(getShortAddress(s));
-      } else if (key.equals("address")) {
-        pref.setSummary(s);
-
-      }
+      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData, getauthCertificate());
 
     }
   }
@@ -452,7 +432,15 @@ public class SettingsActivity extends PreferenceActivity implements
     res = output;
 
     if (output.isEmpty()) {
+
 //   TODO
+    }else{
+      String s = ((EditTextPreference) pref).getText();
+      if (key.equals("email")) {
+        pref.setSummary(getShortAddress(s));
+      } else if (key.equals("address")) {
+        pref.setSummary(s);
+      }
     }
   }
 
@@ -460,5 +448,16 @@ public class SettingsActivity extends PreferenceActivity implements
   public boolean onPreferenceClick(Preference preference) {
 
     return false;
+  }
+
+  private String getauthCertificate(){
+    String authCertificate = "Basic " + Base64
+        .encodeToString(("alek@gmail.com" + ":" + UserLocalStore
+                    .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD)).getBytes(),
+            Base64.URL_SAFE | Base64.NO_WRAP);
+//    String authCertificate = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)
+//                    + ":" + UserLocalStore
+//                    .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD);
+    return authCertificate;
   }
 }

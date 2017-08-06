@@ -94,12 +94,9 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 //                  .loadStringFromSharedPrefs(Context.getApplicationContext(), Prefs.PASSWORD)).getBytes(),
 //                  Base64.URL_SAFE | Base64.NO_WRAP);
 
-// HARDCOD
-          String authCertificate = "Basic " + Base64
-              .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
-                  Base64.URL_SAFE | Base64.NO_WRAP);
 
-          connection.setRequestProperty(Constants.AUTH, authCertificate);
+
+          connection.setRequestProperty(Constants.AUTH, params[3]);
           connection.setRequestProperty("Accept", "application/json");
           connection.setRequestProperty("content-type", "application/json");
           connection.connect();

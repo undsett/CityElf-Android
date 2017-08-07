@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     if (!UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+      firstStart.putExtra("firstStart", true);
       startActivity(firstStart);
       finish();
     }

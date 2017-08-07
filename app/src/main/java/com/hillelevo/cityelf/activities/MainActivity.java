@@ -454,9 +454,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
 
   public void showMessage(String message) {
-    Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
+    /*Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-    toast.show();
+    toast.show();*/
     Log.d(TAG, "showMessage: " + message);
   }
 

@@ -118,15 +118,15 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
         switch (checkedId) {
           case R.id.radioButtonDialogElectricity:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogElectricity");
-            type = getString(R.string.dialog_electricity);
+            type = Prefs.ELECTRICITY;
             break;
           case R.id.radioButtonDialogGas:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogGas");
-            type = getString(R.string.dialog_gas);
+            type = Prefs.GAS;
             break;
           case R.id.radioButtonDialogWater:
             Log.d(TAG, "onCheckedChanged: radioButtonDialogWater");
-            type = getString(R.string.dialog_water);
+            type = Prefs.WATER;
             break;
         }
       }

@@ -68,7 +68,7 @@
     <activity android:name=".activities.setting_activity.AuthenticationOSMD">
       <intent-filter>
         <action android:name="com.hillelevo.cityelf.AuthenticationOSMD" />
-        <categoыry android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>
 

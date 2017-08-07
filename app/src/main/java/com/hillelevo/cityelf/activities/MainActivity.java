@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     if (!UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
+      firstStart.putExtra("firstStart", true);
       startActivity(firstStart);
       finish();
     }
@@ -407,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   @Override
   public void messageResponse(String output) {
 
-    if (output.equals("Error")) {
+    if (output.contains("Error")) {
       showMessage(output);
     }
     if (!UserLocalStore
@@ -454,9 +455,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
 
   public void showMessage(String message) {
-//    Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
-//    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-//    toast.show();
+    /*Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
+    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+    toast.show();*/
     Log.d(TAG, "showMessage: " + message);
   }
 
@@ -597,8 +598,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       e.printStackTrace();
     }
 
+    String s = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL);
+    String s2 = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD);
     String report = request.toString();
-    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report);
+    new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report,
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL),
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD));
   }
 
   public String getSystemTime() {

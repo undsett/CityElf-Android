@@ -51,6 +51,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -128,6 +129,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map);
 
+    if (!getIntent().getBooleanExtra("firstStart", false)) {
+      setupActionBar();
+    }
+
     btnSearchAddress = (ImageButton) findViewById(R.id.btnSearchAddress);
     btnSearchAddress.setOnClickListener(this);
     btnCheckStatus = (Button) findViewById(R.id.btnCheckStatus);
@@ -159,9 +164,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         new IntentFilter(Actions.BROADCAST_ACTION_FIREBASE_MESSAGE));
   }
 
+  //Head menu part
+
+  private void setupActionBar() {
+    ActionBar actionBar = getDelegate().getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setHomeButtonEnabled(true);
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+  }
+
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu, menu);
+    //getMenuInflater().inflate(R.menu.menu, menu);
     return true;
   }
 
@@ -169,9 +184,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.settings:
-        //// TODO: 17.07.17 This step depends from status-registered
           Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
           startActivity(intentLogin);
+        return true;
+      case android.R.id.home:
+        startActivity(new Intent(this, MainActivity.class));
         return true;
     }
     return super.onOptionsItemSelected(item);

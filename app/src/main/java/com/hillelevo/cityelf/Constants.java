@@ -62,6 +62,9 @@ public class Constants {
     public static final String TEXT_NOTIFICATION_ADDRESS_1 = "TextAddressNotif1";
     public static final String TEXT_NOTIFICATION_ADDRESS_2 = "TextAddressNotif2";
     public static final String RINGTONE = "Ringtone";
+    public static final String WATER = "Water";
+    public static final String GAS = "Gas";
+    public static final String ELECTRICITY = "Electricity";
 
     public static final int MAX_ADDRESS_QUANTITY = 4;
   }

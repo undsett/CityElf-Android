@@ -108,7 +108,9 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   public void checkResponse(String output) {
     if (output == null || output.isEmpty()) {
 
-      showMessage("LoggedIn failed");
+//      showMessage("LoggedIn failed");
+      Toast.makeText(getActivity().getApplicationContext(),
+          "Ошибка логина", Toast.LENGTH_SHORT).show();
     } else {
       try {
         JSONObject jsonObject = new JSONObject(output);
@@ -119,7 +121,9 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           int code = statusJsonObject.getInt("code");
           String message = statusJsonObject.getString("message");
 
-          showMessage(message);
+//          showMessage(message);
+          Toast.makeText(getActivity().getApplicationContext(),
+              message, Toast.LENGTH_SHORT).show();
 
           if (code == 33 && message.equals("Your login and password is correct")) {
 
@@ -137,10 +141,14 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
             authenticate(userId, email, addressId, address, password);
 
           } else {
-            showMessage(message);
+//            showMessage(message);
+            Toast.makeText(getActivity().getApplicationContext(),
+                message, Toast.LENGTH_SHORT).show();
           }
         } else {
-          showMessage("Incorrect user details");
+//          showMessage("Incorrect user details");
+          Toast.makeText(getActivity().getApplicationContext(),
+              "Некорректные данные", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -155,14 +163,16 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   private void authenticate(int userId, String email, int addressId, String address,
       String password) {
 
-    showMessage("All OK");
+//    showMessage("All OK");
+    Toast.makeText(getActivity().getApplicationContext(),
+        "Ок", Toast.LENGTH_SHORT).show();
 
     UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
         userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
         email);
     UserLocalStore
-        .saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_ID, addressId);
+        .saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1_ID, addressId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
         address);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
@@ -174,12 +184,12 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     LoginFragment.this.startActivity(intent);
   }
 
-  private void showMessage(String message) {
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-    dialogBuilder.setMessage(message);
-    dialogBuilder.setPositiveButton("Ok", null);
-    dialogBuilder.show();
-  }
+//  private void showMessage(String message) {
+//    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+//    dialogBuilder.setMessage(message);
+//    dialogBuilder.setPositiveButton("Ok", null);
+//    dialogBuilder.show();
+//  }
 
 
   public interface OnRegistrationClickListener {

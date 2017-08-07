@@ -87,11 +87,13 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           connection.setDoInput(true);
           connection.setDoOutput(true);
 
+          Log.d(TAG, "doInBackground: PUT params 3 and 4: " + params[3] + " " + params[4]);
+
+          String authCertificate = "Basic " + Base64.encodeToString((params[3] + ":" + params[4])
+                  .getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
+
 //          String authCertificate = "Basic " + Base64
-//              .encodeToString((
-//                  UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)
-//                  + ":" + UserLocalStore
-//                  .loadStringFromSharedPrefs(Context.getApplicationContext(), Prefs.PASSWORD)).getBytes(),
+//              .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
 //                  Base64.URL_SAFE | Base64.NO_WRAP);
 
 

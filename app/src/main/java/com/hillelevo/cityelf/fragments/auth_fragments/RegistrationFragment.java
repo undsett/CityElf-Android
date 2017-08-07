@@ -1,13 +1,10 @@
 package com.hillelevo.cityelf.fragments.auth_fragments;
 
-import static com.hillelevo.cityelf.Constants.TAG;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,7 +92,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
   @Override
   public void messageResponse(String output) {
     if (output == null || output.isEmpty()) {
-      showMessage("Registration failed");
+//      showMessage("Ошибка регистрации");
+      Toast.makeText(getActivity().getBaseContext(),
+          "Ошибка регистрации", Toast.LENGTH_SHORT).show();
     } else {
       try {
         JSONObject jsonObject = new JSONObject(output);
@@ -105,7 +104,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
           int code = statusJsonObject.getInt("code");
           String message = statusJsonObject.getString("message");
 
-          showMessage(message);
+//          showMessage(message);
+          Toast.makeText(getActivity().getBaseContext(),
+              message, Toast.LENGTH_SHORT).show();
 
           if (code == 11 && message.equals("User registration OK")) {
             JSONObject userJsonObject = jsonObject.getJSONObject("user");
@@ -122,10 +123,14 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
             authenticate(userId, email, addressId, address, password);
 
           } else {
-            showMessage(message);
+//            showMessage(message);
+            Toast.makeText(getActivity().getBaseContext(),
+                message, Toast.LENGTH_SHORT).show();
           }
         } else {
-          showMessage("Registration failed");
+//          showMessage("Ошибка регистрации");
+          Toast.makeText(getActivity().getBaseContext(),
+              "Ошибка регистрации", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -137,13 +142,15 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
   private void authenticate(int userId, String email, int addressId, String address, String password) {
 
-    showMessage("All OK");
+//    showMessage("All OK");
+    Toast.makeText(getActivity().getBaseContext(),
+        "Регистрация успешна.", Toast.LENGTH_SHORT).show();
 
     UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
         userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
         email);
-    UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_ID,
+    UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1_ID,
         addressId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1,
         address);
@@ -152,17 +159,18 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     UserLocalStore.saveBooleanToSharedPrefs(getActivity().getApplicationContext(), Prefs.REGISTERED,
         true);
 
-    showMessage("На Ваш email выслано письмо для подтверждения регистрации.");
+    Toast.makeText(getActivity().getBaseContext(),
+        "На Ваш email выслано письмо для подтверждения регистрации.", Toast.LENGTH_SHORT).show();
 
     Intent intent = new Intent(getContext(), MainActivity.class);
     RegistrationFragment.this.startActivity(intent);
   }
 
-  private void showMessage(String massage) {
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-    dialogBuilder.setMessage(massage);
-    dialogBuilder.setPositiveButton("Ok", null);
-    dialogBuilder.show();
-  }
+//  private void showMessage(String massage) {
+//    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+//    dialogBuilder.setMessage(massage);
+//    dialogBuilder.setPositiveButton("Ok", null);
+//    dialogBuilder.show();
+//  }
 }
 

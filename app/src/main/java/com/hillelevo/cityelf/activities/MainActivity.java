@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     setContentView(R.layout.activity_main);
 
     emptyNotification = (TextView) findViewById(R.id.empty_notification);
-    emptyNotification.setVisibility(View.GONE);
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
 
@@ -480,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
 //      progressDialog.dismiss();
     } else {
+      emptyNotification.setVisibility(View.INVISIBLE);
       try {
         jsonObject = new JSONObject(message);
 //        progressDialog.dismiss();

@@ -79,6 +79,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private String jsonMassageResult;
   private boolean registered;
   private boolean active;
+  private boolean firstStart;
 
 
   private GoogleMap mMap;
@@ -129,7 +130,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map);
 
-    if (!getIntent().getBooleanExtra("firstStart", false)) {
+    firstStart = getIntent().getBooleanExtra("firstStart", false);
+
+    if (!firstStart) {
       setupActionBar();
     }
 
@@ -363,10 +366,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
               && mAutocompleteTextView.length() != 0) {
             if (getVerificationCity(nameOfStreet)) {
               //todo If the street is not in Odessa
-              UserLocalStore
-                  .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_1, nameOfStreet);
               Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
-              intentMain.putExtra("AddUser", true);
+
+              if(firstStart) {
+                UserLocalStore
+                    .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_1,
+                        nameOfStreet);
+                intentMain.putExtra("AddUser", true);
+              }
+              else {
+                UserLocalStore
+                    .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_FOR_CHECK,
+                        nameOfStreet);
+                intentMain.putExtra("CheckAnotherAddress", true);
+              }
+
               startActivity(intentMain);
             }
           }
@@ -515,33 +529,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       Log.d(TAG, "MapActivity onReceive: " + action);
       Log.d(TAG, "MapActivity onReceive: " + token);
       if (active) {
-        showDebugAlertDialog(token);
+        // Can show debug alert dialog
       }
     }
   };
-
-  // AlertDialog for firebase testing
-
-  private void showDebugAlertDialog(String token) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle("Firebase id");
-
-    // Set up the input
-    final EditText input = new EditText(this);
-    input.setInputType(InputType.TYPE_CLASS_TEXT);
-    input.setText(token.toCharArray(), 0, token.length());
-    builder.setView(input);
-
-    // Set up the button
-    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        dialog.cancel();
-      }
-    });
-
-    builder.show();
-  }
 
   private void hideKeyboard() {
     InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);

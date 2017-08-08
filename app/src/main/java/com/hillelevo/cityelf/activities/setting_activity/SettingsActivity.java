@@ -273,24 +273,14 @@ public class SettingsActivity extends PreferenceActivity implements
   private String sendGeo(LatLng coordinate) {
     List<Address> addresses = new ArrayList<>();
     try {
-      addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 1);
+      addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 4);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
     android.location.Address address = addresses.get(0);
-    StringBuilder sb = null;
-    if (address != null) {
-      sb = new StringBuilder();
-      for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-        if (i == 1) {
-          continue;
-        }
-        sb.append(address.getAddressLine(i) + "\n");
-      }
-    }
 
-    assert sb != null;
+    String str = address.getAddressLine(0);
     return address.getAddressLine(0);
   }
 

@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
+  private String address;
   private CustomPagerAdapter pagerAdapter;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
@@ -103,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    address = UserLocalStore
+        .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+
     emptyNotification = (TextView) findViewById(R.id.empty_notification);
     emptyNotification.setVisibility(View.GONE);
     // Check intent, send AddNewUser request to server
@@ -122,12 +126,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
       String firebseId = UserLocalStore
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
-      String address = UserLocalStore
-          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+
       String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
 
 //      new JsonMessageTask(MainActivity.this)
 //          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+    }
+
+    else if (intent.hasExtra("CheckAnotherAddress")) {
+      address = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_FOR_CHECK);
     }
 
     if (!UserLocalStore
@@ -138,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
-//    showLoadingAlertDialog();
+    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
 
@@ -272,33 +280,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       Log.d(TAG, "MainActivity onReceive: " + action);
       Log.d(TAG, "MainActivity onReceive: " + token);
       if (active) {
-        showDebugAlertDialog(token);
+        // Can show debug alert dialog
       }
     }
   };
-
-  // AlertDialog for firebase testing
-
-  private void showDebugAlertDialog(String token) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle("Firebase id");
-
-    // Set up the input
-    final EditText input = new EditText(this);
-    input.setInputType(InputType.TYPE_CLASS_TEXT);
-    input.setText(token.toCharArray(), 0, token.length());
-    builder.setView(input);
-
-    // Set up the button
-    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        dialog.cancel();
-      }
-    });
-
-    builder.show();
-  }
 
   // ProgressDialog for loading data
 
@@ -373,8 +358,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
 //      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
-      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
-          Prefs.ADDRESS_1);
+//      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
+//          Prefs.ADDRESS_1);
       showMessage(address);
       try {
         new JsonMessageTask(this)
@@ -467,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
   private void fillData(String message) {
+    progressDialog.dismiss();
     JSONObject addressJsonObject = null;
     String title = null;
     String start = null;
@@ -478,11 +464,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       showMessage("По Вашему адресу нет запланированных отключений");
       emptyNotification.setVisibility(View.VISIBLE);
 
-//      progressDialog.dismiss();
     } else {
       try {
         jsonObject = new JSONObject(message);
-//        progressDialog.dismiss();
         Log.d(TAG, "fillData: jsonObject length " + jsonObject.length());
 
         for (int count = 0; count < jsonObject.length(); count++) {

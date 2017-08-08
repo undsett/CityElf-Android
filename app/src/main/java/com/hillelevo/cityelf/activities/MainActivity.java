@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
+  private String address;
   private CustomPagerAdapter pagerAdapter;
   private ArrayList<Notification> notifications = new ArrayList<>();
   private ArrayList<Advert> adverts = new ArrayList<>();
@@ -101,6 +102,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    address = UserLocalStore
+        .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
 
@@ -118,12 +122,16 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
       String firebseId = UserLocalStore
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
-      String address = UserLocalStore
-          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
+
       String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
 
 //      new JsonMessageTask(MainActivity.this)
 //          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+    }
+
+    else if (intent.hasExtra("CheckAnotherAddress")) {
+      address = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_FOR_CHECK);
     }
 
     if (!UserLocalStore
@@ -268,33 +276,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       Log.d(TAG, "MainActivity onReceive: " + action);
       Log.d(TAG, "MainActivity onReceive: " + token);
       if (active) {
-        showDebugAlertDialog(token);
+        // Can show debug alert dialog
       }
     }
   };
-
-  // AlertDialog for firebase testing
-
-  private void showDebugAlertDialog(String token) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle("Firebase id");
-
-    // Set up the input
-    final EditText input = new EditText(this);
-    input.setInputType(InputType.TYPE_CLASS_TEXT);
-    input.setText(token.toCharArray(), 0, token.length());
-    builder.setView(input);
-
-    // Set up the button
-    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        dialog.cancel();
-      }
-    });
-
-    builder.show();
-  }
 
   // ProgressDialog for loading data
 
@@ -369,8 +354,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
 //      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
-      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
-          Prefs.ADDRESS_1);
+//      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
+//          Prefs.ADDRESS_1);
       showMessage(address);
       try {
         new JsonMessageTask(this)

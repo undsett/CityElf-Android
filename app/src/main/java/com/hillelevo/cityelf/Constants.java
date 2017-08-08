@@ -25,7 +25,7 @@ public class Constants {
     public static final String USER_REPORT_SHUTDOWN = "test:8088/services/peoplereport/add";
     public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
-    public static final String USER_UPLOAD_URL = "http://localhost:8088/services/users/upload";
+    public static final String USER_UPLOAD_URL = "test:8088/services/users/upload";
   }
 
   public class Actions {

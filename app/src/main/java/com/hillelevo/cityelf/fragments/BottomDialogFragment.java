@@ -166,6 +166,7 @@ public class BottomDialogFragment extends DialogFragment implements OnClickListe
       case R.id.buttonDialogReport:
 //        Toast.makeText(getActivity(), "Dialog Report clicked", Toast.LENGTH_LONG).show();
         listener.onDialogReportClick(type, spinner.getSelectedItemPosition());
+        this.dismiss();
         break;
       case R.id.buttonDialogLogin:
 //        Toast.makeText(getActivity(), "Dialog Login clicked", Toast.LENGTH_LONG).show();

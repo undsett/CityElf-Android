@@ -64,6 +64,7 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private ArrayList<Poll> polls = new ArrayList<>();
 
   private TabLayout tabLayout;
+  private TextView emptyNotification;
 
   private JSONObject jsonObject = null;
 
@@ -101,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    emptyNotification = (TextView) findViewById(R.id.empty_notification);
+    emptyNotification.setVisibility(View.GONE);
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
 
@@ -470,8 +474,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String address = null;
 //    int count = 0;
 
-    if (message == null || message.isEmpty()) {
+    if (message == null || message.isEmpty() || message.equals("{}")) {
       showMessage("По Вашему адресу нет запланированных отключений");
+      emptyNotification.setVisibility(View.VISIBLE);
+
 //      progressDialog.dismiss();
     } else {
       try {

@@ -106,13 +106,37 @@ public class SettingsActivity extends PreferenceActivity implements
     sharedPreferences = prefMgr.getSharedPreferences();
     category = (PreferenceCategory) findPreference("registered_user");
 
+    addressPref = (Preference) findPreference("address");
+    addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+      @Override
+      public boolean onPreferenceClick(Preference preference) {
+        try {
+          AutocompleteFilter filter = new AutocompleteFilter.Builder()
+              .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+              .setCountry("UA")
+              .build();
+          Intent intent =
+              new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                  .setBoundsBias(MapActivity.BOUNDS_VIEW)
+                  .setFilter(filter)
+                  .build(SettingsActivity.this);
+
+          startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+          e.printStackTrace();
+        }
+        return false;
+      }
+    });
+    addressPref.setSummary(getFormatedStreetName(
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
+
+
     if (!registered) {
       Preference logout1 = findPreference("email");
       category.removePreference(logout1);
       Preference logout2 = findPreference("password");
       category.removePreference(logout2);
-      Preference logout3 = findPreference("address");
-      category.removePreference(logout3);
       Preference logout4 = findPreference("manyAddressPref");
       category.removePreference(logout4);
       PreferenceCategory category2 = (PreferenceCategory) findPreference("aboutPref");
@@ -150,31 +174,6 @@ public class SettingsActivity extends PreferenceActivity implements
       emailPref.setText(getShortAddress(
           (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL))));
       emailPref.setOnPreferenceChangeListener(this);
-
-      addressPref = (Preference) findPreference("address");
-      addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-          try {
-            AutocompleteFilter filter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
-                .setCountry("UA")
-                .build();
-            Intent intent =
-                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                    .setBoundsBias(MapActivity.BOUNDS_VIEW)
-                    .setFilter(filter)
-                    .build(SettingsActivity.this);
-
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-          } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-          }
-          return false;
-        }
-      });
-      addressPref.setSummary(getFormatedStreetName(
-          UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
 
       exit = (Preference) findPreference("exit");
       exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -413,6 +412,8 @@ public class SettingsActivity extends PreferenceActivity implements
       EditTextPreference editTextPref = (EditTextPreference) pref;
       //// TODO: 27.07.17 send to server
       JSONObject updatePreferenceObject = new JSONObject();
+
+      String str = ((EditTextPreference) pref).getText();
 /*
       try {
         // HARDCODED!

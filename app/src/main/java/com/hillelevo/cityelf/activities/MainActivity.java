@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
 
     emptyNotification = (TextView) findViewById(R.id.empty_notification);
-    emptyNotification.setVisibility(View.GONE);
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
 
@@ -465,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       emptyNotification.setVisibility(View.VISIBLE);
 
     } else {
+      emptyNotification.setVisibility(View.INVISIBLE);
       try {
         jsonObject = new JSONObject(message);
         Log.d(TAG, "fillData: jsonObject length " + jsonObject.length());

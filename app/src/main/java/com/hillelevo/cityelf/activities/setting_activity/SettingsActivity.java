@@ -21,8 +21,6 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +46,14 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.util.List;
+import java.util.Locale;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,10 +85,8 @@ public class SettingsActivity extends PreferenceActivity implements
 
   private AppCompatDelegate delegate;
   private PreferenceCategory category;
-  boolean addressFromCoordonate;
 
-  String resultJSONAddress;
-
+  Preference pref2;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +130,7 @@ public class SettingsActivity extends PreferenceActivity implements
     });
     addressPref.setSummary(getFormatedStreetName(
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
+
 
     if (!registered) {
       Preference logout1 = findPreference("email");
@@ -216,21 +221,25 @@ public class SettingsActivity extends PreferenceActivity implements
     if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
       if (resultCode == RESULT_OK) {
         Place place = PlaceAutocomplete.getPlace(this, data);
-        LatLng l = place.getLatLng();
-        String lString = l.toString();
-        String ltn = lString.substring(lString.indexOf(("("))+1, lString.indexOf(")"));
-        addressFromCoordonate = true;
 
-        new JsonMessageTask(this)
-            .execute("http://maps.googleapis.com/maps/api/geocode/json?latlng="+ltn+"&sensor=true&language=ru",
-                Constants.GET);
-
-
-
+        userAddress = sendGeo(place.getLatLng());
+        if (userAddress.contains(", Одес")) {
+          addressPref.setSummary(getFormatedStreetName(userAddress));
+          // send userUpdate address
+          updateUserAddress(userAddress);
+          UserLocalStore
+              .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
+          Log.d(Constants.TAG, "Place: " + place.getName());
+        } else {
+          getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+        }
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
         Status status = PlaceAutocomplete.getStatus(this, data);
+        //  Handle the error.
         Log.d(Constants.TAG, status.getStatusMessage());
 
+      } else if (resultCode == RESULT_CANCELED) {
+        // The user canceled the operation.
       }
     }
 
@@ -264,7 +273,7 @@ public class SettingsActivity extends PreferenceActivity implements
   private String sendGeo(LatLng coordinate) {
     List<Address> addresses = new ArrayList<>();
     try {
-      addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 1);
+      addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 4);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -439,39 +448,10 @@ public class SettingsActivity extends PreferenceActivity implements
   public void messageResponse(String output) {
     res = output;
 
-    if (addressFromCoordonate)
-    userAddress = getAddressFromCoordinate();
-    if (userAddress.contains(", Одес")) {
-      addressPref.setSummary(getFormatedStreetName(userAddress));
-      // send userUpdate address
-      updateUserAddress(userAddress);
-      UserLocalStore
-          .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
-    } else {
-      getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+    if (output.isEmpty()) {
+//   TODO
     }
   }
-
-  private String getAddressFromCoordinate() {
-    addressFromCoordonate = false;
-    String resultAddress = null;
-    if (res != null && !res.contains("Error")) {
-      JSONObject jsonObject = null;
-      try {
-        jsonObject = new JSONObject(res);
-
-        JSONArray resultsArray = jsonObject.getJSONArray("results");
-        JSONObject result = resultsArray.getJSONObject(0);
-        resultAddress = result.getString("formatted_address");
-
-      } catch (JSONException e) {
-        e.printStackTrace();
-      }
-    }
-    return resultAddress;
-  }
-
-
 
   @Override
   public boolean onPreferenceClick(Preference preference) {

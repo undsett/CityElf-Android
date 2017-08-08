@@ -64,6 +64,7 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 
 public class MainActivity extends AppCompatActivity implements JsonMessageResponse,
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private ArrayList<Poll> polls = new ArrayList<>();
 
   private TabLayout tabLayout;
+  private TextView emptyNotification;
 
   private JSONObject jsonObject = null;
 
@@ -105,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     address = UserLocalStore
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
 
+    emptyNotification = (TextView) findViewById(R.id.empty_notification);
+    emptyNotification.setVisibility(View.GONE);
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
 
@@ -142,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
-//    showLoadingAlertDialog();
+    showLoadingAlertDialog();
 
     // Load registered status from Shared Prefs
 
@@ -448,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
   private void fillData(String message) {
+    progressDialog.dismiss();
     JSONObject addressJsonObject = null;
     String title = null;
     String start = null;
@@ -455,13 +460,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String address = null;
 //    int count = 0;
 
-    if (message == null || message.isEmpty()) {
+    if (message == null || message.isEmpty() || message.equals("{}")) {
       showMessage("По Вашему адресу нет запланированных отключений");
-//      progressDialog.dismiss();
+      emptyNotification.setVisibility(View.VISIBLE);
+
     } else {
       try {
         jsonObject = new JSONObject(message);
-//        progressDialog.dismiss();
         Log.d(TAG, "fillData: jsonObject length " + jsonObject.length());
 
         for (int count = 0; count < jsonObject.length(); count++) {

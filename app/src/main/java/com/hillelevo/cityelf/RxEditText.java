@@ -13,7 +13,7 @@ public class RxEditText {
   public static Observable<String> getTextWatcherObserv(@NonNull final EditText editText) {
 
     final PublishSubject<String> subject = PublishSubject.create();
-    final String LOG_TAG = "appTest";
+    final String LOG_TAG = "CityElfLog";
 
     editText.addTextChangedListener(new TextWatcher() {
       @Override

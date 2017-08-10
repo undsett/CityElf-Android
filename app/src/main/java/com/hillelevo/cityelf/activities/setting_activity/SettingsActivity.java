@@ -139,7 +139,7 @@ public class SettingsActivity extends PreferenceActivity implements
     if (!registered) {
       Preference logout1 = findPreference("email");
       category.removePreference(logout1);
-      Preference logout2 = findPreference("password_dialog");
+      Preference logout2 = findPreference("password");
       category.removePreference(logout2);
       /*Preference logout4 = findPreference("manyAddressPref");
       category.removePreference(logout4);*/

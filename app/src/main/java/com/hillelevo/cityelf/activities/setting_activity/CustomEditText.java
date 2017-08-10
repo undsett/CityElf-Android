@@ -81,6 +81,6 @@ public class CustomEditText extends DialogPreference implements OnClickListener 
   public void onClick(View view) {
     UserLocalStore.saveStringToSharedPrefs(getContext(), Prefs.PASSWORD,
         String.valueOf(etPassword1.getText()));
-
+    getDialog().dismiss();
   }
 }

@@ -8,26 +8,27 @@ public class Constants {
   public static  final String GET = "GET";
   public static  final String POST = "POST";
   public static  final String PUT = "PUT";
-  public static final String AUTH = "Authorization";
   public static final int CONNECTION_TIMEOUT = 1000 * 15;
   public static final String RESPONSE_TO_A_REQUEST = "Ваш запрос отправлен. Мы рассмотрим его в течение 3 рабочих дней, о результате сообщим по электронной почте";
   public static final String ERROR_INPUT_ADDRESS = "Возможно этот адрес не находится в Одессе";
 
   public class WebUrls {
-    public static final String GET_ALL_FORECASTS = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/allforecasts/get?address=";
-    public static final String GET_ALL_ADVERTS = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/advertisements/getAll?addressid=";
-    public static final String GET_ALL_POOLS = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/polls/getPoll?id=";
-    public static final String ADD_NEW_USER = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/registration/adduser";
-    public static final String AUTHORIZATION_URL = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/registration/login";
-    public static final String REGISTRATION_URL = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/registration/register";
-    public static final String FORGOT_PASSWORD_URL = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/forgot/reset?email=";
-    public static final String UPDATE_USER_URL = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/users/updateUser";
-    public static final String USER_REPORT_SHUTDOWN = "http://ec2-52-91-73-145.compute-1.amazonaws.com:8088/services/peoplereport/add";
+
+    public static final String GET_ALL_FORECASTS = "http://url:8088/services/allforecasts/get?address=";
+    public static final String GET_ALL_ADVERTS = "http://url:8088/services/advertisements/getAll?addressid=";
+    public static final String GET_ALL_POOLS = "http://url:8088/services/polls/getAll?addressid=";
+    public static final String ADD_NEW_USER = "http://url:8088/services/registration/adduser";
+    public static final String AUTHORIZATION_URL = "http://url:8088/services/registration/login";
+    public static final String REGISTRATION_URL = "http://url:8088/services/registration/register";
+    public static final String FORGOT_PASSWORD_URL = "http://url:8088/services/forgot/reset?email=";
+    public static final String UPDATE_USER_URL = "http://url:8088/services/users/updateUser";
+    public static final String USER_REPORT_SHUTDOWN = "http://url:8088/services/peoplereport/add";
     public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
     public static final String COORDINATE_URL_START = "http://maps.googleapis.com/maps/api/geocode/json?latlng=";
     public static final String COORDINATE_URL_END = "&sensor=true\\";
     public static final String USER_UPLOAD_URL = "test:8088/services/users/upload";
+    public static final String GET_USERDATA_URL = "http://url:8088/services/users/";
   }
 
   public class Actions {
@@ -47,6 +48,8 @@ public class Constants {
     public static final String ANOMYMOUS = "Anonymous";
     public static final String REGISTERED = "Registered";
     public static final String OSMD_ADMIN = "OsmdAdmin";
+    public static final String AUTH = "Authorization";
+    public static final String AUTH_CERTIFICATE = "authCertificate";
     public static final String FIREBASE_ID = "FirebaseId";
     public static final String USER_ID = "userId";
     public static final String EMAIL = "Email";

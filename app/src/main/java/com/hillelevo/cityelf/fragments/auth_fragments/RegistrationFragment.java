@@ -1,6 +1,5 @@
 package com.hillelevo.cityelf.fragments.auth_fragments;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +16,7 @@ import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.RxEditText;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
@@ -24,11 +24,14 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func2;
 
 
 public class RegistrationFragment extends Fragment implements JsonMessageResponse, OnClickListener{
 
-  EditText etEmail, etPassword;
+  EditText etEmail, etPassword, etPassword2;
   Button btnRegister;
 
   private String email = null;
@@ -42,9 +45,40 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
     etEmail = (EditText) view.findViewById(R.id.etEmail);
     etPassword = (EditText) view.findViewById(R.id.etPassword);
+    etPassword2 = (EditText) view.findViewById(R.id.etPassword2);
     btnRegister = (Button) view.findViewById(R.id.btnRegister);
 
     btnRegister.setOnClickListener(this);
+
+    Observable<String> password1 = RxEditText.getTextWatcherObserv(etPassword);
+    Observable<String> password2 = RxEditText.getTextWatcherObserv(etPassword2);
+    Observable.combineLatest(password1, password2, new Func2<String, String, Boolean>() {
+      @Override
+      public Boolean call(String s, String s2) {
+        if (!s2.equals(s) || s.isEmpty() || s2.isEmpty()) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+    }).subscribe(new Action1<Boolean>() {
+      @Override
+      public void call(Boolean aBoolean) {
+        if (aBoolean) {
+          etPassword.setBackgroundResource(R.drawable.background_authorization_et_error);
+          etPassword2.setBackgroundResource(R.drawable.background_authorization_et_error);
+          btnRegister.setEnabled(false);
+          btnRegister.setEnabled(false);
+        } else {
+          etPassword.setBackgroundResource(R.drawable.background_authorization_et);
+          etPassword2.setBackgroundResource(R.drawable.background_authorization_et);
+          btnRegister.setEnabled(true);
+          btnRegister.setEnabled(true);
+        }
+
+      }
+    });
 
     return view;
   }

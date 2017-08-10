@@ -6,5 +6,6 @@
   <color name="colorTextSecondary">#FFFFFF</color>
   <color name="colorButtonBorder">#8492A6</color>
   <color name="mint">#2d9cdb</color>
+  <color name="red">#ff0000</color>
 
 </resources>

@@ -11,21 +11,26 @@
       android:key="email"
       android:maxLines="1"
       android:title="Электронная почта" />
-    <EditTextPreference
+    <com.hillelevo.cityelf.activities.setting_activity.CustomEditText
+      android:defaultValue="@string/default_pass"
+      android:inputType="textPassword"
+      android:key="password"
+      android:title="Пароль" />
+    <!--<EditTextPreference
       android:defaultValue="@string/default_pass"
       android:inputType="textPassword"
       android:key="password"
       android:maxLines="1"
-      android:title="Пароль" />
+      android:title="Пароль" />-->
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="address"
       android:title="Текущий адрес">
     </Preference>
-    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+    <!--<Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="manyAddressPref"
       android:title="Дополнительные адреса">
       <intent android:action="com.hillelevo.cityelf.ManyAddress" />
-    </Preference>
+    </Preference>-->
   </PreferenceCategory>
 
   <PreferenceCategory android:title="Уведомления">
@@ -42,12 +47,12 @@
       android:key="ringtonePref"
       android:ringtoneType="notification"
       android:title="Звук уведомления" />
-    <ListPreference
+    <!--<ListPreference
       android:defaultValue="1"
       android:entries="@array/entries"
       android:entryValues="@array/entry_values"
       android:key="languagePref"
-      android:title="Язык" />
+      android:title="Язык" />-->
 
   </PreferenceCategory>
   <PreferenceCategory android:title=""
@@ -69,7 +74,7 @@
     </Preference>
     <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="aboutProgram"
-      android:title="О программе">
+      android:title="О нас">
       <intent android:action="com.hillelevo.cityelf.AboutProgram" />
     </Preference>
 

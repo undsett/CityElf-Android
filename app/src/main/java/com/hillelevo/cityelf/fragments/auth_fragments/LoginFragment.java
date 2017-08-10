@@ -122,9 +122,9 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           String message = statusJsonObject.getString("message");
 
 //          showMessage(message);
-          Toast.makeText(getActivity().getApplicationContext(),
+          /*Toast.makeText(getActivity().getApplicationContext(),
               message, Toast.LENGTH_SHORT).show();
-
+*/
           if (code == 33 && message.equals("Your login and password is correct")) {
 
             JSONObject userJsonObject = jsonObject.getJSONObject("user");
@@ -164,9 +164,9 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
       String password) {
 
 //    showMessage("All OK");
-    Toast.makeText(getActivity().getApplicationContext(),
+    /*Toast.makeText(getActivity().getApplicationContext(),
         "Ок", Toast.LENGTH_SHORT).show();
-
+*/
     UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
         userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,

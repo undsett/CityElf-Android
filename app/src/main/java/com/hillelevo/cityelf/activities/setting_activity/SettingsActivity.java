@@ -16,6 +16,7 @@ import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -44,6 +46,7 @@ import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
@@ -89,8 +92,6 @@ public class SettingsActivity extends PreferenceActivity implements
   private PreferenceCategory category;
   boolean addressFromCoordonate;
 
-  String resultJSONAddress;
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -135,14 +136,13 @@ public class SettingsActivity extends PreferenceActivity implements
     addressPref.setSummary(getFormatedStreetName(
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
 
-
     if (!registered) {
       Preference logout1 = findPreference("email");
       category.removePreference(logout1);
-      Preference logout2 = findPreference("password");
+      Preference logout2 = findPreference("password_dialog");
       category.removePreference(logout2);
-      Preference logout4 = findPreference("manyAddressPref");
-      category.removePreference(logout4);
+      /*Preference logout4 = findPreference("manyAddressPref");
+      category.removePreference(logout4);*/
       PreferenceCategory category2 = (PreferenceCategory) findPreference("aboutPref");
       Preference logout5 = findPreference("osmdReg");
       category2.removePreference(logout5);
@@ -179,6 +179,8 @@ public class SettingsActivity extends PreferenceActivity implements
           (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL))));
       emailPref.setOnPreferenceChangeListener(this);
 
+
+
       exit = (Preference) findPreference("exit");
       exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         @Override
@@ -196,11 +198,12 @@ public class SettingsActivity extends PreferenceActivity implements
     notificationSMS = (SwitchPreference) findPreference("notificationSms");
     notificationSMS.setOnPreferenceChangeListener(this);
 
-    languagePref = (ListPreference) findPreference("languagePref");
-    languagePref.setOnPreferenceChangeListener(this);
+    /*languagePref = (ListPreference) findPreference("languagePref");
+    languagePref.setOnPreferenceChangeListener(this);*/
 
     ringtonePref = (RingtonePreference) findPreference("ringtonePref");
     ringtonePref.setOnPreferenceChangeListener(this);
+
 
   }
 
@@ -227,13 +230,13 @@ public class SettingsActivity extends PreferenceActivity implements
         Place place = PlaceAutocomplete.getPlace(this, data);
         LatLng l = place.getLatLng();
         String lString = l.toString();
-        String ltn = lString.substring(lString.indexOf(("("))+1, lString.indexOf(")"));
+        String ltn = lString.substring(lString.indexOf(("(")) + 1, lString.indexOf(")"));
         addressFromCoordonate = true;
 
         new JsonMessageTask(this)
-            .execute("http://maps.googleapis.com/maps/api/geocode/json?latlng="+ltn+"&sensor=true&language=ru",
+            .execute("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + ltn
+                    + "&sensor=true&language=ru",
                 Constants.GET);
-
 
 
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -371,13 +374,16 @@ public class SettingsActivity extends PreferenceActivity implements
   public static String getFormatedStreetName(String userAddress) {
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
-        return userAddress.substring(0, userAddress.indexOf(", Одес"));
+        if (userAddress.contains("улица ")) {
+          return userAddress.substring(userAddress.indexOf("улица "), userAddress.indexOf(", Одес"));
+        } else if (userAddress.contains("вулиця ")){
+          return userAddress.substring(userAddress.indexOf("вулиця "), userAddress.indexOf(", Одес"));
+        }
       } else {
         return userAddress;
       }
-    } else {
-      return "";
     }
+      return "";
   }
 
   private static String firstWord(String firstPart) {
@@ -448,8 +454,9 @@ public class SettingsActivity extends PreferenceActivity implements
   public void messageResponse(String output) {
     res = output;
 
-    if (addressFromCoordonate)
-    userAddress = getAddressFromCoordinate();
+    if (addressFromCoordonate) {
+      userAddress = getAddressFromCoordinate();
+    }
     if (userAddress.contains(", Одес")) {
       addressPref.setSummary(getFormatedStreetName(userAddress));
       // send userUpdate address
@@ -479,7 +486,6 @@ public class SettingsActivity extends PreferenceActivity implements
     }
     return resultAddress;
   }
-
 
 
   @Override

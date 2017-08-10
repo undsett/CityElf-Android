@@ -459,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String address = null;
 //    int count = 0;
 
-    if (message == null || message.isEmpty() || message.equals("{}")) {
+    if (message == null || message.isEmpty() || message.equals("{}") || message.equals("[]") || message.contains("Error")) {
       showMessage("По Вашему адресу нет запланированных отключений");
       emptyNotification.setVisibility(View.VISIBLE);
 

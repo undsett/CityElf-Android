@@ -1,6 +1,8 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
+import android.preference.PreferenceManager.OnActivityDestroyListener;
+import android.util.Base64;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
@@ -21,6 +23,8 @@ import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -245,32 +249,34 @@ public class SettingsActivity extends PreferenceActivity implements
 
       }
     }
-
   }
 
   private void updateUserAddress(String address) {
+    key = "address";
     JSONObject updatePreferenceObject = new JSONObject();
     try {
-      updatePreferenceObject.put("id", 13);//hardcode
-      updatePreferenceObject.put("phone", "09364646464");
+      updatePreferenceObject
+          .put("id", UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
+              Prefs.USER_ID));
 
       JSONObject newAddress = new JSONObject();
+      newAddress.put("id", 0);
       newAddress.put("address", address);
       newAddress.put("addressUa", address);
       JSONArray array = new JSONArray();
       array.put(newAddress);
 
       updatePreferenceObject.put("addresses", array);
-      updatePreferenceObject.put("phone", "09364646464");
+
+      String jsonData = updatePreferenceObject.toString();
+
+      new JsonMessageTask(SettingsActivity.this)
+          .execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData, UserLocalStore
+              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
 
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    String jsonData = updatePreferenceObject.toString();
-
-    new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData,
-        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL),
-        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD));
   }
 
   private String sendGeo(LatLng coordinate) {
@@ -401,70 +407,102 @@ public class SettingsActivity extends PreferenceActivity implements
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String _key) {
+
     pref = findPreference(_key);
     key = _key;
 
-    if (pref instanceof EditTextPreference && !key.equals("password")) {
+    if (pref instanceof EditTextPreference) {
       EditTextPreference editTextPref = (EditTextPreference) pref;
+      String str = ((EditTextPreference) pref).getText();
       //// TODO: 27.07.17 send to server
       JSONObject updatePreferenceObject = new JSONObject();
 
-      String str = ((EditTextPreference) pref).getText();
-/*
       try {
-        // HARDCODED!
-        updatePreferenceObject.put("id", "13");
-//        updatePreferenceObject.put("phone", "0975555555");
+        int userId = (UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
+            Prefs.USER_ID));
+        updatePreferenceObject.put("id", userId);
+        updatePreferenceObject.put(key, str);
 
-//        updatePreferenceObject.put("id", UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
-//        Prefs.USER_ID));
-        updatePreferenceObject.put(key, editTextPref.getText());
+        JSONObject newAddress = new JSONObject();
+        newAddress.put("id",
+            UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID));
+        newAddress.put("address", "");
+        newAddress.put("addressUa", "");
+        JSONArray array = new JSONArray();
+        array.put(newAddress);
+
+        updatePreferenceObject.put("addresses", array);
+
 
       } catch (JSONException e) {
         e.printStackTrace();
       }
       String jsonData = updatePreferenceObject.toString();
 
-<<<<<<< HEAD
-      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData);
-
-      if (res.isEmpty()) {
-        String s = ((EditTextPreference) pref).getText();
-        if (key.equals("email")) {
-          pref.setSummary(getShortAddress(s));
-        } else if (key.equals("address")) {
-          pref.setSummary(s);
-        }
-=======
-      new JsonMessageTask(SettingsActivity.this).execute(WebUrls.UPDATE_USER_URL, "PUT", jsonData);
-*/
-      String s = ((EditTextPreference) pref).getText();
-      if (key.equals("email")) {
-        pref.setSummary(getShortAddress(s));
-      } else if (key.equals("address")) {
-        pref.setSummary(s);
-
-      }
-
+      new JsonMessageTask(SettingsActivity.this)
+          .execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData, UserLocalStore
+              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
     }
   }
 
   @Override
-
   public void messageResponse(String output) {
-    res = output;
-
-    if (addressFromCoordonate) {
-      userAddress = getAddressFromCoordinate();
+    if (output.isEmpty() && pref != null) {
+      String value = ((EditTextPreference) pref).getText();
+      if (key.equals("email")) {
+        pref.setSummary(value);
+      } else if (key.equals("password")) {
+        pref.setSummary(value);
+      }
+    } else if (output.isEmpty() && key.equals("address")) {
+      loadUserData();
+    } else if (key.equals("get_user")) {
+      saveAddressId(output);
     }
-    if (userAddress.contains(", Одес")) {
-      addressPref.setSummary(getFormatedStreetName(userAddress));
-      // send userUpdate address
-      updateUserAddress(userAddress);
+
+  }
+
+  private void loadUserData() {
+    key = "get_user";
+    int userId = UserLocalStore
+        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.USER_ID);
+    try {
+      new JsonMessageTask(this)
+          .execute(WebUrls.GET_USERDATA_URL + URLEncoder.encode(String.valueOf(userId), "UTF-8"),
+              Constants.GET, UserLocalStore
+                  .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void saveAddressId(String output) {
+    JSONObject jsonObject = null;
+    try {
+      jsonObject = new JSONObject(output);
+
+      JSONArray addressJsonArray = (JSONArray) jsonObject.get("addresses");
+      JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
+      if (addressJsonArray.getJSONObject(0) == null) {
+//              showMessage(message);
+      }
+      int addressId = addressJsonObject.getInt("id");
       UserLocalStore
-          .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
-    } else {
-      getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+          .saveIntToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID, addressId);
+    } catch (JSONException e) {
+      e.printStackTrace();
+      if (addressFromCoordonate) {
+        userAddress = getAddressFromCoordinate();
+      }
+      if (userAddress.contains(", Одес")) {
+        addressPref.setSummary(getFormatedStreetName(userAddress));
+        // send userUpdate address
+        updateUserAddress(userAddress);
+        UserLocalStore
+            .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
+      } else {
+        getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+      }
     }
   }
 

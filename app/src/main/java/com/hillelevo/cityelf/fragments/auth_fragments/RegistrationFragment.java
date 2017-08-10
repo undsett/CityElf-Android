@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Base64;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -113,11 +115,8 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
               getActivity().getApplicationContext(), Prefs.FIREBASE_ID) + "&email=" + email +
                   "&password=" + password;
 
-//          String bodyParams =
-//              "firebaseid=" + "WEB" + "&email=" + email +
-//                  "&password=" + password;
           new JsonMessageTask(RegistrationFragment.this)
-              .execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams);
+              .execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams, null);
           break;
         }
     }
@@ -150,6 +149,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 //            int phone = userJsonObject.getInt("phone");
 
             JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
+            if (addressJsonArray.getJSONObject(0) == null){
+              showMessage(message);
+            }
             JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
             int addressId = addressJsonObject.getInt("id");
             String address = addressJsonObject.getString("address");
@@ -180,6 +182,11 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     Toast.makeText(getActivity().getBaseContext(),
         "Регистрация успешна.", Toast.LENGTH_SHORT).show();
 
+    //    String authCertificate = email + ":" + password;
+
+    String authCertificate = "Basic " + Base64.encodeToString((email + ":" + password).getBytes(),
+        Base64.URL_SAFE | Base64.NO_WRAP);
+
     UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
         userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
@@ -190,6 +197,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
         address);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
         password);
+    UserLocalStore
+        .saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.AUTH_CERTIFICATE,
+            authCertificate);
     UserLocalStore.saveBooleanToSharedPrefs(getActivity().getApplicationContext(), Prefs.REGISTERED,
         true);
 
@@ -200,11 +210,11 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     RegistrationFragment.this.startActivity(intent);
   }
 
-//  private void showMessage(String massage) {
-//    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-//    dialogBuilder.setMessage(massage);
-//    dialogBuilder.setPositiveButton("Ok", null);
-//    dialogBuilder.show();
-//  }
+  private void showMessage(String massage) {
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+    dialogBuilder.setMessage(massage);
+    dialogBuilder.setPositiveButton("Ok", null);
+    dialogBuilder.show();
+  }
 }
 

@@ -8,6 +8,7 @@ import android.support.annotation.RequiresApi;
 import android.util.Base64;
 import android.util.Log;
 import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -82,11 +83,11 @@ public class PoolsTask extends AsyncTask<String, Void, String> {
           connection.setDoInput(true);
           connection.setDoOutput(true);
 
-          String authCertificate = "Basic " + Base64
-              .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
-                  Base64.URL_SAFE | Base64.NO_WRAP);
+//          String authCertificate = "Basic " + Base64
+//              .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
+//                  Base64.URL_SAFE | Base64.NO_WRAP);
 
-          connection.setRequestProperty(Constants.AUTH, authCertificate);
+          connection.setRequestProperty(Prefs.AUTH, params[2]);
           connection.setRequestProperty("Accept", "application/json");
           connection.setRequestProperty("content-type", "application/json");
           connection.connect();
@@ -111,12 +112,15 @@ public class PoolsTask extends AsyncTask<String, Void, String> {
         url = new URL(params[0]);
         connection = (HttpURLConnection) url.openConnection();
 
+        connection.setRequestProperty(Prefs.AUTH, params[2]);
+
 //        connection.setRequestMethod("GET");
         connection.connect();
 
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpsURLConnection.HTTP_OK) {
           Log.d(TAG, "Response Code is: " + responseCode);
+          return "error" + responseCode;
         }
 
       }

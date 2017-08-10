@@ -7,8 +7,8 @@ android {
         applicationId "com.hillelevo.cityelf"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.8.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -37,8 +37,9 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:10.2.6'
     compile 'com.google.android.gms:play-services-maps:10.2.6'
     compile 'com.google.android.gms:play-services:10.2.6'
-    compile 'com.android.support:cardview-v7:24.1.1'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.3.0'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:multidex:1.0.0'
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'

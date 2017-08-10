@@ -18,6 +18,7 @@ import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
@@ -25,8 +26,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -46,6 +50,7 @@ import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
@@ -89,8 +94,8 @@ public class SettingsActivity extends PreferenceActivity implements
 
   private AppCompatDelegate delegate;
   private PreferenceCategory category;
+  boolean addressFromCoordonate;
 
-  Preference pref2;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -110,15 +115,38 @@ public class SettingsActivity extends PreferenceActivity implements
     sharedPreferences = prefMgr.getSharedPreferences();
     category = (PreferenceCategory) findPreference("registered_user");
 
+    addressPref = (Preference) findPreference("address");
+    addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+      @Override
+      public boolean onPreferenceClick(Preference preference) {
+        try {
+          AutocompleteFilter filter = new AutocompleteFilter.Builder()
+              .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+              .setCountry("UA")
+              .build();
+          Intent intent =
+              new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                  .setBoundsBias(MapActivity.BOUNDS_VIEW)
+                  .setFilter(filter)
+                  .build(SettingsActivity.this);
+
+          startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+          e.printStackTrace();
+        }
+        return false;
+      }
+    });
+    addressPref.setSummary(getFormatedStreetName(
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
+
     if (!registered) {
       Preference logout1 = findPreference("email");
       category.removePreference(logout1);
       Preference logout2 = findPreference("password");
       category.removePreference(logout2);
-      Preference logout3 = findPreference("address");
-      category.removePreference(logout3);
-      Preference logout4 = findPreference("manyAddressPref");
-      category.removePreference(logout4);
+      /*Preference logout4 = findPreference("manyAddressPref");
+      category.removePreference(logout4);*/
       PreferenceCategory category2 = (PreferenceCategory) findPreference("aboutPref");
       Preference logout5 = findPreference("osmdReg");
       category2.removePreference(logout5);
@@ -155,30 +183,7 @@ public class SettingsActivity extends PreferenceActivity implements
           (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL))));
       emailPref.setOnPreferenceChangeListener(this);
 
-      addressPref = (Preference) findPreference("address");
-      addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-          try {
-            AutocompleteFilter filter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
-                .setCountry("UA")
-                .build();
-            Intent intent =
-                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                    .setBoundsBias(MapActivity.BOUNDS_VIEW)
-                    .setFilter(filter)
-                    .build(SettingsActivity.this);
 
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-          } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-          }
-          return false;
-        }
-      });
-      addressPref.setSummary(getFormatedStreetName(
-          UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
 
       exit = (Preference) findPreference("exit");
       exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -197,11 +202,12 @@ public class SettingsActivity extends PreferenceActivity implements
     notificationSMS = (SwitchPreference) findPreference("notificationSms");
     notificationSMS.setOnPreferenceChangeListener(this);
 
-    languagePref = (ListPreference) findPreference("languagePref");
-    languagePref.setOnPreferenceChangeListener(this);
+    /*languagePref = (ListPreference) findPreference("languagePref");
+    languagePref.setOnPreferenceChangeListener(this);*/
 
     ringtonePref = (RingtonePreference) findPreference("ringtonePref");
     ringtonePref.setOnPreferenceChangeListener(this);
+
 
   }
 
@@ -226,25 +232,21 @@ public class SettingsActivity extends PreferenceActivity implements
     if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
       if (resultCode == RESULT_OK) {
         Place place = PlaceAutocomplete.getPlace(this, data);
+        LatLng l = place.getLatLng();
+        String lString = l.toString();
+        String ltn = lString.substring(lString.indexOf(("(")) + 1, lString.indexOf(")"));
+        addressFromCoordonate = true;
 
-        userAddress = sendGeo(place.getLatLng());
-        if (userAddress.contains(", Одес")) {
-          addressPref.setSummary(getFormatedStreetName(userAddress));
-          // send userUpdate address
-          updateUserAddress(userAddress);
-          UserLocalStore
-              .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
-          Log.d(Constants.TAG, "Place: " + place.getName());
-        } else {
-          getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
-        }
+        new JsonMessageTask(this)
+            .execute("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + ltn
+                    + "&sensor=true&language=ru",
+                Constants.GET);
+
+
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
         Status status = PlaceAutocomplete.getStatus(this, data);
-        //  Handle the error.
         Log.d(Constants.TAG, status.getStatusMessage());
 
-      } else if (resultCode == RESULT_CANCELED) {
-        // The user canceled the operation.
       }
     }
   }
@@ -286,18 +288,8 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     android.location.Address address = addresses.get(0);
-    StringBuilder sb = null;
-    if (address != null) {
-      sb = new StringBuilder();
-      for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-        if (i == 1) {
-          continue;
-        }
-        sb.append(address.getAddressLine(i) + "\n");
-      }
-    }
 
-    assert sb != null;
+    String str = address.getAddressLine(0);
     return address.getAddressLine(0);
   }
 
@@ -388,13 +380,16 @@ public class SettingsActivity extends PreferenceActivity implements
   public static String getFormatedStreetName(String userAddress) {
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
-        return userAddress.substring(0, userAddress.indexOf(", Одес"));
+        if (userAddress.contains("улица ")) {
+          return userAddress.substring(userAddress.indexOf("улица "), userAddress.indexOf(", Одес"));
+        } else if (userAddress.contains("вулиця ")){
+          return userAddress.substring(userAddress.indexOf("вулиця "), userAddress.indexOf(", Одес"));
+        }
       } else {
         return userAddress;
       }
-    } else {
-      return "";
     }
+      return "";
   }
 
   private static String firstWord(String firstPart) {
@@ -423,7 +418,6 @@ public class SettingsActivity extends PreferenceActivity implements
       JSONObject updatePreferenceObject = new JSONObject();
 
       try {
-
         int userId = (UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
             Prefs.USER_ID));
         updatePreferenceObject.put("id", userId);
@@ -448,16 +442,7 @@ public class SettingsActivity extends PreferenceActivity implements
       new JsonMessageTask(SettingsActivity.this)
           .execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData, UserLocalStore
               .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
-
     }
-//    if (res.isEmpty()) {
-//      String s = ((EditTextPreference) pref).getText();
-//      if (key.equals("email")) {
-//        pref.setSummary(getShortAddress(s));
-//      } else if (key.equals("address")) {
-//        pref.setSummary(s);
-//      }
-//    }
   }
 
   @Override
@@ -506,8 +491,40 @@ public class SettingsActivity extends PreferenceActivity implements
           .saveIntToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID, addressId);
     } catch (JSONException e) {
       e.printStackTrace();
+      if (addressFromCoordonate) {
+        userAddress = getAddressFromCoordinate();
+      }
+      if (userAddress.contains(", Одес")) {
+        addressPref.setSummary(getFormatedStreetName(userAddress));
+        // send userUpdate address
+        updateUserAddress(userAddress);
+        UserLocalStore
+            .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
+      } else {
+        getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+      }
     }
   }
+
+  private String getAddressFromCoordinate() {
+    addressFromCoordonate = false;
+    String resultAddress = null;
+    if (res != null && !res.contains("Error")) {
+      JSONObject jsonObject = null;
+      try {
+        jsonObject = new JSONObject(res);
+
+        JSONArray resultsArray = jsonObject.getJSONArray("results");
+        JSONObject result = resultsArray.getJSONObject(0);
+        resultAddress = result.getString("formatted_address");
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return resultAddress;
+  }
+
 
   @Override
   public boolean onPreferenceClick(Preference preference) {

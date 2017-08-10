@@ -133,7 +133,9 @@
   <string name="default_street">Улица Канатная, 22</string>
   <string name="title_activity_first">FirstActivity</string>
   <string name="settings_test">settings_test</string>
-  <string name="about_program">Info about this programg</string>
+  <string name="about_program">  CityElf – это молодая команда разработчиков.\n\n Наша цель – принести пользу Одессе и горожанам.\n
+Мы стараемся сделать вашу жизнь комфортнее, и для этого создали сервис CityElf.
+Команда регулярно совершенствует веб-сайт и мобильное приложение ради вашего удобства.</string>
   <string name="exit">Выход</string>
   <string name="osmdInfo">Если Вы глава ОСМД, то можете получить дополнительные функции: добавлять объявления, опросы для жильцов дома и следить за их результатами</string>
 
@@ -170,6 +172,9 @@
   <string name="fragment_admin_poll_finish">Конечная дата</string>
 
   <string name="google_key">AIzaSyBfHZ2V9nN1sZCnLxrCO6Q7nBJo9seYk10</string>
+  <string name="emptyNotification">Новых отключений нет</string>
+  <string name="password_repeat">Повторите пароль</string>
+  <string name="input_new_pass">Введите новый пароль:</string>
 
 
 </resources>

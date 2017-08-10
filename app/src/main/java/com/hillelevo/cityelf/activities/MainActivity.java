@@ -49,9 +49,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,6 +60,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     AdvertsResponse, PoolsResponse {
 
   //  private boolean anonymous;
+  private boolean peopleReport = false;
   private boolean registered;
   private boolean osmd_admin;
   private boolean active;
@@ -113,18 +113,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
       UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
 
-      //TODO Send AddNewUser request to server
-
-      startAddNewUserResponse();
-
-      String firebseId = UserLocalStore
-          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
-      String address = UserLocalStore
-          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
-      String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
-
-//      new JsonMessageTask(MainActivity.this)
-//          .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+      // Send AddNewUser request to server
+      startAddNewUserRequest();
     }
 
     if (!UserLocalStore
@@ -149,12 +139,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     Button buttonReport = (Button) findViewById(R.id.buttonReport);
 
-    // Fill ViewPager with data
-    startForecastsResponse();
+//     Fill ViewPager with data
+    startForecastsRequest();
 
     if (UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED)) {
-      startGetAllAdverts();
-      startGetAllPools();
+      startGetAdverts();
+      startGetPools();
     }
     ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
     pagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
@@ -213,7 +203,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     } else {
       Intent intentMap = new Intent(MainActivity.this, MapActivity.class);
       startActivity(intentMap);
-      Toast.makeText(this, "Пожалуйста введите свой адрес чтобы продолжить", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, "Пожалуйста введите свой адрес чтобы продолжить", Toast.LENGTH_SHORT)
+          .show();
     }
   }
 
@@ -249,12 +240,12 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     return super.onOptionsItemSelected(item);
   }
 
-  private String getB64Auth(String login, String pass) {
-    String source = login + ":" + pass;
-    String ret =
-        "Basic " + Base64.encodeToString(source.getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
-    return ret;
-  }
+//  private String getB64Auth(String login, String pass) {
+//    String source = login + ":" + pass;
+//    String ret =
+//        "Basic " + Base64.encodeToString(source.getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
+//    return ret;
+//  }
 
   /**
    * BroadcastReceiver for local broadcasts
@@ -354,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
   }
 
-  private void startAddNewUserResponse() {
+  private void startAddNewUserRequest() {
     String firebseId = UserLocalStore
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.FIREBASE_ID);
     String address = UserLocalStore
@@ -362,10 +353,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String bodyParams = "firebaseid=" + firebseId + "&address=" + address;
 
     new JsonMessageTask(MainActivity.this)
-        .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams);
+        .execute(WebUrls.ADD_NEW_USER, Constants.POST, bodyParams, null);
   }
 
-  private void startForecastsResponse() {
+  private void startForecastsRequest() {
     if (!UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
 //      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
@@ -377,33 +368,30 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       try {
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
-                Constants.GET);
+                Constants.GET, null);
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
       }
     }
   }
 
-  private void startGetAllAdverts() {
+  private void startGetAdverts() {
     //for test 2341
-    long addressId = UserLocalStore
-        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
-    new AdvertsTask(this)
-        .execute(WebUrls.GET_ALL_ADVERTS + addressId,
-            Constants.GET);
+    long addressId = 2341;
+//    long addressId = UserLocalStore
+//        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
+    new AdvertsTask(this).execute(WebUrls.GET_ALL_ADVERTS + addressId, Constants.GET,
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
   }
 
 
-  private void startGetAllPools() {
-    String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
-        Prefs.ADDRESS_1);
-    try {
-      new PoolsTask(this)
-          .execute(WebUrls.GET_ALL_ADVERTS + URLEncoder.encode(address, "UTF-8"),
-              Constants.GET);
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-    }
+  private void startGetPools() {
+    //for test 2341
+    long addressId = 2341;
+//    long addressId = UserLocalStore
+//        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
+    new PoolsTask(this).execute(WebUrls.GET_ALL_POOLS + addressId, Constants.GET,
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
   }
 
   //message from JsonMessageTask
@@ -429,30 +417,75 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       showMessage(msg);
 //      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
 //      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
-      startForecastsResponse();
+      startForecastsRequest();
     } else {
-      showMessage(output);
-      fillData(output);
+      if(output.isEmpty() && peopleReport){
+        //TODO SHOW MESSAGE
+        showMessage("Ваше сообщение успешно отправлено");
+        peopleReport = false;
+      }else {
+        showMessage(output);
+        fillData(output);
+      }
     }
   }
 
   //message from PoolsTask
   @Override
   public void poolsResponse(String output) {
+    try {
+      JSONArray jsonArray = new JSONArray(output);
 
+      for (int i = 0; i < jsonArray.length(); i++) {
+        JSONObject poolsResponsObject = jsonArray.getJSONObject(i);
+        int poolsId = poolsResponsObject.getInt("id");
+
+        JSONObject addressJsonObject = poolsResponsObject.getJSONObject("address");
+        int addressId = addressJsonObject.getInt("id");
+        String address = addressJsonObject.getString("address");
+
+        String subject = poolsResponsObject.getString("subject");
+        String description = poolsResponsObject.getString("description");
+        String timeOfEntry = poolsResponsObject.getString("timeOfEntry");
+
+        JSONArray pollsAnswersArray = (JSONArray) poolsResponsObject.get("pollsAnswers");
+        for (int j = 0; j < pollsAnswersArray.length(); j++) {
+          JSONObject answersObject = pollsAnswersArray.getJSONObject(j);
+          int answerID = answersObject.getInt("id");
+          String answer = answersObject.getString("answer");
+          int voted = answersObject.getInt("voted");
+        }
+      }
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
   //message from AdvertsTask
   @Override
   public void advertsResponse(String output) {
 
-   /* try {
-      JSONObject jsn = new JSONObject(output);
+    try {
+      JSONArray jsonArray = new JSONArray(output);
+
+      for (int i = 0; i < jsonArray.length(); i++) {
+        JSONObject advertsResponsObject = jsonArray.getJSONObject(i);
+        int advertsId = advertsResponsObject.getInt("id");
+
+        JSONObject addressJsonObject = advertsResponsObject.getJSONObject("address");
+        int addressId = addressJsonObject.getInt("id");
+        String address = addressJsonObject.getString("address");
+
+        String subject = advertsResponsObject.getString("subject");
+        String description = advertsResponsObject.getString("description");
+        String timeOfEntry = advertsResponsObject.getString("timeOfEntry");
+      }
     } catch (JSONException e) {
       e.printStackTrace();
-    }*/
-    showMessage(output);
-    fillData(output);
+    }
+
+//    showMessage(output);
+//    fillData(output);
   }
 
 
@@ -594,20 +627,18 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       address.put("id", addressId);
       shutdown.put("address", address);
 
+      request.put("shutdownReport", shutdown);
+
       request.put("userId", UserLocalStore
           .loadIntFromSharedPrefs(getApplicationContext(), Prefs.USER_ID));
-
-      request.put("shutdownReport", shutdown);
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
-    String s = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL);
-    String s2 = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD);
     String report = request.toString();
     new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report,
-        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL),
-        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD));
+        UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
+    peopleReport = true;
   }
 
   public String getSystemTime() {

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -77,20 +78,18 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
         String bodyParams = "email=" + email + "&password=" + password;
 
-        if (!email.isEmpty() && !password.isEmpty()) {
-
-          new JsonMessageTask(LoginFragment.this)
-              .execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams);
-//          new JsonMessageTask(this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, returnedUser.getAuthCertificate());
-          break;
-        } else if (email.equals("")) {
+        if (email.equals("")) {
           Toast.makeText(getContext(), "Введите email", Toast.LENGTH_SHORT).show();
           break;
         } else if (password.equals("")) {
           Toast.makeText(getContext(), "Введите пароль", Toast.LENGTH_SHORT).show();
           break;
+        }else {
+          new JsonMessageTask(LoginFragment.this)
+              .execute(WebUrls.AUTHORIZATION_URL, Constants.POST, bodyParams, null);
+//          new JsonMessageTask(this).execute(WebUrls.AUTHORIZATION_URL, Constants.POST, returnedUser.getAuthCertificate());
+          break;
         }
-
       case R.id.tvRegisteraitUser:
         registeraitListner.onRegistrationClick();
         break;
@@ -135,6 +134,9 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
 
             JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
             JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
+            if (addressJsonArray.getJSONObject(0) == null){
+              showMessage(message);
+            }
             int addressId = addressJsonObject.getInt("id");
             String address = addressJsonObject.getString("address");
 
@@ -167,6 +169,11 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     Toast.makeText(getActivity().getApplicationContext(),
         "Ок", Toast.LENGTH_SHORT).show();
 
+//    String authCertificate = email + ":" + password;
+
+    String authCertificate = "Basic " + Base64.encodeToString((email + ":" + password).getBytes(),
+        Base64.URL_SAFE | Base64.NO_WRAP);
+
     UserLocalStore.saveIntToSharedPrefs(getActivity().getApplicationContext(), Prefs.USER_ID,
         userId);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.EMAIL,
@@ -177,6 +184,9 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
         address);
     UserLocalStore.saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.PASSWORD,
         password);
+    UserLocalStore
+        .saveStringToSharedPrefs(getActivity().getApplicationContext(), Prefs.AUTH_CERTIFICATE,
+            authCertificate);
     UserLocalStore.saveBooleanToSharedPrefs(getActivity().getApplicationContext(), Prefs.REGISTERED,
         true);
 
@@ -184,12 +194,12 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
     LoginFragment.this.startActivity(intent);
   }
 
-//  private void showMessage(String message) {
-//    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-//    dialogBuilder.setMessage(message);
-//    dialogBuilder.setPositiveButton("Ok", null);
-//    dialogBuilder.show();
-//  }
+  private void showMessage(String message) {
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+    dialogBuilder.setMessage(message);
+    dialogBuilder.setPositiveButton("Ok", null);
+    dialogBuilder.show();
+  }
 
 
   public interface OnRegistrationClickListener {

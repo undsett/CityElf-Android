@@ -346,7 +346,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
           new JsonMessageTask(this)
               .execute(WebUrls.ADDRESS_URL + getFormatedAddressToJSON(nameOfStreet)
                       + WebUrls.API_KEY_URL,
-                  Constants.GET);
+                  Constants.GET, null);
           mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
         } else {
           getToast("Неверный адрес");

@@ -54,20 +54,23 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           connection.setDoInput(true);
           connection.setDoOutput(true);
 
-//          connection.setConnectTimeout(1000 * 15);
-//          connection.setReadTimeout(50000);
+//          connection.setConnectTimeout(Constants.CONNECTION_TIMEOUT);
+//          connection.setReadTimeout(Constants.CONNECTION_TIMEOUT);
 
-//          String bodyParams = "email=" + params[2] + "&password=" + params[3]
-//          connection.setRequestProperty(Constants.AUTH, params[2]);
+          if (params[3] != null) {
+            connection.setRequestProperty(Prefs.AUTH, params[3]);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("content-type", "application/json");
+          }
+          connection.connect();
 
           String bodyParams = params[2];
-
           outputStream = connection.getOutputStream();
           outputStream.write(bodyParams.getBytes());
           outputStream.close();
 
           int responseCode = connection.getResponseCode();
-          if (responseCode != HttpsURLConnection.HTTP_OK) {
+          if (responseCode != 200) {
             Log.d(TAG, "Response Code is: " + responseCode);
             return "Error " + Constants.POST + " " + responseCode;
           }
@@ -87,17 +90,7 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           connection.setDoInput(true);
           connection.setDoOutput(true);
 
-          Log.d(TAG, "doInBackground: PUT params 3 and 4: " + params[3] + " " + params[4]);
-
-          String authCertificate = "Basic " + Base64.encodeToString((params[3] + ":" + params[4])
-                  .getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
-
-// HARDCOD
-//          String authCertificate = "Basic " + Base64
-//              .encodeToString(("authorized_role@cityelf.com.ua" + ":" + 123456).getBytes(),
-//                  Base64.URL_SAFE | Base64.NO_WRAP);
-
-          connection.setRequestProperty(Constants.AUTH, authCertificate);
+          connection.setRequestProperty(Prefs.AUTH, params[3]);
           connection.setRequestProperty("Accept", "application/json");
           connection.setRequestProperty("content-type", "application/json");
           connection.connect();
@@ -108,7 +101,7 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 
           int responseCode = connection.getResponseCode();
 
-          if (responseCode != HttpsURLConnection.HTTP_OK) {
+          if (responseCode != 200) {
             Log.d(TAG, "Response Code is: " + responseCode);
             return "Error " + Constants.PUT + " " + responseCode;
           }
@@ -123,7 +116,10 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         url = new URL(params[0]);
         connection = (HttpURLConnection) url.openConnection();
 
-//        connection.setRequestMethod("GET");
+        connection.setRequestMethod("GET");
+        if (params[2] != null) {
+          connection.setRequestProperty(Prefs.AUTH, params[2]);
+        }
         connection.connect();
 
         int responseCode = connection.getResponseCode();

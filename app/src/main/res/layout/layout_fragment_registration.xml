@@ -25,6 +25,19 @@
     android:layout_above="@id/btnRegister"
     android:background="@drawable/background_authorization_et"
     android:gravity="center"
+    android:hint="@string/password_repeat"
+    android:inputType="textPassword" />
+
+  <EditText
+    android:id="@+id/etPassword2"
+    android:layout_width="match_parent"
+    android:layout_height="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
+    android:layout_above="@id/etPassword"
+    android:background="@drawable/background_authorization_et"
+    android:gravity="center"
     android:hint="@string/password"
     android:inputType="textPassword" />
 
@@ -34,7 +47,7 @@
     android:layout_height="30dp"
     android:layout_marginLeft="40dp"
     android:layout_marginRight="40dp"
-    android:layout_above="@id/etPassword"
+    android:layout_above="@id/etPassword2"
     android:layout_gravity="center_vertical"
     android:background="@drawable/background_authorization_et"
     android:gravity="center"

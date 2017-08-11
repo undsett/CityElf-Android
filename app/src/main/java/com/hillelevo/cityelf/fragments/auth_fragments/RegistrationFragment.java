@@ -207,6 +207,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
         "На Ваш email выслано письмо для подтверждения регистрации.", Toast.LENGTH_SHORT).show();
 
     Intent intent = new Intent(getContext(), MainActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     RegistrationFragment.this.startActivity(intent);
   }
 

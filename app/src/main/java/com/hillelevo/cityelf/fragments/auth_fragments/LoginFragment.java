@@ -183,6 +183,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
         true);
 
     Intent intent = new Intent(getContext(), MainActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     LoginFragment.this.startActivity(intent);
   }
 

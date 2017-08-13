@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       finish();
     }
 
-    showLoadingAlertDialog();
+
 
     // Load registered status from Shared Prefs
 
@@ -354,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
                 Constants.GET, null);
+        showLoadingAlertDialog();
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
       }
@@ -502,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         jsonObject = new JSONObject(message);
         Log.d(TAG, "fillData: jsonObject length " + jsonObject.length());
 
-        for (int count = 0; count < jsonObject.length(); count++) {
+        //for (int count = 0; count < jsonObject.length(); count++) {
 
           if (jsonObject.has("Water")) {
             Log.d(TAG, "fillData: getJSONObject(\"Water\") != null");
@@ -523,7 +524,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
                     TimeUtils.getDate(start),
                     "", 0));
 //            count++;
-          } else if (jsonObject.has("Gas")) {
+          }
+
+          if (jsonObject.has("Gas")) {
             Log.d(TAG, "fillData: getJSONObject(\"Gas\") != null");
             JSONObject gasJsonObject = jsonObject.getJSONObject("Gas");
             title = "Отключение газа";
@@ -541,7 +544,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
                     TimeUtils.getDate(start),
                     "", 0));
 //            count++;
-          } else if (jsonObject.has("Electricity")) {
+          }
+
+          if (jsonObject.has("Electricity")) {
             Log.d(TAG, "fillData: getJSONObject(\"Electricity\") != null");
 
             JSONObject electricityJsonObject = jsonObject.getJSONObject("Electricity");
@@ -562,7 +567,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
                     "", 0));
 //            count++;
           }
-        }
+        //}
 
         // Add new data to ViewPager
         pagerAdapter.notifyDataSetChanged();

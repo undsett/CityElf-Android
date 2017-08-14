@@ -323,7 +323,6 @@ public class SettingsActivity extends PreferenceActivity implements
   public boolean onPreferenceChange(Preference preference, Object newValue) {
     switch (preference.getKey()) {
       case "notificationSms":
-        //// TODO: 17.06.17 send sms status
       case "notificationPush":
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(80L);
@@ -425,7 +424,6 @@ public class SettingsActivity extends PreferenceActivity implements
           str = ((EditTextPreference) pref).getText();
 
         }
-        //// TODO: 27.07.17 send to server
         JSONObject updatePreferenceObject = new JSONObject();
 
         try {

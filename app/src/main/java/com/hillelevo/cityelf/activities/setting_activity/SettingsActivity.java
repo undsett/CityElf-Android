@@ -183,8 +183,6 @@ public class SettingsActivity extends PreferenceActivity implements
           (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL))));
       emailPref.setOnPreferenceChangeListener(this);
 
-
-
       exit = (Preference) findPreference("exit");
       exit.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         @Override
@@ -237,11 +235,11 @@ public class SettingsActivity extends PreferenceActivity implements
         String ltn = lString.substring(lString.indexOf(("(")) + 1, lString.indexOf(")"));
         addressFromCoordonate = true;
 
+        key = "googleapi";
         new JsonMessageTask(this)
             .execute("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + ltn
                     + "&sensor=true&language=ru",
-                Constants.GET);
-
+                Constants.GET, null);
 
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
         Status status = PlaceAutocomplete.getStatus(this, data);
@@ -381,15 +379,17 @@ public class SettingsActivity extends PreferenceActivity implements
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
         if (userAddress.contains("улица ")) {
-          return userAddress.substring(userAddress.indexOf("улица "), userAddress.indexOf(", Одес"));
-        } else if (userAddress.contains("вулиця ")){
-          return userAddress.substring(userAddress.indexOf("вулиця "), userAddress.indexOf(", Одес"));
+          return userAddress
+              .substring(userAddress.indexOf("улица "), userAddress.indexOf(", Одес"));
+        } else if (userAddress.contains("вулиця ")) {
+          return userAddress
+              .substring(userAddress.indexOf("вулиця "), userAddress.indexOf(", Одес"));
         }
       } else {
         return userAddress;
       }
     }
-      return "";
+    return "";
   }
 
   private static String firstWord(String firstPart) {
@@ -447,23 +447,71 @@ public class SettingsActivity extends PreferenceActivity implements
 
   @Override
   public void messageResponse(String output) {
-    if (output.isEmpty() && pref != null) {
-      String value = ((EditTextPreference) pref).getText();
-      if (key.equals("email")) {
-        pref.setSummary(value);
-      } else if (key.equals("password")) {
-        pref.setSummary(value);
-      }
-    } else if (output.isEmpty() && key.equals("address")) {
-      loadUserData();
-    } else if (key.equals("get_user")) {
-      saveAddressId(output);
+    switch (key) {
+      case "email":
+        if (output.isEmpty() && pref != null) {
+          prefSetValue();
+        }
+        break;
+      case "password":
+        if (output.isEmpty() && pref != null) {
+          prefSetValue();
+        }
+        break;
+      case "address":
+        if (output.isEmpty()) {
+          loadUserData();
+        }
+        break;
+      case "get_user":
+        saveAddressId(output);
+        break;
+      case "googleapi":
+        key = null;
+        res = output;
+        checkAddress();
+//        updateUserAddress(userAddress);
+        break;
     }
+  }
 
+  private void prefSetValue() {
+    String value = ((EditTextPreference) pref).getText();
+    if (key.equals("email")) {
+      UserLocalStore
+          .saveStringToSharedPrefs(getApplicationContext(), Prefs.EMAIL,
+              value);
+      String authCertificate = "Basic " + Base64.encodeToString((value + ":" + UserLocalStore
+              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD)).getBytes(),
+          Base64.URL_SAFE | Base64.NO_WRAP);
+      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE,
+          authCertificate);
+    }
+    if (key.equals("password")) {
+      UserLocalStore
+          .saveStringToSharedPrefs(getApplicationContext(), Prefs.PASSWORD, value);
+      String authCertificate = "Basic " + Base64.encodeToString((UserLocalStore
+              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL + ":" + value))
+              .getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
+      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE,
+          authCertificate);
+    }
+    pref.setSummary(value);
+  }
+
+  private void checkAddress() {
+    userAddress = getAddressFromCoordinate();
+    if (userAddress.contains(", Одес")) {
+      addressPref.setSummary(getFormatedStreetName(userAddress));
+      updateUserAddress(userAddress);
+      UserLocalStore
+          .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
+    } else {
+      getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
+    }
   }
 
   private void loadUserData() {
-    key = "get_user";
     int userId = UserLocalStore
         .loadIntFromSharedPrefs(getApplicationContext(), Prefs.USER_ID);
     try {
@@ -471,6 +519,7 @@ public class SettingsActivity extends PreferenceActivity implements
           .execute(WebUrls.GET_USERDATA_URL + URLEncoder.encode(String.valueOf(userId), "UTF-8"),
               Constants.GET, UserLocalStore
                   .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
+      key = "get_user";
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
@@ -491,18 +540,6 @@ public class SettingsActivity extends PreferenceActivity implements
           .saveIntToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID, addressId);
     } catch (JSONException e) {
       e.printStackTrace();
-      if (addressFromCoordonate) {
-        userAddress = getAddressFromCoordinate();
-      }
-      if (userAddress.contains(", Одес")) {
-        addressPref.setSummary(getFormatedStreetName(userAddress));
-        // send userUpdate address
-        updateUserAddress(userAddress);
-        UserLocalStore
-            .saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, userAddress);
-      } else {
-        getToast(Constants.ERROR_INPUT_ADDRESS, Toast.LENGTH_LONG);
-      }
     }
   }
 

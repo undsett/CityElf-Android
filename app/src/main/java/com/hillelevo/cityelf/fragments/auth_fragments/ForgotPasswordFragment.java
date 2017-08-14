@@ -59,7 +59,7 @@ public class ForgotPasswordFragment extends Fragment implements JsonMessageRespo
           break;
         } else {
           String bodyParams = "";
-          new JsonMessageTask(ForgotPasswordFragment.this).execute(WebUrls.FORGOT_PASSWORD_URL + email, Constants.POST, bodyParams);
+          new JsonMessageTask(ForgotPasswordFragment.this).execute(WebUrls.FORGOT_PASSWORD_URL + email, Constants.POST, bodyParams, null);
           break;
         }
     }
@@ -71,28 +71,7 @@ public class ForgotPasswordFragment extends Fragment implements JsonMessageRespo
     if (output == null || output.isEmpty() || output == "") {
       showMessage("На указанный Вами e-mail будет отправлено письмо со ссылкой на страницу сброса пароля");
     } else {
-//      try {
-//        JSONObject jsonObject = new JSONObject(output);
-//        if (jsonObject != null) {
-//          int code = jsonObject.getInt("code");
-//          String message = jsonObject.getString("message");
-//
-//          showMessage(message + code);
-//
-//          if (code == 11 && message.equals("User registration OK")) {
-//
-//          showMessage(message);
-//
-//          } else {
-//            showMessage(message);
-//
-//          }
-//        } else {
-//          showMessage("Registration failed");
-//        }
-//      } catch (JSONException e) {
-//        e.printStackTrace();
-//      }
+
     }
     Intent intent = new Intent(getContext(), MainActivity.class);
    ForgotPasswordFragment.this.startActivity(intent);

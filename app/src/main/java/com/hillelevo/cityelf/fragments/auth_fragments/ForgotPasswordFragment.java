@@ -59,7 +59,7 @@ public class ForgotPasswordFragment extends Fragment implements JsonMessageRespo
           break;
         } else {
           String bodyParams = "";
-          new JsonMessageTask(ForgotPasswordFragment.this).execute(WebUrls.FORGOT_PASSWORD_URL + email, Constants.POST, bodyParams);
+          new JsonMessageTask(ForgotPasswordFragment.this).execute(WebUrls.FORGOT_PASSWORD_URL + email, Constants.POST, bodyParams, null);
           break;
         }
     }

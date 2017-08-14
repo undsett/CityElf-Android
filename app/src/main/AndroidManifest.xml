@@ -45,22 +45,32 @@
     <activity
       android:label="@string/title_activity_settings"
       android:name=".activities.setting_activity.SettingsActivity"
-      android:noHistory="true"/>
+      />
 
     <activity android:name=".activities.AuthorizationActivity"
       android:noHistory="true"/>
 
-    <activity android:name=".activities.setting_activity.AboutProgram"
-      android:noHistory="true"/>
+    <activity android:name=".activities.setting_activity.AboutProgram">
+      <intent-filter>
+        <action android:name="com.hillelevo.cityelf.AboutProgram" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
 
     <activity android:name=".activities.setting_activity.AuthenticationOSMD"
+      >
+    <intent-filter>
+      <action android:name="com.hillelevo.cityelf.AuthenticationOSMD" />
+      <category android:name="android.intent.category.DEFAULT" />
+    </intent-filter>
+  </activity>
+
+
+  <activity android:name=".activities.setting_activity.ManyAddress"
       android:noHistory="true"/>
 
-    <activity android:name=".activities.setting_activity.ManyAddress"
-      android:noHistory="true"/>
-
-    <activity android:name=".activities.AdminActivity"
-      android:noHistory="true"/>
+    <activity android:name=".activities.AdminActivity">
+    </activity>
 
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>

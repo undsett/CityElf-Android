@@ -31,7 +31,6 @@ public class Constants {
     public static final String GET_USERDATA_URL = "url:8088/services/users/";
     public static final String ADD_NEW_ADVERTS_URL = "url:8088/services/advertisements/admin/addadvertisement";
     public static final String ADD_NEW_POLLS_URL = "url:8088/services/polls/admin/addpoll";
-
   }
 
   public class Actions {

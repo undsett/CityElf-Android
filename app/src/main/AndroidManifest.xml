@@ -59,11 +59,13 @@
 
     <activity android:name=".activities.setting_activity.AuthenticationOSMD"
       >
-      <intent-filter>
-        <action android:name="com.hillelevo.cityelf.AuthenticationOSMD" />
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
-    </activity>
+
+    <intent-filter>
+      <action android:name="com.hillelevo.cityelf.AuthenticationOSMD" />
+      <category android:name="android.intent.category.DEFAULT" />
+    </intent-filter>
+  </activity>
+
 
 
     <activity android:name=".activities.setting_activity.ManyAddress"

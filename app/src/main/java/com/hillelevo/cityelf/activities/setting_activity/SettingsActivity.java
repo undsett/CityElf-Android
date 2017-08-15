@@ -1,6 +1,8 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
+import static com.hillelevo.cityelf.Constants.TAG;
+
 import android.util.Base64;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -239,7 +241,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
       } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
         Status status = PlaceAutocomplete.getStatus(this, data);
-        Log.d(Constants.TAG, status.getStatusMessage());
+        Log.d(TAG, status.getStatusMessage());
 
       }
     }
@@ -295,6 +297,7 @@ public class SettingsActivity extends PreferenceActivity implements
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        finish();
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -460,7 +463,7 @@ public class SettingsActivity extends PreferenceActivity implements
   @Override
   public void messageResponse(String output) {
     if (output.contains("Error")) {
-      Log.i(Constants.TAG, output);
+      Log.i(TAG, output);
       saveOldVariable(oldPrefValue);
       String authCertificate = "Basic " + Base64.encodeToString(
           (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL) + ":"
@@ -475,7 +478,7 @@ public class SettingsActivity extends PreferenceActivity implements
         case "email":
           if (pref != null) {
             String value = ((EditTextPreference) pref).getText();
-            Log.i(Constants.TAG, "New email " + value);
+            Log.i(TAG, "New email " + value);
             pref.setSummary(value);
             resolutionUpdate = false;
             saveNewAuthSertificate(value);
@@ -484,7 +487,7 @@ public class SettingsActivity extends PreferenceActivity implements
         case "password":
           //if (output.isEmpty() && pref != null) {
           String value = ((CustomEditText) pref).getText();
-          Log.i(Constants.TAG, "New password " + value);
+          Log.i(TAG, "New password " + value);
           resolutionUpdate = false;
           pref.setSummary("Изменён!");
           saveNewAuthSertificate(value);

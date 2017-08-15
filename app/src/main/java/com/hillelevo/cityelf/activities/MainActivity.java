@@ -101,9 +101,22 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    Log.d(TAG, "onNewIntent: MainActivity " + this.hashCode());
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    Log.d(TAG, "onDestroy: MainActivity " + this.hashCode());
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    Log.d(TAG, "onCreate: MainActivity " + this.hashCode());
 
     address = UserLocalStore
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
@@ -121,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS, true);
       UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START, true);
 
-      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN, true);
+//      UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN, true);
 
       // Send AddNewUser request to server
       startAddNewUserRequest();
@@ -131,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_FOR_CHECK);
     }
 
+    // If first start - return to map
     if (!UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       Intent firstStart = new Intent(MainActivity.this, MapActivity.class);
@@ -344,8 +358,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 //      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1, null);
     } else {
 
-      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
-          Prefs.ADDRESS_1);
+//      String address = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(),
+//          Prefs.ADDRESS_1);
 //      address for test
 //      String address = "Рождественская 4";
       showMessage(address);
@@ -362,9 +376,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private void startGetAdverts() {
     //for test 2341
-    long addressId = 2341;
-//    long addressId = UserLocalStore
-//        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
+//    long addressId = 2341;
+    long addressId = UserLocalStore
+        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
     new AdvertsTask(this).execute(WebUrls.GET_ALL_ADVERTS + addressId, Constants.GET,
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
   }
@@ -372,9 +386,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   private void startGetPools() {
     //for test 2341
-    long addressId = 2341;
-//    long addressId = UserLocalStore
-//        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
+//    long addressId = 2341;
+    long addressId = UserLocalStore
+        .loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID);
     new PoolsTask(this).execute(WebUrls.GET_ALL_POOLS + addressId, Constants.GET,
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
   }
@@ -423,6 +437,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
       for (int i = 0; i < jsonArray.length(); i++) {
         JSONObject poolsResponsObject = jsonArray.getJSONObject(i);
+        Log.d(TAG, "poolsResponse: " + poolsResponsObject.toString());
         int poolsId = poolsResponsObject.getInt("id");
 
         JSONObject addressJsonObject = poolsResponsObject.getJSONObject("address");
@@ -434,12 +449,18 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         String timeOfEntry = poolsResponsObject.getString("timeOfEntry");
 
         JSONArray pollsAnswersArray = (JSONArray) poolsResponsObject.get("pollsAnswers");
+        int voted = 0;
+
         for (int j = 0; j < pollsAnswersArray.length(); j++) {
           JSONObject answersObject = pollsAnswersArray.getJSONObject(j);
           int answerID = answersObject.getInt("id");
           String answer = answersObject.getString("answer");
-          int voted = answersObject.getInt("voted");
+          voted = answersObject.getInt("voted");
         }
+
+              polls.add(new Poll(subject, address, "", timeOfEntry, description, "Вариант 1", "Вариант 2",
+          "Вариант 3", "Вариант 4", voted));
+
       }
     } catch (JSONException e) {
       e.printStackTrace();
@@ -455,6 +476,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
       for (int i = 0; i < jsonArray.length(); i++) {
         JSONObject advertsResponsObject = jsonArray.getJSONObject(i);
+        Log.d(TAG, "advertsResponse: " + advertsResponsObject.toString());
         int advertsId = advertsResponsObject.getInt("id");
 
         JSONObject addressJsonObject = advertsResponsObject.getJSONObject("address");
@@ -464,6 +486,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         String subject = advertsResponsObject.getString("subject");
         String description = advertsResponsObject.getString("description");
         String timeOfEntry = advertsResponsObject.getString("timeOfEntry");
+
+        adverts.add(new Advert(subject, address, timeOfEntry, description));
       }
     } catch (JSONException e) {
       e.printStackTrace();
@@ -593,17 +617,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         e.printStackTrace();
       }
 
-//      adverts.add(new Advert("Объявление 1", "Тестовая улица, 1", "сегодня",
-//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест "));
-//
-//      polls.add(new Poll("Опрос 1", "Тестовая улица, 1", "2 часа", "сегодня",
-//          "Тестовый опрос тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест тест тест тест тест тест тест тест "
-//              + "тест тест тест тест тест тест тест ", "Вариант 1", "Вариант 2",
-//          "Вариант 3", "Вариант 4", 10));
-//
     }
 
 

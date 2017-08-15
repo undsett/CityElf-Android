@@ -380,7 +380,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         nameOfStreet);
                 intentMain.putExtra("CheckAnotherAddress", true);
               }
-
+              intentMain.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
               startActivity(intentMain);
             }
           }

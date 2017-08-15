@@ -74,6 +74,7 @@ public class ForgotPasswordFragment extends Fragment implements JsonMessageRespo
 
     }
     Intent intent = new Intent(getContext(), MainActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
    ForgotPasswordFragment.this.startActivity(intent);
   }
 

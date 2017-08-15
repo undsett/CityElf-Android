@@ -76,11 +76,19 @@ public class CustomEditText extends DialogPreference implements OnClickListener 
     super.onBindDialogView(view);
   }
 
+  @Override
+  public OnPreferenceChangeListener getOnPreferenceChangeListener() {
+    return super.getOnPreferenceChangeListener();
+  }
 
   @Override
   public void onClick(View view) {
     UserLocalStore.saveStringToSharedPrefs(getContext(), Prefs.PASSWORD,
         String.valueOf(etPassword1.getText()));
-    getDialog().dismiss();
+        getDialog().dismiss();
+  }
+
+  public String getText() {
+    return String.valueOf(etPassword1.getText());
   }
 }

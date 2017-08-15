@@ -1,8 +1,8 @@
 package com.hillelevo.cityelf.activities.setting_activity;
 
 
-import android.preference.PreferenceManager.OnActivityDestroyListener;
 import android.util.Base64;
+
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
@@ -18,7 +18,6 @@ import com.hillelevo.cityelf.activities.AuthorizationActivity;
 import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.MapActivity;
 import com.hillelevo.cityelf.data.UserLocalStore;
-import com.hillelevo.cityelf.fragments.BottomDialogFragment;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -50,18 +48,10 @@ import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
-
-import java.util.List;
-import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,6 +72,9 @@ public class SettingsActivity extends PreferenceActivity implements
   private Geocoder geocoder;
   private String userAddress;
   private Preference login;
+  private CustomEditText password;
+  private String oldPrefValue;
+  private boolean resolutionUpdate = true;
 
   private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
@@ -94,7 +87,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
   private AppCompatDelegate delegate;
   private PreferenceCategory category;
-  boolean addressFromCoordonate;
 
 
   @Override
@@ -176,11 +168,17 @@ public class SettingsActivity extends PreferenceActivity implements
       Preference logout = findPreference("login");
       category.removePreference(logout);
 
+      password = (CustomEditText) findPreference("password");
+      password.setSummary("");
+      password.setOnPreferenceClickListener(this);
+
       emailPref = (EditTextPreference) findPreference("email");
-      emailPref.setSummary(getShortAddress(
-          UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)));
-      emailPref.setText(getShortAddress(
-          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL))));
+      String str = UserLocalStore
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD);
+      emailPref.setSummary(
+          UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL));
+      emailPref.setText(
+          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)));
       emailPref.setOnPreferenceChangeListener(this);
 
       exit = (Preference) findPreference("exit");
@@ -233,7 +231,6 @@ public class SettingsActivity extends PreferenceActivity implements
         LatLng l = place.getLatLng();
         String lString = l.toString();
         String ltn = lString.substring(lString.indexOf(("(")) + 1, lString.indexOf(")"));
-        addressFromCoordonate = true;
 
         key = "googleapi";
         new JsonMessageTask(this)
@@ -296,7 +293,9 @@ public class SettingsActivity extends PreferenceActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case android.R.id.home:
-        startActivity(new Intent(this, MainActivity.class));
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -337,8 +336,13 @@ public class SettingsActivity extends PreferenceActivity implements
           getToast("Украинский", Toast.LENGTH_SHORT);
         }
         break;
+      case "password":
+        oldPrefValue = UserLocalStore
+            .loadStringFromSharedPrefs(getApplicationContext(), "password");
+        break;
       case "email":
-        emailPref.setSummary(getShortAddress(emailPref.getText()));
+        //emailPref.setSummary(getShortAddress(emailPref.getText()));
+        oldPrefValue = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), "email");
         break;
     }
     return true;
@@ -352,29 +356,29 @@ public class SettingsActivity extends PreferenceActivity implements
     return delegate;
   }
 
+  /*
+    private String getShortAddress(String address) {
+      if (address.contains("@")) {
 
-  private String getShortAddress(String address) {
-    if (address.contains("@")) {
+        StringBuilder shortAddress = new StringBuilder();
+        String[] twoWords = address.split("@");
 
-      StringBuilder shortAddress = new StringBuilder();
-      String[] twoWords = address.split("@");
+        shortAddress.append(firstWord(twoWords[0]));
+        shortAddress.append('@').append(twoWords[1]);
 
-      shortAddress.append(firstWord(twoWords[0]));
-      shortAddress.append('@').append(twoWords[1]);
-
-      return shortAddress.toString();
-    } else {
-      if (address.equals("")) {
+        return shortAddress.toString();
+      } else {
+        if (address.equals("")) {
+          return "";
+        }
+        Toast toast = Toast.makeText(this,
+            "Некорректный email", Toast.LENGTH_LONG);
+        toast.show();
+        emailPref.setText("");
         return "";
       }
-      Toast toast = Toast.makeText(this,
-          "Некорректный email", Toast.LENGTH_LONG);
-      toast.show();
-      emailPref.setText("");
-      return "";
     }
-  }
-
+  */
   public static String getFormatedStreetName(String userAddress) {
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
@@ -392,7 +396,7 @@ public class SettingsActivity extends PreferenceActivity implements
     return "";
   }
 
-  private static String firstWord(String firstPart) {
+/*  private static String firstWord(String firstPart) {
     char[] word = firstPart.toCharArray();
     StringBuilder str = new StringBuilder();
     for (int i = 0; i < firstPart.length(); i++) {
@@ -403,100 +407,146 @@ public class SettingsActivity extends PreferenceActivity implements
       }
     }
     return str.toString();
-  }
+  }*/
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String _key) {
 
-    pref = findPreference(_key);
-    key = _key;
+    if (resolutionUpdate) {
+      pref = findPreference(_key.toLowerCase());
+      key = _key;
 
-    if (pref instanceof EditTextPreference) {
-      EditTextPreference editTextPref = (EditTextPreference) pref;
-      String str = ((EditTextPreference) pref).getText();
-      //// TODO: 27.07.17 send to server
-      JSONObject updatePreferenceObject = new JSONObject();
+      if (pref instanceof EditTextPreference || pref instanceof CustomEditText) {
+        //EditTextPreference editTextPref = (EditTextPreference) pref;
+        String str;
+        if (pref instanceof CustomEditText) {
+          str = ((CustomEditText) pref).getText();
+        } else {
+          str = ((EditTextPreference) pref).getText();
 
-      try {
-        int userId = (UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
-            Prefs.USER_ID));
-        updatePreferenceObject.put("id", userId);
-        updatePreferenceObject.put(key, str);
+        }
+        //// TODO: 27.07.17 send to server
+        JSONObject updatePreferenceObject = new JSONObject();
 
-        JSONObject newAddress = new JSONObject();
-        newAddress.put("id",
-            UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID));
-        newAddress.put("address", "");
-        newAddress.put("addressUa", "");
-        JSONArray array = new JSONArray();
-        array.put(newAddress);
+        try {
+          int userId = (UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(),
+              Prefs.USER_ID));
+          updatePreferenceObject.put("id", userId);
+          updatePreferenceObject.put(key, str);
 
-        updatePreferenceObject.put("addresses", array);
+          JSONObject newAddress = new JSONObject();
+          newAddress.put("id",
+              UserLocalStore.loadIntFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1_ID));
+          newAddress.put("address", "");
+          newAddress.put("addressUa", "");
+          JSONArray array = new JSONArray();
+          array.put(newAddress);
+
+          updatePreferenceObject.put("addresses", array);
 
 
-      } catch (JSONException e) {
-        e.printStackTrace();
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        String jsonData = updatePreferenceObject.toString();
+
+        new JsonMessageTask(SettingsActivity.this)
+            .execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData, UserLocalStore
+                .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
       }
-      String jsonData = updatePreferenceObject.toString();
-
-      new JsonMessageTask(SettingsActivity.this)
-          .execute(WebUrls.UPDATE_USER_URL, Constants.PUT, jsonData, UserLocalStore
-              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
     }
+    resolutionUpdate = true;
   }
 
   @Override
   public void messageResponse(String output) {
-    switch (key) {
-      case "email":
-        if (output.isEmpty() && pref != null) {
-          prefSetValue();
-        }
-        break;
-      case "password":
-        if (output.isEmpty() && pref != null) {
-          prefSetValue();
-        }
-        break;
-      case "address":
-        if (output.isEmpty()) {
+    if (output.contains("Error")) {
+      Log.i(Constants.TAG, output);
+      saveOldVariable(oldPrefValue);
+      String authCertificate = "Basic " + Base64.encodeToString(
+          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL) + ":"
+              + UserLocalStore
+              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD)).getBytes(),
+          Base64.URL_SAFE | Base64.NO_WRAP);
+      UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE,
+          authCertificate);
+
+    } else {
+      switch (key.toLowerCase()) {
+        case "email":
+          if (pref != null) {
+            String value = ((EditTextPreference) pref).getText();
+            Log.i(Constants.TAG, "New email " + value);
+            pref.setSummary(value);
+            resolutionUpdate = false;
+            saveNewAuthSertificate(value);
+          }
+          break;
+        case "password":
+          //if (output.isEmpty() && pref != null) {
+          String value = ((CustomEditText) pref).getText();
+          Log.i(Constants.TAG, "New password " + value);
+          resolutionUpdate = false;
+          pref.setSummary("Изменён!");
+          saveNewAuthSertificate(value);
+          //}
+          break;
+        case "address1":
+          //if (output.isEmpty()) {
+          resolutionUpdate = false;
           loadUserData();
-        }
-        break;
-      case "get_user":
-        saveAddressId(output);
-        break;
-      case "googleapi":
-        key = null;
-        res = output;
-        checkAddress();
+//          //}
+          break;
+        case "get_user":
+          saveAddressId(output);
+          break;
+        case "googleapi":
+          key = null;
+          res = output;
+
+          checkAddress();
 //        updateUserAddress(userAddress);
-        break;
+          break;
+      }
     }
   }
 
-  private void prefSetValue() {
-    String value = ((EditTextPreference) pref).getText();
+  private void saveOldVariable(String oldPrefValue) {
+    if (key.equals("email")) {
+      UserLocalStore
+          .saveStringToSharedPrefs(getApplicationContext(), Prefs.EMAIL,
+              oldPrefValue);
+    }
+    if (key.equals("password")) {
+      UserLocalStore
+          .saveStringToSharedPrefs(getApplicationContext(), Prefs.PASSWORD, oldPrefValue);
+    }
+  }
+
+  private void saveNewAuthSertificate(String value) {
+
     if (key.equals("email")) {
       UserLocalStore
           .saveStringToSharedPrefs(getApplicationContext(), Prefs.EMAIL,
               value);
-      String authCertificate = "Basic " + Base64.encodeToString((value + ":" + UserLocalStore
+      resolutionUpdate = false;
+      String authCertificate = "Basic " + Base64.encodeToString(
+          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL) + ":"
+              + UserLocalStore
               .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD)).getBytes(),
           Base64.URL_SAFE | Base64.NO_WRAP);
       UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE,
           authCertificate);
     }
-    if (key.equals("password")) {
+    if (key.equals("Password")) {
       UserLocalStore
           .saveStringToSharedPrefs(getApplicationContext(), Prefs.PASSWORD, value);
       String authCertificate = "Basic " + Base64.encodeToString((UserLocalStore
-              .loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL + ":" + value))
-              .getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
+          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL + ":" + value))
+          .getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
       UserLocalStore.saveStringToSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE,
           authCertificate);
     }
-    pref.setSummary(value);
   }
 
   private void checkAddress() {
@@ -544,7 +594,6 @@ public class SettingsActivity extends PreferenceActivity implements
   }
 
   private String getAddressFromCoordinate() {
-    addressFromCoordonate = false;
     String resultAddress = null;
     if (res != null && !res.contains("Error")) {
       JSONObject jsonObject = null;
@@ -565,6 +614,8 @@ public class SettingsActivity extends PreferenceActivity implements
 
   @Override
   public boolean onPreferenceClick(Preference preference) {
+    oldPrefValue = UserLocalStore
+        .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD);
 
     return false;
   }

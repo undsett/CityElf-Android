@@ -129,6 +129,7 @@ public class SettingsActivity extends PreferenceActivity implements
         return false;
       }
     });
+    String str3 = UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
     addressPref.setSummary(getFormatedStreetName(
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
 
@@ -173,8 +174,6 @@ public class SettingsActivity extends PreferenceActivity implements
       password.setOnPreferenceClickListener(this);
 
       emailPref = (EditTextPreference) findPreference("email");
-      String str = UserLocalStore
-          .loadStringFromSharedPrefs(getApplicationContext(), Prefs.PASSWORD);
       emailPref.setSummary(
           UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL));
       emailPref.setText(
@@ -273,7 +272,7 @@ public class SettingsActivity extends PreferenceActivity implements
       e.printStackTrace();
     }
   }
-
+/*
   private String sendGeo(LatLng coordinate) {
     List<Address> addresses = new ArrayList<>();
     try {
@@ -287,7 +286,7 @@ public class SettingsActivity extends PreferenceActivity implements
     String str = address.getAddressLine(0);
     return address.getAddressLine(0);
   }
-
+*/
   //btnBack home
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
@@ -387,6 +386,8 @@ public class SettingsActivity extends PreferenceActivity implements
         } else if (userAddress.contains("вулиця ")) {
           return userAddress
               .substring(userAddress.indexOf("вулиця "), userAddress.indexOf(", Одес"));
+        } else {
+          return userAddress.substring(0, userAddress.indexOf(", Одес"));
         }
       } else {
         return userAddress;
@@ -489,12 +490,11 @@ public class SettingsActivity extends PreferenceActivity implements
           saveNewAuthSertificate(value);
           //}
           break;
-        case "address":
+        case "address1":
           //if (output.isEmpty()) {
           resolutionUpdate = false;
-
           loadUserData();
-          //}
+//          //}
           break;
         case "get_user":
           saveAddressId(output);

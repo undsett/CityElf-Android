@@ -29,6 +29,8 @@ public class Constants {
     public static final String COORDINATE_URL_END = "&sensor=true\\";
     public static final String USER_UPLOAD_URL = "test:8088/services/users/upload";
     public static final String GET_USERDATA_URL = "test:8088/services/users/";
+    public static final String ADD_NEW_ADVERTS_URL = "test:8088/services/advertisements/admin/addadvertisement";
+    public static final String ADD_NEW_POLLS_URL = "test:8088/services/polls/admin/addpoll";
   }
 
   public class Actions {

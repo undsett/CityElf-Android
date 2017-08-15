@@ -1,5 +1,8 @@
 package com.hillelevo.cityelf.fragments.admin_fragments;
 
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 
 import android.os.Bundle;
@@ -12,8 +15,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.webutils.AdvertsTask;
+import com.hillelevo.cityelf.webutils.PoolsTask;
+import com.hillelevo.cityelf.webutils.PoolsTask.PoolsResponse;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class AdminPollFragment extends Fragment implements OnClickListener {
+public class AdminPollFragment extends Fragment implements OnClickListener, PoolsResponse {
 
   int variants = 1;
 
@@ -27,6 +37,16 @@ public class AdminPollFragment extends Fragment implements OnClickListener {
   private EditText etVariant4;
   private TextView tvAddVariant;
   private Button btnAddPoll;
+  private String answerVariant1 = null;
+  private String answerVariant2 = null;
+  private String answerVariant3 = null;
+  private String answerVariant4 = null;
+
+  private JSONArray answerVariantArray = new JSONArray();
+  private JSONObject answerVariantObject1 = new JSONObject();
+  private JSONObject answerVariantObject2 = new JSONObject();
+  private JSONObject answerVariantObject3 = new JSONObject();
+  private JSONObject answerVariantObject4 = new JSONObject();
 
 //  public static AdminPollFragment newInstance(ArrayList<Poll> polls) {
 //    Bundle args = new Bundle();
@@ -89,8 +109,119 @@ public class AdminPollFragment extends Fragment implements OnClickListener {
         break;
 
       case R.id.btnAdminPollAdd:
-        //TODO Send new poll data to server
-        Toast.makeText(getContext(), "New Poll sent", Toast.LENGTH_SHORT).show();
+
+        String subject = etTitle.getText().toString();
+        String description = etContent.getText().toString();
+
+        switch (variants){
+
+          case 2:
+            answerVariant1 = etVariant1.getText().toString();
+            answerVariant2 = etVariant2.getText().toString();
+            try {
+              answerVariantObject1.put("answer", answerVariant1);
+              answerVariantObject1.put("voted", 100);
+              answerVariantObject2.put("answer", answerVariant2);
+              answerVariantObject2.put("voted", 200);
+              answerVariantArray.put(answerVariantObject1);
+              answerVariantArray.put(answerVariantObject2);
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
+            break;
+          case 3:
+            answerVariant1 = etVariant1.getText().toString();
+            answerVariant2 = etVariant2.getText().toString();
+            answerVariant3 = etVariant3.getText().toString();
+            try {
+              answerVariantObject1.put("answer", answerVariant1);
+              answerVariantObject1.put("voted", 100);
+              answerVariantObject2.put("answer", answerVariant2);
+              answerVariantObject2.put("voted", 200);
+              answerVariantObject3.put("answer", answerVariant3);
+              answerVariantObject3.put("voted", 300);
+              answerVariantArray.put(answerVariantObject1);
+              answerVariantArray.put(answerVariantObject2);
+              answerVariantArray.put(answerVariantObject3);
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
+            break;
+          case 4:
+            answerVariant1 = etVariant1.getText().toString();
+            answerVariant2 = etVariant2.getText().toString();
+            answerVariant3 = etVariant3.getText().toString();
+            answerVariant4 = etVariant4.getText().toString();
+            try {
+              answerVariantObject1.put("answer", answerVariant1);
+              answerVariantObject1.put("voted", 100);
+              answerVariantObject2.put("answer", answerVariant2);
+              answerVariantObject2.put("voted", 200);
+              answerVariantObject3.put("answer", answerVariant3);
+              answerVariantObject3.put("voted", 300);
+              answerVariantObject4.put("answer", answerVariant4);
+              answerVariantObject4.put("voted", 400);
+              answerVariantArray.put(answerVariantObject1);
+              answerVariantArray.put(answerVariantObject2);
+              answerVariantArray.put(answerVariantObject3);
+              answerVariantArray.put(answerVariantObject4);
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
+            break;
+        }
+
+        JSONObject addNewPollObject = new JSONObject();
+
+        JSONObject addressObject = new JSONObject();
+        try {
+          addressObject.put("id", UserLocalStore
+              .loadIntFromSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1_ID));
+
+          addNewPollObject.put("address", addressObject);
+          addNewPollObject.put("subject", subject);
+          addNewPollObject.put("description", description);
+          addNewPollObject.put("pollsAnswers", answerVariantArray);
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+
+        String jsonData = addNewPollObject.toString();
+
+        new PoolsTask(AdminPollFragment.this)
+            .execute(WebUrls.ADD_NEW_POLLS_URL, Constants.POST, jsonData, UserLocalStore
+                .loadStringFromSharedPrefs(getActivity().getApplicationContext(), Prefs.AUTH_CERTIFICATE));
     }
+  }
+
+  @Override
+  public void poolsResponse(String output) {
+
+    if (output.isEmpty()){
+      Toast.makeText(getContext(), "ERROR", Toast.LENGTH_SHORT).show();
+    }else{
+
+      Toast.makeText(getContext(), "Ваше опрос был успешно добавлен", Toast.LENGTH_SHORT).show();
+      etTitle.setText(null);
+      etContent.setText(null);
+      switch (variants) {
+
+        case 2:
+          etVariant1.setText(null);
+          etVariant2.setText(null);
+
+        case 3:
+          etVariant1.setText(null);
+          etVariant2.setText(null);
+          etVariant3.setText(null);
+
+        case 4:
+          etVariant1.setText(null);
+          etVariant2.setText(null);
+          etVariant3.setText(null);
+          etVariant4.setText(null);
+      }
+    }
+
   }
 }

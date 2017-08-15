@@ -100,9 +100,22 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    Log.d(TAG, "onNewIntent: MainActivity " + this.hashCode());
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    Log.d(TAG, "onDestroy: MainActivity " + this.hashCode());
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    Log.d(TAG, "onCreate: MainActivity " + this.hashCode());
 
     address = UserLocalStore
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
@@ -130,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
           .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_FOR_CHECK);
     }
 
+    // If first start - return to map
     if (!UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
       Intent firstStart = new Intent(MainActivity.this, MapActivity.class);

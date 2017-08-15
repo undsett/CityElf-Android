@@ -1,11 +1,13 @@
 package com.hillelevo.cityelf.activities;
 
+import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.MapActivity;
+import com.hillelevo.cityelf.data.UserLocalStore;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 public class SplashActivity extends Activity {
 
@@ -15,8 +17,17 @@ public class SplashActivity extends Activity {
 
     setTheme(R.style.SplashTheme);
 
-    Intent intent = new Intent(this, MainActivity.class);
-    startActivity(intent);
+    if (!UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.NOT_FIRST_START)) {
+      Intent firstStart = new Intent(this, MapActivity.class);
+      firstStart.putExtra("firstStart", true);
+      startActivity(firstStart);
+    }
+    else {
+      Intent notFirstStart = new Intent(this, MainActivity.class);
+      notFirstStart.putExtra("firstStart", false);
+      startActivity(notFirstStart);
+    }
     finish();
   }
 }

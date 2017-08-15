@@ -490,12 +490,11 @@ public class SettingsActivity extends PreferenceActivity implements
           saveNewAuthSertificate(value);
           //}
           break;
-        case "address":
+        case "address1":
           //if (output.isEmpty()) {
           resolutionUpdate = false;
-
           loadUserData();
-          //}
+//          //}
           break;
         case "get_user":
           saveAddressId(output);

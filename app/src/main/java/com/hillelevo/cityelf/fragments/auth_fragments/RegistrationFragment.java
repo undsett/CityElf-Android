@@ -178,9 +178,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
   private void authenticate(int userId, String email, int addressId, String address, String password) {
 
-//    showMessage("All OK");
-    Toast.makeText(getActivity().getBaseContext(),
-        "Регистрация успешна.", Toast.LENGTH_SHORT).show();
+    showMessage("Регистрация успешна");
+//    Toast.makeText(getActivity().getBaseContext(),
+//        "Регистрация успешна.", Toast.LENGTH_SHORT).show();
 
     //    String authCertificate = email + ":" + password;
 

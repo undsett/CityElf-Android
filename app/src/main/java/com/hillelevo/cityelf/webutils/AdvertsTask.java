@@ -49,24 +49,25 @@ public class AdvertsTask extends AsyncTask<String, Void, String> {
           connection.setDoInput(true);
           connection.setDoOutput(true);
 
-//          connection.setConnectTimeout(1000 * 15);
-//          connection.setReadTimeout(50000);
+//          connection.setConnectTimeout(Constants.CONNECTION_TIMEOUT);
+//          connection.setReadTimeout(Constants.CONNECTION_TIMEOUT);
 
-//          String bodyParams = "email=" + params[2] + "&password=" + params[3]
-//          connection.setRequestProperty(Constants.AUTH, params[2]);
+          if (params[3] != null) {
+            connection.setRequestProperty(Prefs.AUTH, params[3]);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("content-type", "application/json");
+          }
+          connection.connect();
 
           String bodyParams = params[2];
-
           outputStream = connection.getOutputStream();
           outputStream.write(bodyParams.getBytes());
           outputStream.close();
 
           int responseCode = connection.getResponseCode();
-
-          Log.d(TAG, "Response Code is: " + responseCode);
-
           if (responseCode != 200) {
-
+            Log.d(TAG, "Response Code is: " + responseCode);
+            return "Error " + Constants.POST + " " + responseCode;
           }
         } catch (MalformedURLException e) {
           e.printStackTrace();

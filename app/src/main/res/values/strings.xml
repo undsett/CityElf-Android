@@ -172,7 +172,7 @@
   <string name="fragment_admin_poll_finish">Конечная дата</string>
 
   <string name="google_key">AIzaSyBfHZ2V9nN1sZCnLxrCO6Q7nBJo9seYk10</string>
-  <string name="emptyNotification">Новых отключений нет</string>
+  <string name="emptyNotification">Новых событий нет</string>
   <string name="password_repeat">Повторите пароль</string>
   <string name="input_new_pass">Введите новый пароль:</string>
 

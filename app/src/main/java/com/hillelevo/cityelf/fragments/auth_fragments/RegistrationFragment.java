@@ -31,7 +31,7 @@ import rx.functions.Action1;
 import rx.functions.Func2;
 
 
-public class RegistrationFragment extends Fragment implements JsonMessageResponse, OnClickListener{
+public class RegistrationFragment extends Fragment implements JsonMessageResponse, OnClickListener {
 
   EditText etEmail, etPassword, etPassword2;
   Button btnRegister;
@@ -112,8 +112,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
               Toast.LENGTH_SHORT).show();
 
           String bodyParams = "firebaseid=" + UserLocalStore.loadStringFromSharedPrefs(
-              getActivity().getApplicationContext(), Prefs.FIREBASE_ID) + "&email=" + email +
-                  "&password=" + password;
+              getActivity().getApplicationContext(), Prefs.FIREBASE_ID) + "&email=" + email
+              + "&password=" + password + "&address=" + UserLocalStore
+              .loadStringFromSharedPrefs(getActivity().getApplicationContext(), Prefs.ADDRESS_1);
 
           new JsonMessageTask(RegistrationFragment.this)
               .execute(WebUrls.REGISTRATION_URL, Constants.POST, bodyParams, null);
@@ -149,7 +150,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 //            int phone = userJsonObject.getInt("phone");
 
             JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
-            if (addressJsonArray.getJSONObject(0) == null){
+            if (addressJsonArray.getJSONObject(0) == null) {
               showMessage(message);
             }
             JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
@@ -176,7 +177,8 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
     }
   }
 
-  private void authenticate(int userId, String email, int addressId, String address, String password) {
+  private void authenticate(int userId, String email, int addressId, String address,
+      String password) {
 
     showMessage("Регистрация успешна");
 //    Toast.makeText(getActivity().getBaseContext(),

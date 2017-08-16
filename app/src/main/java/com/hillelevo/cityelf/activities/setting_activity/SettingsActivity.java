@@ -496,10 +496,10 @@ public class SettingsActivity extends PreferenceActivity implements
         case "address1":
           //if (output.isEmpty()) {
           resolutionUpdate = false;
-          loadUserData();
-//          //}
-          break;
-        case "get_user":
+//          loadUserData();
+////          //}
+//          break;
+//        case "get_user":
           saveAddressId(output);
           break;
         case "googleapi":

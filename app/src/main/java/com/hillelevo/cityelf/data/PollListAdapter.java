@@ -76,22 +76,18 @@ public class PollListAdapter extends ArrayAdapter<Poll> {
           switch (checkedId) {
             case R.id.rbPoll1:
               Toast.makeText(getContext(), "Variant 1 chosen", Toast.LENGTH_SHORT).show();
-              Log.d(TAG, "Poll list poll item onChecked change: Variant 1 chosen");
               pollResult = 1;
               break;
             case R.id.rbPoll2:
               Toast.makeText(getContext(), "Variant 2 chosen", Toast.LENGTH_SHORT).show();
-              Log.d(TAG, "Poll list poll item onChecked change: Variant 2 chosen");
               pollResult = 2;
               break;
             case R.id.rbPoll3:
               Toast.makeText(getContext(), "Variant 3 chosen", Toast.LENGTH_SHORT).show();
-              Log.d(TAG, "Poll list poll item onChecked change: Variant 3 chosen");
               pollResult = 3;
               break;
             case R.id.rbPoll4:
               Toast.makeText(getContext(), "Variant 4 chosen", Toast.LENGTH_SHORT).show();
-              Log.d(TAG, "Poll list poll item onChecked change: Variant 4 chosen");
               pollResult = 4;
               break;
           }

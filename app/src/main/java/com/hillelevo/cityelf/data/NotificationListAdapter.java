@@ -60,6 +60,10 @@ public class NotificationListAdapter extends ArrayAdapter<Notification> {
       if (content != null) {
         content.setText(notification.getContent());
       }
+
+      if (notification.getIconType() == 1) {
+        content.append("Об отключении сообщил жилец дома");
+      }
     }
 
     return view;

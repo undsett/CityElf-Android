@@ -15,8 +15,8 @@ public class Constants {
   public class WebUrls {
 
     public static final String GET_ALL_FORECASTS = "test:8088/services/allforecasts/get?address=";
-    public static final String GET_ALL_ADVERTS = "test:8088/services/advertisements/getAll?addressid=";
-    public static final String GET_ALL_POOLS = "test:8088/services/polls/getAll?addressid=";
+    public static final String GET_ALL_ADVERTS = "test:8088/services/advertisements/getall?addressid=";
+    public static final String GET_ALL_POOLS = "test:8088/services/polls/getall?addressid=";
     public static final String ADD_NEW_USER = "test:8088/services/registration/adduser";
     public static final String AUTHORIZATION_URL = "test:8088/services/registration/login";
     public static final String REGISTRATION_URL = "test:8088/services/registration/register";

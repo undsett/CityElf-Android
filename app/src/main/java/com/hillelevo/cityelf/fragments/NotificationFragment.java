@@ -12,8 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class NotificationFragment extends Fragment {
+
+  TextView emptyNotification;
 
   public static NotificationFragment newInstance(ArrayList<Notification> notifications) {
     Bundle args = new Bundle();
@@ -33,8 +36,13 @@ public class NotificationFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_notification, container, false);
+    emptyNotification = (TextView) view.findViewById(R.id.empty_notification);
     ArrayList<Notification> notifications = getArguments().getParcelableArrayList("Notifications");
-
+    if (notifications.size() == 0) {
+      emptyNotification.setVisibility(View.VISIBLE);
+    } else {
+      emptyNotification.setVisibility(View.INVISIBLE);
+    }
     ListView lvNotifications = (ListView) view.findViewById(R.id.lvNotificationList);
     NotificationListAdapter adapter = new NotificationListAdapter(getContext(),
         R.layout.list_item_notification, notifications);

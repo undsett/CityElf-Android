@@ -3,7 +3,6 @@ package com.hillelevo.cityelf.data;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
 
 import android.content.Context;
@@ -29,7 +28,7 @@ public class UserLocalStore {
     editor.apply();
   }
 
-  public static void saveIntToSharedPrefs(Context context, String type,int data) {
+  public static void saveIntToSharedPrefs(Context context, String type, int data) {
     initUserLocalDatabase(context);
     Log.d(TAG, "UserLocalStore savedToSharedPrefs: " + type + ", " + data);
     SharedPreferences.Editor editor = userLocalDatabase.edit();
@@ -74,6 +73,15 @@ public class UserLocalStore {
       return userLocalDatabase.getBoolean(prefKey, false);
     } else {
       Log.d(TAG, "UserLocalStore mSettings != null, no " + prefKey);
+      return false;
+    }
+  }
+
+  public static boolean containsInSharedPrefs(Context context, String prefKey) {
+    initUserLocalDatabase(context);
+    if (userLocalDatabase.contains(prefKey)) {
+      return true;
+    } else {
       return false;
     }
   }

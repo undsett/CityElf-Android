@@ -12,8 +12,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -22,7 +20,6 @@ import android.util.Log;
 
 public class FirebaseMessageService extends FirebaseMessagingService {
 
-//  SharedPreferences settings = getApplicationContext().getSharedPreferences(Prefs.APP_PREFERENCES, Context.MODE_PRIVATE);
 
   @Override
   public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -44,14 +41,14 @@ public class FirebaseMessageService extends FirebaseMessagingService {
     } else {
       notification = "error";
     }
-
+    Uri not = getSoundFromPref();
     NotificationCompat.Builder builder =
         new NotificationCompat.Builder(this)
             .setSmallIcon(android.R.drawable.ic_menu_edit)
             .setContentTitle("Новое событие:")
             .setContentText(notification)
-//            .setSound(getSoundFromPref())
-            .setVibrate(new long[] { 1000, 1000});
+            .setVibrate(new long[]{10, 700})
+            .setSound(not);
 
     int NOTIFICATION_ID = 1;
 
@@ -65,18 +62,16 @@ public class FirebaseMessageService extends FirebaseMessagingService {
     nManager.notify(NOTIFICATION_ID, builder.build());
   }
 
-//  public Uri getSoundFromPref() {
-//    Uri notification = null;
-//
-//    if (settings.contains("ringtonePref")) {
-//      notification = Uri.parse(UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), "ringtonePref"));
-//      Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-//      r.play();
-//    } else {
-//      notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//      Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-//      r.play();
-//    }
-//    return notification;
-//  }
+  public Uri getSoundFromPref() {
+    Uri notification = null;
+    if (UserLocalStore.containsInSharedPrefs(getApplicationContext(), Prefs.RINGTONE)) {
+      notification = Uri
+          .parse(UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.RINGTONE));
+    } else {
+      notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    }
+    return notification;
+  }
+
+
 }

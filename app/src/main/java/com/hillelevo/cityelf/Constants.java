@@ -15,8 +15,8 @@ public class Constants {
   public class WebUrls {
 
     public static final String GET_ALL_FORECASTS = "test:8088/services/allforecasts/get?address=";
-    public static final String GET_ALL_ADVERTS = "test:8088/services/advertisements/getAll?addressid=";
-    public static final String GET_ALL_POOLS = "test:8088/services/polls/getAll?addressid=";
+    public static final String GET_ALL_ADVERTS = "test:8088/services/advertisements/getall?addressid=";
+    public static final String GET_ALL_POOLS = "test:8088/services/polls/getall?addressid=";
     public static final String ADD_NEW_USER = "test:8088/services/registration/adduser";
     public static final String AUTHORIZATION_URL = "test:8088/services/registration/login";
     public static final String REGISTRATION_URL = "test:8088/services/registration/register";
@@ -67,7 +67,7 @@ public class Constants {
     public static final String CHECK_NOTIFICATION_ADDRESS_2 = "CheckAddressNotif2";
     public static final String TEXT_NOTIFICATION_ADDRESS_1 = "TextAddressNotif1";
     public static final String TEXT_NOTIFICATION_ADDRESS_2 = "TextAddressNotif2";
-    public static final String RINGTONE = "Ringtone";
+    public static final String RINGTONE = "ringtonePref";
     public static final String WATER = "Water";
     public static final String GAS = "Gas";
     public static final String ELECTRICITY = "Electricity";

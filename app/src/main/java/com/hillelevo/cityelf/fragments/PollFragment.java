@@ -11,9 +11,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class PollFragment extends Fragment {
+
+  TextView emptyPoll;
 
   public static PollFragment newInstance(ArrayList<Poll> polls) {
     Bundle args = new Bundle();
@@ -33,7 +37,13 @@ public class PollFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_poll, container, false);
+    emptyPoll = (TextView) view.findViewById(R.id.empty_poll);
     ArrayList<Poll> polls = getArguments().getParcelableArrayList("Polls");
+    if (polls.size() == 0) {
+      emptyPoll.setVisibility(View.VISIBLE);
+    } else {
+      emptyPoll.setVisibility(View.INVISIBLE);
+    }
 
     ListView lvPolls = (ListView) view.findViewById(R.id.lvPollList);
     PollListAdapter adapter = new PollListAdapter(getContext(), R.layout.list_item_poll, polls);

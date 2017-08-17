@@ -12,11 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class AdvertFragment extends Fragment {
 
   private ArrayList<Advert> adverts;
   private ListView lvAdverts;
+  //TextView emptyAdverts;
 
   public static AdvertFragment newInstance(ArrayList<Advert> adverts) {
     Bundle args = new Bundle();
@@ -36,8 +38,13 @@ public class AdvertFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_advert, container, false);
+    //emptyAdverts = (TextView) view.findViewById(R.id.empty_adverts);
     adverts = getArguments().getParcelableArrayList("Adverts");
-
+    /*if (adverts.size() == 0) {
+      emptyAdverts.setVisibility(View.VISIBLE);
+    } else {
+      emptyAdverts.setVisibility(View.INVISIBLE);
+    }*/
     lvAdverts = (ListView) view.findViewById(R.id.lvAdvertList);
     AdvertListAdapter adapter = new AdvertListAdapter(getContext(), R.layout.list_item_advert,
         adverts);

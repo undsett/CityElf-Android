@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   private ArrayList<Poll> polls = new ArrayList<>();
 
   private TabLayout tabLayout;
-  private TextView emptyNotification;
 
   private JSONObject jsonObject = null;
   private JSONArray jsonArray = null;
@@ -121,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     address = UserLocalStore
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
 
-    emptyNotification = (TextView) findViewById(R.id.empty_notification);
     // Check intent, send AddNewUser request to server
     Intent intent = getIntent();
 
@@ -470,6 +468,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   //message from AdvertsTask
   @Override
   public void advertsResponse(String output) {
+    findViewById(R.id.empty_adverts).setVisibility(View.VISIBLE);
 
     try {
       JSONArray jsonArray = new JSONArray(output);
@@ -488,6 +487,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         String timeOfEntry = advertsResponsObject.getString("timeOfEntry");
 
         adverts.add(new Advert(subject, address, timeOfEntry, description));
+        findViewById(R.id.empty_adverts).setVisibility(View.INVISIBLE);
       }
     } catch (JSONException e) {
       e.printStackTrace();
@@ -517,11 +517,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     if (message == null || message.isEmpty() || message.equals("{}") || message.equals("[]")
         || message.contains("Error")) {
       showMessage("По Вашему адресу нет запланированных отключений");
-      emptyNotification.setVisibility(View.VISIBLE);
 
 
     } else {
-      emptyNotification.setVisibility(View.INVISIBLE);
 
       try {
         jsonArray = new JSONArray(message);

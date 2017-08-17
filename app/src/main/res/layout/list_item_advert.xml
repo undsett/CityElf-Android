@@ -10,7 +10,9 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="Title"
-      android:textAppearance="@style/TextFontBold"/>
+      android:textAppearance="@style/TextFontBold"
+      android:layout_alignParentStart="true"
+      android:layout_toStartOf="@+id/tvAdvertTime"/>
 
   <TextView
     android:id="@+id/tvAdvertAddress"

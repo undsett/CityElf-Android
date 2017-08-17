@@ -189,7 +189,11 @@ public class SettingsActivity extends PreferenceActivity implements
         @Override
         public boolean onPreferenceClick(Preference preference) {
           UserLocalStore.clearUserData(getApplicationContext());
-          return false;
+          Intent exitIntent = new Intent(SettingsActivity.this, MapActivity.class);
+          exitIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+          startActivity(exitIntent);
+          finish();
+          return true;
         }
       });
 

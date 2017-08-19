@@ -175,8 +175,8 @@
   <string name="emptyNotification">Новых событий нет</string>
   <string name="password_repeat">Повторите пароль</string>
   <string name="input_new_pass">Введите новый пароль:</string>
-  <string name="empty_poll">Новый опросов нет</string>
-  <string name="empty_adverts">Нет новых объевлений</string>
+  <string name="empty_poll">Новых опросов нет</string>
+  <string name="empty_adverts">Новых объявлений нет</string>
 
 
 </resources>

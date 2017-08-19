@@ -107,9 +107,9 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
               Toast.LENGTH_SHORT).show();
           break;
         } else {
-          Toast.makeText(getContext(), "FIREBASE ID IS " + UserLocalStore.loadStringFromSharedPrefs(
-              getActivity().getApplicationContext(), Prefs.FIREBASE_ID),
-              Toast.LENGTH_SHORT).show();
+//          Toast.makeText(getContext(), "FIREBASE ID IS " + UserLocalStore.loadStringFromSharedPrefs(
+//              getActivity().getApplicationContext(), Prefs.FIREBASE_ID),
+//              Toast.LENGTH_SHORT).show();
 
           String bodyParams = "firebaseid=" + UserLocalStore.loadStringFromSharedPrefs(
               getActivity().getApplicationContext(), Prefs.FIREBASE_ID) + "&email=" + email
@@ -151,7 +151,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 
             JSONArray addressJsonArray = (JSONArray) userJsonObject.get("addresses");
             if (addressJsonArray.getJSONObject(0) == null) {
-              showMessage(message);
+//              showMessage(message);
             }
             JSONObject addressJsonObject = addressJsonArray.getJSONObject(0);
             int addressId = addressJsonObject.getInt("id");
@@ -180,7 +180,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
   private void authenticate(int userId, String email, int addressId, String address,
       String password) {
 
-    showMessage("Регистрация успешна");
+//    showMessage("Регистрация успешна");
 //    Toast.makeText(getActivity().getBaseContext(),
 //        "Регистрация успешна.", Toast.LENGTH_SHORT).show();
 
@@ -206,18 +206,18 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
         true);
 
     Toast.makeText(getActivity().getBaseContext(),
-        "На Ваш email выслано письмо для подтверждения регистрации.", Toast.LENGTH_SHORT).show();
+        "Регистрация прошла успешно!", Toast.LENGTH_SHORT).show();
 
     Intent intent = new Intent(getContext(), MainActivity.class);
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     RegistrationFragment.this.startActivity(intent);
   }
 
-  private void showMessage(String massage) {
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-    dialogBuilder.setMessage(massage);
-    dialogBuilder.setPositiveButton("Ok", null);
-    dialogBuilder.show();
-  }
+//  private void showMessage(String massage) {
+//    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+//    dialogBuilder.setMessage(massage);
+//    dialogBuilder.setPositiveButton("Ok", null);
+//    dialogBuilder.show();
+//  }
 }
 

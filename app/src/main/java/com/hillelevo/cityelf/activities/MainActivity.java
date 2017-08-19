@@ -100,22 +100,9 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   }
 
   @Override
-  protected void onNewIntent(Intent intent) {
-    super.onNewIntent(intent);
-    Log.d(TAG, "onNewIntent: MainActivity " + this.hashCode());
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    Log.d(TAG, "onDestroy: MainActivity " + this.hashCode());
-  }
-
-  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    Log.d(TAG, "onCreate: MainActivity " + this.hashCode());
 
     address = UserLocalStore
         .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
@@ -152,9 +139,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
 
     // Load registered status from Shared Prefs
-
-//    anonymous = UserLocalStore
-//        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.ANOMYMOUS);
 
     registered = UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
@@ -362,10 +346,10 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 //      String address = "Рождественская 4";
       showMessage(address);
       try {
+        showLoadingAlertDialog();
         new JsonMessageTask(this)
             .execute(WebUrls.GET_ALL_FORECASTS + URLEncoder.encode(address, "UTF-8"),
                 Constants.GET, null);
-        showLoadingAlertDialog();
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
       }
@@ -430,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
   //message from PoolsTask
   @Override
   public void poolsResponse(String output) {
+//    findViewById(R.id.empty_poll).setVisibility(View.VISIBLE);
     try {
       JSONArray jsonArray = new JSONArray(output);
 
@@ -448,18 +433,24 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
         JSONArray pollsAnswersArray = (JSONArray) poolsResponsObject.get("pollsAnswers");
         int voted = 0;
+        String[] variants = {"", "", "", "", "", "", "", "", "", ""};
 
         for (int j = 0; j < pollsAnswersArray.length(); j++) {
           JSONObject answersObject = pollsAnswersArray.getJSONObject(j);
           int answerID = answersObject.getInt("id");
-          String answer = answersObject.getString("answer");
-          voted = answersObject.getInt("voted");
+          variants[j] = answersObject.getString("answer");
+          Log.d(TAG, "poolsResponse: variants " + variants[j]);
+          voted += answersObject.getInt("voted");
         }
 
-              polls.add(new Poll(subject, address, "", timeOfEntry, description, "Вариант 1", "Вариант 2",
-          "Вариант 3", "Вариант 4", voted));
+        polls.add(new Poll(subject, address, "", TimeUtils.getDate(timeOfEntry), description,
+            variants[0], variants[1], variants[2], variants[3], voted));
 
       }
+
+
+      pagerAdapter.notifyDataSetChanged();
+      setupTabs();
     } catch (JSONException e) {
       e.printStackTrace();
     }
@@ -486,9 +477,11 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
         String description = advertsResponsObject.getString("description");
         String timeOfEntry = advertsResponsObject.getString("timeOfEntry");
 
-        adverts.add(new Advert(subject, address, timeOfEntry, description));
-        findViewById(R.id.empty_adverts).setVisibility(View.INVISIBLE);
+        adverts.add(new Advert(subject, address, TimeUtils.getDate(timeOfEntry), description));
       }
+
+      pagerAdapter.notifyDataSetChanged();
+      setupTabs();
     } catch (JSONException e) {
       e.printStackTrace();
     }
@@ -507,12 +500,13 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
   // Hardcoded method to fill up test Notifications, Adverts and Polls
   private void fillData(String message) {
-    progressDialog.dismiss();
     JSONObject addressJsonObject = null;
     String title = null;
     String start = null;
     String estimatedStop = null;
     String address = null;
+    boolean peopleReport = false;
+    int reportType = 0;
 
     if (message == null || message.isEmpty() || message.equals("{}") || message.equals("[]")
         || message.contains("Error")) {
@@ -541,16 +535,19 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             address = addressJsonObject.getString("address");
 
             peopleReport = waterJsonObject.getBoolean("peopleReport");
+            if (peopleReport) {
+              reportType = 1;
+            }
 
-            if (estimatedStop.isEmpty()) {
+            if (!estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, TimeUtils
                       .getDuration(TimeUtils.getTime(start), TimeUtils.getTime(estimatedStop)),
-                      TimeUtils.getDate(start), "", 0));
+                      TimeUtils.getDate(start), "", reportType));
             } else {
               notifications
                   .add(new Notification(title, address, "неизвестно", TimeUtils.getDate(start), "",
-                      0));
+                      reportType));
             }
           }
 
@@ -565,16 +562,19 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             address = addressJsonObject.getString("address");
 
             peopleReport = gasJsonObject.getBoolean("peopleReport");
+            if (peopleReport) {
+              reportType = 1;
+            }
 
-            if (estimatedStop.isEmpty()) {
+            if (!estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, TimeUtils
                       .getDuration(TimeUtils.getTime(start), TimeUtils.getTime(estimatedStop)),
-                      TimeUtils.getDate(start), "", 0));
+                      TimeUtils.getDate(start), "", reportType));
             } else {
               notifications
                   .add(new Notification(title, address, "неизвестно", TimeUtils.getDate(start), "",
-                      0));
+                      reportType));
             }
           }
 
@@ -591,17 +591,20 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
             address = addressJsonObject.getString("address");
 
             peopleReport = electricityJsonObject.getBoolean("peopleReport");
+            if (peopleReport) {
+              reportType = 1;
+            }
 
-            if (estimatedStop.isEmpty()) {
+            if (!estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, TimeUtils
                       .getDuration(TimeUtils.getTime(start), TimeUtils.getTime(estimatedStop)),
                       TimeUtils.getDate(start),
-                      "", 0));
+                      "", reportType));
             } else {
               notifications
                   .add(new Notification(title, address, "неизвестно", TimeUtils.getDate(start), "",
-                      0));
+                      reportType));
             }
           }
         }
@@ -617,7 +620,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
     }
 
-
+  progressDialog.dismiss();
   }
 
   //TODO Change addressStreet to address ID!
@@ -655,6 +658,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     String report = request.toString();
     new JsonMessageTask(this).execute(WebUrls.USER_REPORT_SHUTDOWN, Constants.POST, report,
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE));
+    Toast.makeText(this, "Сообщение об отключении отправлено!", Toast.LENGTH_SHORT).show();
     peopleReport = true;
   }
 

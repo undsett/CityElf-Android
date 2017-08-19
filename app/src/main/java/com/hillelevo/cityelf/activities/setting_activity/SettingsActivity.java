@@ -64,7 +64,7 @@ public class SettingsActivity extends PreferenceActivity implements
     OnPreferenceClickListener {
 
   private SwitchPreference notificationSwitch;
-  private SwitchPreference notificationSMS;
+  //private SwitchPreference notificationSMS;
   private ListPreference languagePref;
   private Preference addressPref;
   private EditTextPreference emailPref;
@@ -180,8 +180,7 @@ public class SettingsActivity extends PreferenceActivity implements
       emailPref = (EditTextPreference) findPreference("email");
       emailPref.setSummary(
           UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL));
-      emailPref.setText(
-          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)));
+      emailPref.setText(          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)));
       emailPref.setOnPreferenceChangeListener(this);
 
       exit = (Preference) findPreference("exit");
@@ -189,7 +188,12 @@ public class SettingsActivity extends PreferenceActivity implements
         @Override
         public boolean onPreferenceClick(Preference preference) {
           UserLocalStore.clearUserData(getApplicationContext());
-          return false;
+          Intent exitIntent = new Intent(SettingsActivity.this, MapActivity.class);
+          exitIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+          exitIntent.putExtra("firstStart", true);
+          startActivity(exitIntent);
+          finish();
+          return true;
         }
       });
 
@@ -198,8 +202,8 @@ public class SettingsActivity extends PreferenceActivity implements
     notificationSwitch = (SwitchPreference) findPreference("notificationPush");
     notificationSwitch.setOnPreferenceChangeListener(this);
 
-    notificationSMS = (SwitchPreference) findPreference("notificationSms");
-    notificationSMS.setOnPreferenceChangeListener(this);
+    //notificationSMS = (SwitchPreference) findPreference("notificationSms");
+    //notificationSMS.setOnPreferenceChangeListener(this);
 
     /*languagePref = (ListPreference) findPreference("languagePref");
     languagePref.setOnPreferenceChangeListener(this);*/
@@ -329,7 +333,7 @@ public class SettingsActivity extends PreferenceActivity implements
   @Override
   public boolean onPreferenceChange(Preference preference, Object newValue) {
     switch (preference.getKey()) {
-      case "notificationSms":
+      //case "notificationSms":
       case "notificationPush":
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(80L);

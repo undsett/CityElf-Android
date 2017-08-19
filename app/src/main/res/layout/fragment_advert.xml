@@ -12,7 +12,8 @@
       android:layout_marginTop="200dp"
       android:textAppearance="@style/TextFontHeader"
       android:gravity="center_horizontal"
-      android:text="@string/empty_adverts" />
+      android:text="@string/empty_adverts"
+      android:visibility="gone" />
 
   </TableLayout>
   <ListView

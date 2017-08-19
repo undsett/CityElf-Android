@@ -150,7 +150,7 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
 
   private void addDocument() {
     //open gallery
-    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
     photoPickerIntent.setType("image/*");
     startActivityForResult(photoPickerIntent, 1);
 

@@ -38,10 +38,10 @@
       android:defaultValue="true"
       android:key="notificationPush"
       android:title="Push-уведомление" />
-    <SwitchPreference
+    <!--<SwitchPreference
       android:defaultValue="false"
       android:key="notificationSms"
-      android:title="SMS" />
+      android:title="SMS" />-->
     <RingtonePreference
       android:defaultValue="content://settings/system/notification_sound"
       android:key="ringtonePref"

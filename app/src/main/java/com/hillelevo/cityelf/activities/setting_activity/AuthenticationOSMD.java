@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.MainActivity;
 import com.hillelevo.cityelf.activities.map_activity.PlaceArrayAdapter;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
@@ -19,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -29,6 +32,7 @@ import android.provider.MediaStore.MediaColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -76,6 +80,7 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
     btnAddDocument.setOnClickListener(this);
     btnSendRequest = (Button) findViewById(R.id.btn_send_request);
     btnSendRequest.setOnClickListener(this);
+    btnSendRequest.setEnabled(false);
     imageName = (TextView) findViewById(R.id.image_name);
     userName = (EditText) findViewById(R.id.fistNameLastName);
 
@@ -83,7 +88,18 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.addressAdministation);
     autocompleteInputStreet(mAutocompleteTextView);
 
-
+    AlertDialog.Builder errorDialog  = new AlertDialog.Builder(AuthenticationOSMD.this);
+    errorDialog.setTitle("Внимание")
+        .setMessage("Данный сервис находится в разработке. Приносим свои извинения.")
+        .setPositiveButton("Ok", new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialogInterface, int i) {
+            Intent intent = new Intent(AuthenticationOSMD.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+          }
+        });
+    errorDialog.show();
   }
 
   @Override
@@ -150,7 +166,7 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
 
   private void addDocument() {
     //open gallery
-    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
     photoPickerIntent.setType("image/*");
     startActivityForResult(photoPickerIntent, 1);
 
@@ -182,7 +198,7 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
 
   public String getPath(Uri uri) {
     String[] projection = {MediaColumns.DATA};
-    Cursor cursor = managedQuery(uri, projection, null, null, null);
+    Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
     int column_index = cursor
         .getColumnIndexOrThrow(MediaColumns.DATA);
     cursor.moveToFirst();

@@ -448,6 +448,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
 
       }
 
+
       pagerAdapter.notifyDataSetChanged();
       setupTabs();
     } catch (JSONException e) {

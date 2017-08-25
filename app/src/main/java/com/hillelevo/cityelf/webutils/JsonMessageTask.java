@@ -8,6 +8,7 @@ import com.hillelevo.cityelf.Constants;
 
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.activities.MainActivity;
+import com.hillelevo.cityelf.activities.map_activity.InternetConnection;
 import com.hillelevo.cityelf.data.UserLocalStore;
 import java.io.BufferedReader;
 import java.io.IOException;

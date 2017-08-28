@@ -243,6 +243,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
         .addConnectionCallbacks(this)
         .build();
+
     mGoogleApiClient.connect();
   }
 

@@ -22,11 +22,15 @@
       android:key="password"
       android:maxLines="1"
       android:title="Пароль" />-->
-    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.hillelevo.cityelf.activities.setting_activity.CustomAddressAutocomplete
+      android:key="address"
+      android:title="Текущий адрес"/>
+
+    <!--<Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="address"
       android:title="Текущий адрес">
     </Preference>
-    <!--<Preference xmlns:android="http://schemas.android.com/apk/res/android"
+    <Preference xmlns:android="http://schemas.android.com/apk/res/android"
       android:key="manyAddressPref"
       android:title="Дополнительные адреса">
       <intent android:action="com.hillelevo.cityelf.ManyAddress" />

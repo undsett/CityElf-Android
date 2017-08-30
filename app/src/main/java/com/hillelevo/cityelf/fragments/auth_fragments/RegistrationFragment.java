@@ -1,5 +1,7 @@
 package com.hillelevo.cityelf.fragments.auth_fragments;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -89,6 +92,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
   public void onClick(View v) {
     switch (v.getId()) {
       case R.id.btnRegister:
+        hideKeyboard();
 
         email = etEmail.getText().toString();
         password = etPassword.getText().toString();
@@ -219,5 +223,11 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
 //    dialogBuilder.setPositiveButton("Ok", null);
 //    dialogBuilder.show();
 //  }
+
+  private void hideKeyboard() {
+    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(
+        INPUT_METHOD_SERVICE);
+    inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+  }
 }
 

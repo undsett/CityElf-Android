@@ -12,6 +12,7 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.barcode.Barcode.GeoPoint;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Prefs;
@@ -42,6 +44,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -55,6 +58,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -266,6 +270,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     marker = mMap.addMarker(markerOptions);
     marker.setDraggable(true);
 
+    mMap.setOnMapClickListener(new OnMapClickListener() {
+      @Override
+      public void onMapClick(LatLng point) {
+        marker.remove();
+        LatLng newMarker = new LatLng(point.latitude, point.longitude);
+        marker = mMap.addMarker(markerOptions);
+        marker.setPosition(newMarker);
+        status = true;
+        coordinate = marker.getPosition();
+        userAddress = sendGeo(coordinate, marker);
+        mAutocompleteTextView.setText(shortAddress(userAddress) + " ");
+        nameOfStreet = userAddress;
+        mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
+        getToast(userAddress);
+      }
+    });
+
     mMap.setOnMarkerDragListener(new OnMarkerDragListener() {
       @Override
       public void onMarkerDragStart(Marker marker) {
@@ -447,6 +468,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       getToast("Empty");
     }
   }
+
 
 
   private AdapterView.OnItemClickListener mAutocompleteClickListener

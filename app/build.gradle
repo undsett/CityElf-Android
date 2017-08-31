@@ -7,8 +7,8 @@ android {
         applicationId "com.hillelevo.cityelf"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 5
-        versionName "0.8.4"
+        versionCode 7
+        versionName "0.8.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

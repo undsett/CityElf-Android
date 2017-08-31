@@ -3,16 +3,12 @@ package com.hillelevo.cityelf.activities.setting_activity;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import android.util.Base64;
-
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.maps.model.LatLng;
 import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
@@ -23,18 +19,16 @@ import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -49,12 +43,13 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,8 +60,8 @@ public class SettingsActivity extends PreferenceActivity implements
 
   private SwitchPreference notificationSwitch;
   //private SwitchPreference notificationSMS;
-  private ListPreference languagePref;
-  private Preference addressPref;
+  //private ListPreference languagePref;
+  private CustomAddressAutocomplete addressPref;
   private EditTextPreference emailPref;
   private Preference exit;
   private RingtonePreference ringtonePref;
@@ -85,8 +80,6 @@ public class SettingsActivity extends PreferenceActivity implements
   private String res = null;
   private boolean registered;
 
-  private SharedPreferences sharedPreferences;
-
   private AppCompatDelegate delegate;
   private PreferenceCategory category;
 
@@ -100,17 +93,13 @@ public class SettingsActivity extends PreferenceActivity implements
     prefMgr.setSharedPreferencesMode(Context.MODE_PRIVATE);
     geocoder = new Geocoder(this, new Locale("ru", "RU"));
 
-    //HARDCODE
-    //UserLocalStore.saveBooleanToSharedPrefs(getApplicationContext(), Prefs.REGISTERED, true);
-
     addPreferencesFromResource(R.xml.preferences);
     registered = UserLocalStore
         .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.REGISTERED);
-    sharedPreferences = prefMgr.getSharedPreferences();
     category = (PreferenceCategory) findPreference("registered_user");
 
-    addressPref = (Preference) findPreference("address");
-    addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+    addressPref = (CustomAddressAutocomplete) findPreference("address");
+    /*addressPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
       @Override
       public boolean onPreferenceClick(Preference preference) {
         try {
@@ -131,9 +120,7 @@ public class SettingsActivity extends PreferenceActivity implements
         return false;
       }
     });
-    String str3 = UserLocalStore
-        .loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1);
-
+*/
     addressPref.setSummary(getFormatedStreetName(
         UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.ADDRESS_1)));
 
@@ -180,7 +167,8 @@ public class SettingsActivity extends PreferenceActivity implements
       emailPref = (EditTextPreference) findPreference("email");
       emailPref.setSummary(
           UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL));
-      emailPref.setText(          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)));
+      emailPref.setText(
+          (UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)));
       emailPref.setOnPreferenceChangeListener(this);
 
       exit = (Preference) findPreference("exit");
@@ -211,8 +199,23 @@ public class SettingsActivity extends PreferenceActivity implements
     ringtonePref = (RingtonePreference) findPreference("ringtonePref");
     ringtonePref.setOnPreferenceChangeListener(this);
 
+    LocalBroadcastManager messageBroadcastManager = LocalBroadcastManager.getInstance(this);
+    messageBroadcastManager.registerReceiver(MessageReceiver,
+        new IntentFilter(Actions.BROADCAST_ACTION_SETTING_ADDRESS));
 
   }
+
+  private BroadcastReceiver MessageReceiver = new BroadcastReceiver() {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      String action = intent.getAction();
+      String address = intent.getStringExtra(Prefs.ADDRESS_1);
+      Log.d(TAG, "SettingActivity onReceive: " + action);
+      Log.d(TAG, "SettingActivity onReceive: " + address);
+      checkAddress(address);
+    }
+  };
 
 
   private void getToast(Object obj, int length) {
@@ -228,7 +231,7 @@ public class SettingsActivity extends PreferenceActivity implements
       actionBar.setDisplayHomeAsUpEnabled(true);
     }
   }
-
+/*
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -241,7 +244,8 @@ public class SettingsActivity extends PreferenceActivity implements
         try {
           new JsonMessageTask(this)
               .execute("https://maps.googleapis.com/maps/api/geocode/json?address="
-                      + URLEncoder.encode(engNameStreet, "UTF-8")+"&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru",
+                      + URLEncoder.encode(engNameStreet, "UTF-8")
+                      + "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru",
                   Constants.GET, null);
         } catch (UnsupportedEncodingException e) {
           e.printStackTrace();
@@ -254,7 +258,7 @@ public class SettingsActivity extends PreferenceActivity implements
       }
     }
   }
-
+*/
   private void updateUserAddress(String address) {
     key = "address";
     JSONObject updatePreferenceObject = new JSONObject();
@@ -313,7 +317,6 @@ public class SettingsActivity extends PreferenceActivity implements
     }
   }
 
-
   @Override
   protected void onResume() {
     super.onResume();
@@ -366,29 +369,7 @@ public class SettingsActivity extends PreferenceActivity implements
     return delegate;
   }
 
-  /*
-    private String getShortAddress(String address) {
-      if (address.contains("@")) {
 
-        StringBuilder shortAddress = new StringBuilder();
-        String[] twoWords = address.split("@");
-
-        shortAddress.append(firstWord(twoWords[0]));
-        shortAddress.append('@').append(twoWords[1]);
-
-        return shortAddress.toString();
-      } else {
-        if (address.equals("")) {
-          return "";
-        }
-        Toast toast = Toast.makeText(this,
-            "Некорректный email", Toast.LENGTH_LONG);
-        toast.show();
-        emailPref.setText("");
-        return "";
-      }
-    }
-  */
   public static String getFormatedStreetName(String userAddress) {
     if (userAddress != null && !userAddress.equals("")) {
       if (userAddress.contains(", Одес")) {
@@ -515,8 +496,7 @@ public class SettingsActivity extends PreferenceActivity implements
           key = null;
           res = output;
 
-          checkAddress();
-//        updateUserAddress(userAddress);
+          //checkAddress();
           break;
       }
     }
@@ -560,8 +540,8 @@ public class SettingsActivity extends PreferenceActivity implements
     }
   }
 
-  private void checkAddress() {
-    userAddress = getAddressFromCoordinate();
+  private void checkAddress(String userAddress) {
+    //userAddress = getAddressFromCoordinate();
     if (userAddress.contains(", Одес")) {
       addressPref.setSummary(getFormatedStreetName(userAddress));
       updateUserAddress(userAddress);
@@ -603,7 +583,7 @@ public class SettingsActivity extends PreferenceActivity implements
       e.printStackTrace();
     }
   }
-
+/*
   private String getAddressFromCoordinate() {
     String resultAddress = null;
     if (res != null && !res.contains("Error")) {
@@ -621,7 +601,7 @@ public class SettingsActivity extends PreferenceActivity implements
     }
     return resultAddress;
   }
-
+*/
 
   @Override
   public boolean onPreferenceClick(Preference preference) {

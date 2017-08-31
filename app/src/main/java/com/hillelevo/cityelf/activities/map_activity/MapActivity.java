@@ -12,6 +12,7 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -22,15 +23,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.barcode.Barcode.GeoPoint;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Actions;
 import com.hillelevo.cityelf.Constants.Prefs;
 import com.hillelevo.cityelf.Constants.WebUrls;
 import com.hillelevo.cityelf.R;
 import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.AuthorizationActivity;
-import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.activities.setting_activity.SettingsActivity;
+import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
 
@@ -41,10 +42,9 @@ import java.util.Locale;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -52,14 +52,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -138,14 +137,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     btnSearchAddress = (ImageButton) findViewById(R.id.btnSearchAddress);
     btnSearchAddress.setOnClickListener(this);
+    btnSearchAddress.setClickable(true);
     btnCheckStatus = (Button) findViewById(R.id.btnCheckStatus);
     btnCheckStatus.setOnClickListener(this);
+    btnCheckStatus.setClickable(true);
     btnClear = (ImageButton) findViewById(R.id.btnClear);
     btnClear.setOnClickListener(this);
     btnClear.setVisibility(View.INVISIBLE);
     mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
 
-    registered = UserLocalStore.loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN);
+    if (!InternetConnection.isConnect(MapActivity.this)) {
+      InternetConnection.showWarningDialog(MapActivity.this);
+      return;
+    }
+
+    registered = UserLocalStore
+        .loadBooleanFromSharedPrefs(getApplicationContext(), Prefs.OSMD_ADMIN);
 
     geocoder = new Geocoder(this, ruLocale);
 
@@ -187,8 +194,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.settings:
-          Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
-          startActivity(intentLogin);
+        Intent intentLogin = new Intent(MapActivity.this, SettingsActivity.class);
+        startActivity(intentLogin);
         return true;
       case android.R.id.home:
         startActivity(new Intent(this, MainActivity.class));
@@ -240,6 +247,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
         .addConnectionCallbacks(this)
         .build();
+
     mGoogleApiClient.connect();
   }
 
@@ -260,6 +268,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         .draggable(true);    //move marker
 
     marker = mMap.addMarker(markerOptions);
+    marker.setDraggable(true);
+
+    mMap.setOnMapClickListener(new OnMapClickListener() {
+      @Override
+      public void onMapClick(LatLng point) {
+        marker.remove();
+        LatLng newMarker = new LatLng(point.latitude, point.longitude);
+        marker = mMap.addMarker(markerOptions);
+        marker.setPosition(newMarker);
+        status = true;
+        coordinate = marker.getPosition();
+        userAddress = sendGeo(coordinate, marker);
+        mAutocompleteTextView.setText(shortAddress(userAddress) + " ");
+        nameOfStreet = userAddress;
+        mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
+        getToast(userAddress);
+      }
+    });
 
     mMap.setOnMarkerDragListener(new OnMarkerDragListener() {
       @Override
@@ -344,6 +370,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     switch (v.getId()) {
       case R.id.btnSearchAddress:
         //todo send request to status
+
         hideKeyboard();
         if (nameOfStreet != null) {
           new JsonMessageTask(this)
@@ -360,6 +387,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         btnClear.setVisibility(View.INVISIBLE);
         break;
       case R.id.btnCheckStatus:
+
         if (status) {
           status = false;
           if (nameOfStreet != null && mAutocompleteTextView != null
@@ -368,13 +396,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
               //todo If the street is not in Odessa
               Intent intentMain = new Intent(MapActivity.this, MainActivity.class);
 
-              if(firstStart) {
+              if (firstStart) {
                 UserLocalStore
                     .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_1,
                         nameOfStreet);
                 intentMain.putExtra("AddUser", true);
-              }
-              else {
+              } else {
                 UserLocalStore
                     .saveStringToSharedPrefs(this.getApplicationContext(), Prefs.ADDRESS_FOR_CHECK,
                         nameOfStreet);
@@ -390,7 +417,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         break;
     }
   }
-
 
 
   private String getFormatedAddressToJSON(String userAddress) {
@@ -444,6 +470,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   }
 
 
+
   private AdapterView.OnItemClickListener mAutocompleteClickListener
       = new AdapterView.OnItemClickListener() {
     @Override
@@ -456,7 +483,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       mAutocompleteTextView.setText(shortAddress(nameOfStreet) + " ");
       mAutocompleteTextView.setSelection(mAutocompleteTextView.getText().length());
       hideKeyboard();
-
 
       PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
           .getPlaceById(mGoogleApiClient, placeId);
@@ -535,7 +561,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   };
 
   private void hideKeyboard() {
-    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(
+        INPUT_METHOD_SERVICE);
     inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
   }
 }

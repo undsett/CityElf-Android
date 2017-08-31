@@ -1,6 +1,8 @@
 package com.hillelevo.cityelf.fragments.auth_fragments;
 
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -72,6 +75,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   public void onClick(View v) {
     switch (v.getId()) {
       case R.id.btnLogin:
+        hideKeyboard();
 
         String email = etLogEmail.getText().toString();
         password = etLogPassword.getText().toString();
@@ -120,7 +124,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           int code = statusJsonObject.getInt("code");
           String message = statusJsonObject.getString("message");
 
-          if (code == 33 && message.equals("Your login and password is correct")) {
+          if (code == 33 && message.equals("Неверный логин или пароль")) {
 
             JSONObject userJsonObject = jsonObject.getJSONObject("user");
 
@@ -203,5 +207,11 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
   public interface OnRestorePasswordClickListener {
 
     void onRestorePasswordClick();
+  }
+
+  private void hideKeyboard() {
+    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(
+        INPUT_METHOD_SERVICE);
+    inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
   }
 }

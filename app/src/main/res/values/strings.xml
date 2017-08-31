@@ -177,6 +177,12 @@
   <string name="input_new_pass">Введите новый пароль:</string>
   <string name="empty_poll">Новых опросов нет</string>
   <string name="empty_adverts">Новых объявлений нет</string>
+  <string name="add_new_address">Введите новый адрес:</string>
+  <string name="input_adress_onsetting">Введите свой адрес</string>
+  <string name="add_poll">Добавить голосование</string>
+  <string name="check_status_address">Проверить отключения</string>
+  <string name="settings_profile">Настройки профиля</string>
+  <string name="send_password">Отправить пароль</string>
 
 
 </resources>

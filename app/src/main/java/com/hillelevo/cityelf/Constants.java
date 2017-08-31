@@ -36,6 +36,7 @@ public class Constants {
   public class Actions {
     public static final String BROADCAST_ACTION_FIREBASE_TOKEN = "FirebaseTokenAction";
     public static final String BROADCAST_ACTION_FIREBASE_MESSAGE = "FirebaseMessageAction";
+    public static final String BROADCAST_ACTION_SETTING_ADDRESS = "UserAddres";
   }
 
   public class Colors{

@@ -27,7 +27,8 @@
     <activity
       android:label="@string/app_name"
       android:name=".activities.SplashActivity"
-      android:theme="@style/SplashTheme">
+      android:theme="@style/SplashTheme"
+      android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -38,26 +39,31 @@
     <activity
       android:label="@string/app_name"
       android:name=".activities.map_activity.MapActivity"
-      android:noHistory="true"/>
+      android:noHistory="true"
+      android:screenOrientation="portrait"/>
 
-    <activity android:name=".activities.MainActivity"/>
+    <activity android:name=".activities.MainActivity"
+      android:screenOrientation="portrait"/>
 
     <activity
       android:label="@string/title_activity_settings"
       android:name=".activities.setting_activity.SettingsActivity"
-      />
+      android:screenOrientation="portrait"/>
 
     <activity android:name=".activities.AuthorizationActivity"
-      android:noHistory="true"/>
+      android:noHistory="true"
+      android:screenOrientation="portrait"/>
 
-    <activity android:name=".activities.setting_activity.AboutProgram">
+    <activity android:name=".activities.setting_activity.AboutProgram"
+      android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="com.hillelevo.cityelf.AboutProgram" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>
 
-    <activity android:name=".activities.setting_activity.AuthenticationOSMD">
+    <activity android:name=".activities.setting_activity.AuthenticationOSMD"
+      android:screenOrientation="portrait">
     <intent-filter>
       <action android:name="com.hillelevo.cityelf.AuthenticationOSMD" />
       <category android:name="android.intent.category.DEFAULT" />
@@ -66,10 +72,11 @@
 
 
   <activity android:name=".activities.setting_activity.ManyAddress"
-      android:noHistory="true"/>
+      android:noHistory="true"
+      android:screenOrientation="portrait"/>
 
-    <activity android:name=".activities.AdminActivity">
-    </activity>
+    <activity android:name=".activities.AdminActivity"
+      android:screenOrientation="portrait"/>
 
     <service android:name=".firebase.FirebaseTokenService">
       <intent-filter>

@@ -64,7 +64,7 @@ public class PollListAdapter extends ArrayAdapter<Poll> {
       vote.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View view) {
-          Toast.makeText(getContext(), "Vote clicked", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getContext(), "Результат опроса отправлен", Toast.LENGTH_SHORT).show();
           Log.d(TAG, "Poll list item onClick: Vote clicked");
           //TODO: Launch request with pollResult to server
         }
@@ -75,19 +75,19 @@ public class PollListAdapter extends ArrayAdapter<Poll> {
         public void onCheckedChanged(RadioGroup radioGroup, @IdRes int checkedId) {
           switch (checkedId) {
             case R.id.rbPoll1:
-              Toast.makeText(getContext(), "Variant 1 chosen", Toast.LENGTH_SHORT).show();
+              Log.d(TAG, "Poll: Variant 1 chosen");
               pollResult = 1;
               break;
             case R.id.rbPoll2:
-              Toast.makeText(getContext(), "Variant 2 chosen", Toast.LENGTH_SHORT).show();
+              Log.d(TAG, "Poll: Variant 2 chosen");
               pollResult = 2;
               break;
             case R.id.rbPoll3:
-              Toast.makeText(getContext(), "Variant 3 chosen", Toast.LENGTH_SHORT).show();
+              Log.d(TAG, "Poll: Variant 3 chosen");
               pollResult = 3;
               break;
             case R.id.rbPoll4:
-              Toast.makeText(getContext(), "Variant 4 chosen", Toast.LENGTH_SHORT).show();
+              Log.d(TAG, "Poll: Variant 4 chosen");
               pollResult = 4;
               break;
           }

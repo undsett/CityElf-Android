@@ -124,7 +124,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           int code = statusJsonObject.getInt("code");
           String message = statusJsonObject.getString("message");
 
-          if (code == 33 && message.equals("Неверный логин или пароль")) {
+          if (code == 33) {
 
             JSONObject userJsonObject = jsonObject.getJSONObject("user");
 

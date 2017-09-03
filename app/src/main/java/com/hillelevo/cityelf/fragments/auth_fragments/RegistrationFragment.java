@@ -146,7 +146,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
           Toast.makeText(getActivity().getBaseContext(),
               message, Toast.LENGTH_SHORT).show();
 
-          if (code == 11 && message.equals("User registration OK")) {
+          if (code == 11) {
             JSONObject userJsonObject = jsonObject.getJSONObject("user");
 
             int userId = userJsonObject.getInt("id");

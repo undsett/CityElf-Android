@@ -173,7 +173,7 @@ public class PoolsTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    response. poolsResponse(result);
+    response.poolsResponse(result);
   }
 
   public interface PoolsResponse {

@@ -5,7 +5,6 @@ import static com.hillelevo.cityelf.Constants.TAG;
 import android.os.AsyncTask;
 import android.os.Build.VERSION_CODES;
 import android.support.annotation.RequiresApi;
-import android.util.Base64;
 import android.util.Log;
 import com.hillelevo.cityelf.Constants;
 import com.hillelevo.cityelf.Constants.Prefs;
@@ -19,11 +18,11 @@ import java.net.ProtocolException;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
-public class PoolsTask extends AsyncTask<String, Void, String> {
+public class PollsTask extends AsyncTask<String, Void, String> {
 
-  private PoolsResponse response = null;
+  private PollsResponse response = null;
 
-  public PoolsTask(PoolsResponse listener) {
+  public PollsTask(PollsResponse listener) {
     response = listener;
   }
 
@@ -176,7 +175,7 @@ public class PoolsTask extends AsyncTask<String, Void, String> {
     response. poolsResponse(result);
   }
 
-  public interface PoolsResponse {
+  public interface PollsResponse {
 
     void poolsResponse(String output);
   }

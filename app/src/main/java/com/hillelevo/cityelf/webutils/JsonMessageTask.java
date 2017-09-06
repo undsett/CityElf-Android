@@ -17,10 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.ArrayList;
 import javax.net.ssl.HttpsURLConnection;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 public class JsonMessageTask extends AsyncTask<String, Void, String> {
 

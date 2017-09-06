@@ -45,14 +45,41 @@ import com.hillelevo.cityelf.webutils.AdvertsTask;
 import com.hillelevo.cityelf.webutils.AdvertsTask.AdvertsResponse;
 import com.hillelevo.cityelf.webutils.JsonMessageTask;
 import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+
 import com.hillelevo.cityelf.webutils.PollsTask;
 import com.hillelevo.cityelf.webutils.PollsTask.PollsResponse;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -403,27 +430,27 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     }
   }
 
-  //message from PoolsTask
+  //message from PollsTask
   @Override
-  public void poolsResponse(String output) {
+  public void pollsResponse(String output) {
 //    findViewById(R.id.empty_poll).setVisibility(View.VISIBLE);
     try {
       JSONArray jsonArray = new JSONArray(output);
 
       for (int i = 0; i < jsonArray.length(); i++) {
-        JSONObject poolsResponsObject = jsonArray.getJSONObject(i);
-        Log.d(TAG, "poolsResponse: " + poolsResponsObject.toString());
-        int poolsId = poolsResponsObject.getInt("id");
+        JSONObject pollsResponsObject = jsonArray.getJSONObject(i);
+        Log.d(TAG, "poolsResponse: " + pollsResponsObject.toString());
+        long pollId = pollsResponsObject.getInt("id");
 
-        JSONObject addressJsonObject = poolsResponsObject.getJSONObject("address");
+        JSONObject addressJsonObject = pollsResponsObject.getJSONObject("address");
         int addressId = addressJsonObject.getInt("id");
         String address = addressJsonObject.getString("address");
 
-        String subject = poolsResponsObject.getString("subject");
-        String description = poolsResponsObject.getString("description");
-        String timeOfEntry = poolsResponsObject.getString("timeOfEntry");
+        String subject = pollsResponsObject.getString("subject");
+        String description = pollsResponsObject.getString("description");
+        String timeOfEntry = pollsResponsObject.getString("timeOfEntry");
 
-        JSONArray pollsAnswersArray = (JSONArray) poolsResponsObject.get("pollsAnswers");
+        JSONArray pollsAnswersArray = (JSONArray) pollsResponsObject.get("pollsAnswers");
         int voted = 0;
         String[] variants = {"", "", "", "", "", "", "", "", "", ""};
 
@@ -435,7 +462,7 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
           voted += answersObject.getInt("voted");
         }
 
-        polls.add(new Poll(subject, address, "", TimeUtils.getDate(timeOfEntry), description,
+        polls.add(new Poll(subject, pollId, address, "", TimeUtils.getDate(timeOfEntry), description,
             variants[0], variants[1], variants[2], variants[3], voted));
 
       }
@@ -476,9 +503,6 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
     } catch (JSONException e) {
       e.printStackTrace();
     }
-
-//    showMessage(output);
-//    fillData(output);
   }
 
 
@@ -531,14 +555,18 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
               reportType = 1;
             }
 
-            if (!estimatedStop.equals("null")) {
+            if (!start.equals("null") && !estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, TimeUtils
                       .getDuration(TimeUtils.getTime(start), TimeUtils.getTime(estimatedStop)),
                       TimeUtils.getDate(start), "", reportType));
-            } else {
+            } else if (!start.equals("null") && estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, "неизвестно", TimeUtils.getDate(start), "",
+                      reportType));
+            } else {
+              notifications
+                  .add(new Notification(title, address, "неизвестно", "в течении дня", "",
                       reportType));
             }
           }
@@ -559,14 +587,18 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
               reportType = 1;
             }
 
-            if (!estimatedStop.equals("null")) {
+            if (!start.equals(null) && !estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, TimeUtils
                       .getDuration(TimeUtils.getTime(start), TimeUtils.getTime(estimatedStop)),
                       TimeUtils.getDate(start), "", reportType));
-            } else {
+            } else if (!start.equals("null") && estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, "неизвестно", TimeUtils.getDate(start), "",
+                      reportType));
+            } else {
+              notifications
+                  .add(new Notification(title, address, "неизвестно", "в течении дня", "",
                       reportType));
             }
           }
@@ -589,15 +621,19 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
               reportType = 1;
             }
 
-            if (!estimatedStop.equals("null")) {
+            if (!start.equals("null") && !estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, TimeUtils
                       .getDuration(TimeUtils.getTime(start), TimeUtils.getTime(estimatedStop)),
                       TimeUtils.getDate(start),
                       "", reportType));
-            } else {
+            } else if (!start.equals("null") && estimatedStop.equals("null")) {
               notifications
                   .add(new Notification(title, address, "неизвестно", TimeUtils.getDate(start), "",
+                      reportType));
+            } else {
+              notifications
+                  .add(new Notification(title, address, "неизвестно", "в течении дня", "",
                       reportType));
             }
           }
@@ -611,10 +647,8 @@ public class MainActivity extends AppCompatActivity implements JsonMessageRespon
       } catch (JSONException e) {
         e.printStackTrace();
       }
-
     }
-
-  progressDialog.dismiss();
+    progressDialog.dismiss();
   }
 
   //TODO Change addressStreet to address ID!

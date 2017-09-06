@@ -17,13 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.hillelevo.cityelf.data.UserLocalStore;
 import com.hillelevo.cityelf.webutils.AdvertsTask;
-import com.hillelevo.cityelf.webutils.PoolsTask;
-import com.hillelevo.cityelf.webutils.PoolsTask.PoolsResponse;
+import com.hillelevo.cityelf.webutils.PollsTask;
+import com.hillelevo.cityelf.webutils.PollsTask.PollsResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class AdminPollFragment extends Fragment implements OnClickListener, PoolsResponse {
+public class AdminPollFragment extends Fragment implements OnClickListener, PollsResponse {
 
   int variants = 1;
 
@@ -91,19 +91,16 @@ public class AdminPollFragment extends Fragment implements OnClickListener, Pool
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.tvAdminPollAddVariant:
-        if(variants == 1) {
+        if (variants == 1) {
           etVariant2.setVisibility(View.VISIBLE);
           variants++;
-        }
-        else if(variants == 2) {
+        } else if (variants == 2) {
           etVariant3.setVisibility(View.VISIBLE);
           variants++;
-        }
-        else if(variants == 3) {
+        } else if (variants == 3) {
           etVariant4.setVisibility(View.VISIBLE);
           variants++;
-        }
-        else {
+        } else {
           Toast.makeText(getContext(), "No more variants", Toast.LENGTH_SHORT).show();
         }
         break;
@@ -113,7 +110,7 @@ public class AdminPollFragment extends Fragment implements OnClickListener, Pool
         String subject = etTitle.getText().toString();
         String description = etContent.getText().toString();
 
-        switch (variants){
+        switch (variants) {
 
           case 2:
             answerVariant1 = etVariant1.getText().toString();
@@ -188,18 +185,19 @@ public class AdminPollFragment extends Fragment implements OnClickListener, Pool
 
         String jsonData = addNewPollObject.toString();
 
-        new PoolsTask(AdminPollFragment.this)
+        new PollsTask(AdminPollFragment.this)
             .execute(WebUrls.ADD_NEW_POLLS_URL, Constants.POST, jsonData, UserLocalStore
-                .loadStringFromSharedPrefs(getActivity().getApplicationContext(), Prefs.AUTH_CERTIFICATE));
+                .loadStringFromSharedPrefs(getActivity().getApplicationContext(),
+                    Prefs.AUTH_CERTIFICATE));
     }
   }
 
   @Override
-  public void poolsResponse(String output) {
+  public void pollsResponse(String output) {
 
-    if (output.isEmpty()){
+    if (output.isEmpty()) {
       Toast.makeText(getContext(), "ERROR", Toast.LENGTH_SHORT).show();
-    }else{
+    } else {
 
       Toast.makeText(getContext(), "Ваше опрос был успешно добавлен", Toast.LENGTH_SHORT).show();
       etTitle.setText(null);

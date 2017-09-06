@@ -172,12 +172,12 @@ public class PollsTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     super.onPostExecute(result);
-    response. poolsResponse(result);
+    response.pollsResponse(result);
   }
 
   public interface PollsResponse {
 
-    void poolsResponse(String output);
+    void pollsResponse(String output);
   }
 
 }

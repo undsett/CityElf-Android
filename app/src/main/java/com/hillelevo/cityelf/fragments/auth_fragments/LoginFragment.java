@@ -145,7 +145,7 @@ public class LoginFragment extends Fragment implements JsonMessageResponse, OnCl
           } else {
 //            showMessage(message);
             Toast.makeText(getActivity().getApplicationContext(),
-                message, Toast.LENGTH_SHORT).show();
+                "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
           }
         } else {
 //          showMessage("Incorrect user details");

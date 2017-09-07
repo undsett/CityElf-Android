@@ -2,10 +2,6 @@ package com.hillelevo.cityelf.data;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import com.hillelevo.cityelf.R;
-
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.IdRes;
@@ -22,10 +18,21 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.webutils.PollsTask;
+import com.hillelevo.cityelf.webutils.PollsTask.PollsResponse;
+import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class PollListAdapter extends ArrayAdapter<Poll> {
+public class PollListAdapter extends ArrayAdapter<Poll> implements OnClickListener, PollsResponse{
 
-  private int pollResult = 0;
+  private long pollResult = 0;
+  long pollId = 0;
+  Button vote;
 
   public PollListAdapter(Context context, int resource, List<Poll> items) {
     super(context, resource, items);
@@ -48,27 +55,18 @@ public class PollListAdapter extends ArrayAdapter<Poll> {
 
     if (poll != null) {
       TextView title = (TextView) view.findViewById(R.id.tvPollTitle);
+      pollId = poll.getPollId();
       TextView address = (TextView) view.findViewById(R.id.tvPollAddress);
       TextView duration = (TextView) view.findViewById(R.id.tvPollDuration);
       TextView time = (TextView) view.findViewById(R.id.tvPollTime);
       TextView content = (TextView) view.findViewById(R.id.tvPollContent);
       TextView peopleCount = (TextView) view.findViewById(R.id.tvPollPeopleCount);
-      Button vote = (Button) view.findViewById(R.id.btnPollVote);
+      vote = (Button) view.findViewById(R.id.btnPollVote);
       RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.rgPoll);
       RadioButton rButtonOne = (RadioButton) view.findViewById(R.id.rbPoll1);
       RadioButton rButtonTwo = (RadioButton) view.findViewById(R.id.rbPoll2);
       RadioButton rButtonThree = (RadioButton) view.findViewById(R.id.rbPoll3);
       RadioButton rButtonFour = (RadioButton) view.findViewById(R.id.rbPoll4);
-
-
-      vote.setOnClickListener(new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          Toast.makeText(getContext(), "Результат опроса отправлен", Toast.LENGTH_SHORT).show();
-          Log.d(TAG, "Poll list item onClick: Vote clicked");
-          //TODO: Launch request with pollResult to server
-        }
-      });
 
       radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
         @Override
@@ -143,8 +141,33 @@ public class PollListAdapter extends ArrayAdapter<Poll> {
         rButtonFour.setText(poll.getVariant4());
       }
     }
-
+    vote.setOnClickListener(this);
     return view;
   }
 
+  @Override
+  public void onClick(View view) {
+    Toast.makeText(getContext(), "Результат опроса отправлен", Toast.LENGTH_SHORT).show();
+    Log.d(TAG, "Poll list item onClick: Vote clicked");
+    //TODO: Launch request with pollResult to server
+
+    JSONObject voice = new JSONObject();
+    try {
+      voice.put("pollId", pollId);
+      voice.put("answerId", pollResult);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    String pollVoice = voice.toString();
+
+    new PollsTask(this).execute(WebUrls.NEW_VOICE_URL, Constants.POST, pollVoice, UserLocalStore
+        .loadStringFromSharedPrefs(getContext().getApplicationContext(), Prefs.AUTH_CERTIFICATE));
+  }
+
+
+  @Override
+  public void pollsResponse(String output) {
+
+  }
 }

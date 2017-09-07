@@ -25,15 +25,18 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +47,31 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.hillelevo.cityelf.Constants;
+import com.hillelevo.cityelf.Constants.Prefs;
+import com.hillelevo.cityelf.Constants.WebUrls;
+import com.hillelevo.cityelf.R;
+import com.hillelevo.cityelf.activities.map_activity.PlaceArrayAdapter;
+import com.hillelevo.cityelf.data.UserLocalStore;
+import com.hillelevo.cityelf.fragments.auth_fragments.MultipartDataTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask;
+import com.hillelevo.cityelf.webutils.JsonMessageTask.JsonMessageResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 public class AuthenticationOSMD extends AppCompatActivity implements JsonMessageResponse,
     View.OnClickListener, GoogleApiClient.OnConnectionFailedListener,
@@ -65,9 +93,10 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
   private String filePath;
   private String mailFrom;
   private String address;
-  private String name;
+  private String nameUser;
   private String imageFile1;
   private String imageFile2;
+  Bitmap file = null;
 
 
   @Override
@@ -140,9 +169,40 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
         break;
       case R.id.btn_send_request:
         address = String.valueOf(mAutocompleteTextView.getText());
-        name = String.valueOf(userName.getText());
+        nameUser = String.valueOf(userName.getText());
+        String nameImage = String.valueOf(imageName.getText());
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
 
-        if (!address.isEmpty() && !name.isEmpty() && filePath != null && filePath != "") {
+        if (!address.isEmpty() && !nameUser.isEmpty() && filePath != null && filePath != "") {
+
+//          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//          file.compress(CompressFormat.JPEG, 100, byteArrayOutputStream);
+//          String encodedImage = Base64
+//              .encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
+
+//          ArrayList<NameValuePair> dataToSend = new ArrayList<>();
+//          dataToSend.add(new BasicNameValuePair("image", encodedImage));
+//          dataToSend.add(new BasicNameValuePair("name", name));
+          // uploaded_file_name is the Name of the File to be uploaded
+
+         String bodyParams = (twoHyphens + boundary + lineEnd
+             + "Content-Disposition: form-data; name=\"file\";filename=\"" + nameImage
+              + "\"" + lineEnd + "Content-Type: image/png"+ lineEnd + lineEnd + lineEnd +
+             twoHyphens + boundary + lineEnd
+             + "Content-Disposition: form-data; name=\"name\"" + lineEnd + lineEnd
+          + nameUser + lineEnd + twoHyphens + boundary + lineEnd
+             + "Content-Disposition: form-data; name=\"mailFrom\"" + lineEnd + lineEnd
+          + UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.EMAIL)
+             + lineEnd + twoHyphens + boundary + lineEnd
+             + "Content-Disposition: form-data; name=\"address\"" + lineEnd + lineEnd
+          + address + lineEnd + twoHyphens + boundary + twoHyphens);
+
+          new MultipartDataTask().execute(WebUrls.USER_UPLOAD_URL, Constants.MULTIPART_UPLOAD,
+              filePath, UserLocalStore.loadStringFromSharedPrefs(getApplicationContext(), Prefs.AUTH_CERTIFICATE),
+              bodyParams);
+
           /* todo SEND REQUEST ON THIS FRAGMENT
           * use variable: address, name, mailFrom (get from sharedPreference), file
           */
@@ -170,6 +230,8 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
     photoPickerIntent.setType("image/*");
     startActivityForResult(photoPickerIntent, 1);
 
+//    startActivityForResult(photoPickerIntent, REQUEST);
+
   }
 
   @Override
@@ -189,7 +251,6 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
         if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg")
             || file_extn.equals("png")) {
 
-
         }
       }
     }
@@ -198,12 +259,14 @@ public class AuthenticationOSMD extends AppCompatActivity implements JsonMessage
 
   public String getPath(Uri uri) {
     String[] projection = {MediaColumns.DATA};
+
     Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
     int column_index = cursor
         .getColumnIndexOrThrow(MediaColumns.DATA);
     cursor.moveToFirst();
     imageFile2 = cursor.getString(column_index);
-    Bitmap file = null;
+//    Bitmap file = null;
 
     try {
       file = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);

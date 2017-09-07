@@ -2,15 +2,14 @@ package com.hillelevo.cityelf.webutils;
 
 import static com.hillelevo.cityelf.Constants.TAG;
 
-import android.content.Context;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.AsyncTask;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
 import com.hillelevo.cityelf.Constants;
-
 import com.hillelevo.cityelf.Constants.Prefs;
-import com.hillelevo.cityelf.activities.MainActivity;
-import com.hillelevo.cityelf.activities.map_activity.InternetConnection;
-import com.hillelevo.cityelf.data.UserLocalStore;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -18,12 +17,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-
-import android.os.AsyncTask;
-import android.os.Build.VERSION_CODES;
-import android.support.annotation.RequiresApi;
-import android.util.Base64;
-import android.util.Log;
 import javax.net.ssl.HttpsURLConnection;
 
 public class JsonMessageTask extends AsyncTask<String, Void, String> {
@@ -42,46 +35,40 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
 
     HttpURLConnection connection = null;
     OutputStream outputStream = null;
+    DataOutputStream dataOutputStream = null;
     BufferedReader reader = null;
     StringBuffer buffer = new StringBuffer();
 
     try {
       if (params[1] != null && params[1].equals("POST")) {
 
-        try {
-          url = new URL(params[0]);
-          connection = (HttpURLConnection) url.openConnection();
-          connection.setRequestMethod("POST");
-          connection.setDoInput(true);
-          connection.setDoOutput(true);
+        url = new URL(params[0]);
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
 
 //          connection.setConnectTimeout(Constants.CONNECTION_TIMEOUT);
 //          connection.setReadTimeout(Constants.CONNECTION_TIMEOUT);
 
-          if (params[3] != null) {
-            connection.setRequestProperty(Prefs.AUTH, params[3]);
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("content-type", "application/json");
-          }
-          connection.connect();
-
-          String bodyParams = params[2];
-          outputStream = connection.getOutputStream();
-          outputStream.write(bodyParams.getBytes());
-          outputStream.close();
-
-          int responseCode = connection.getResponseCode();
-          if (responseCode != 200) {
-            Log.d(TAG, "Response Code is: " + responseCode);
-            return "Error " + Constants.POST + " " + responseCode;
-          }
-        } catch (MalformedURLException e) {
-          e.printStackTrace();
-        } catch (ProtocolException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
+        if (params[3] != null) {
+          connection.setRequestProperty(Prefs.AUTH, params[3]);
+          connection.setRequestProperty("Accept", "application/json");
+          connection.setRequestProperty("content-type", "application/json");
         }
+        connection.connect();
+
+        String bodyParams = params[2];
+        outputStream = connection.getOutputStream();
+        outputStream.write(bodyParams.getBytes());
+        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != 200) {
+          Log.d(TAG, "Response Code is: " + responseCode);
+          return "Error " + Constants.POST + " " + responseCode;
+        }
+
       } else if (params[1] != null && params[1].equals("PUT")) {
 
         try {
@@ -128,7 +115,6 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
           Log.d(TAG, "Response Code is: " + responseCode);
           return "Error " + Constants.GET + " " + responseCode;
         }
-
       }
 
       //receive & read data response
@@ -140,19 +126,13 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
       while ((line = reader.readLine()) != null) {
         buffer.append(line);
       }
-    } catch (
-        MalformedURLException e)
-
-    {
+    } catch (MalformedURLException e) {
       e.printStackTrace();
-    } catch (
-        IOException e)
-
-    {
+    } catch (ProtocolException e) {
       e.printStackTrace();
-    } finally
-
-    {
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
       if (connection != null) {
         connection.disconnect();
       }
@@ -164,13 +144,9 @@ public class JsonMessageTask extends AsyncTask<String, Void, String> {
         e.printStackTrace();
       }
     }
-    if (buffer == null)
-
-    {
+    if (buffer == null) {
       return null;
-    } else
-
-    {
+    } else {
       return buffer.toString();
     }
   }

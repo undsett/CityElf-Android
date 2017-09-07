@@ -166,7 +166,7 @@ public class RegistrationFragment extends Fragment implements JsonMessageRespons
           } else {
 //            showMessage(message);
             Toast.makeText(getActivity().getBaseContext(),
-                message, Toast.LENGTH_SHORT).show();
+                "Этот пользователь уже зарегистрирован", Toast.LENGTH_SHORT).show();
           }
         } else {
 //          showMessage("Ошибка регистрации");

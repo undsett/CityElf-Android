@@ -6,6 +6,7 @@ import android.os.Parcelable;
 public class Poll implements Parcelable {
 
   private String title;
+  private long pollId;
   private String address;
   private String duration;
   private String time;
@@ -16,9 +17,10 @@ public class Poll implements Parcelable {
   private String variant4;
   private int peopleCount;
 
-  public Poll(String title, String address, String duration, String time, String content,
+  public Poll(String title, long pollId, String address, String duration, String time, String content,
       String variant1, String variant2, String variant3, String variant4, int peopleCount) {
     this.title = title;
+    this.pollId = pollId;
     this.address = address;
     this.duration = duration;
     this.time = time;
@@ -32,6 +34,7 @@ public class Poll implements Parcelable {
 
   public Poll(Parcel in) {
     title = in.readString();
+    pollId = in.readLong();
     address = in.readString();
     duration = in.readString();
     time = in.readString();
@@ -49,6 +52,10 @@ public class Poll implements Parcelable {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  public long getPollId() {
+    return pollId;
   }
 
   public String getAddress() {
@@ -130,6 +137,7 @@ public class Poll implements Parcelable {
 
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(title);
+    dest.writeLong(pollId);
     dest.writeString(address);
     dest.writeString(duration);
     dest.writeString(time);

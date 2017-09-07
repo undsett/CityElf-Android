@@ -8,29 +8,31 @@ public class Constants {
   public static  final String GET = "GET";
   public static  final String POST = "POST";
   public static  final String PUT = "PUT";
+  public static  final String MULTIPART_UPLOAD = "MULTIPART_UPLOAD";
   public static final int CONNECTION_TIMEOUT = 1000 * 15;
   public static final String RESPONSE_TO_A_REQUEST = "Ваш запрос отправлен. Мы рассмотрим его в течение 3 рабочих дней, о результате сообщим по электронной почте";
   public static final String ERROR_INPUT_ADDRESS = "Возможно этот адрес не находится в Одессе";
 
   public class WebUrls {
 
-    public static final String GET_ALL_FORECASTS = "test:8080/services/allforecasts/get?address=";
-    public static final String GET_ALL_ADVERTS = "test:8080/services/advertisements/getall?addressid=";
-    public static final String GET_ALL_POOLS = "test:8080/services/polls/getall?addressid=";
-    public static final String ADD_NEW_USER = "test:8080/services/registration/adduser";
-    public static final String AUTHORIZATION_URL = "test:8080/services/registration/login";
-    public static final String REGISTRATION_URL = "test:8080/services/registration/register";
-    public static final String FORGOT_PASSWORD_URL = "test:8080/services/forgot/reset?email=";
-    public static final String UPDATE_USER_URL = "test:8080/services/users/updateuser";
-    public static final String USER_REPORT_SHUTDOWN = "test:8080/services/peoplereport/add";
+    public static final String GET_ALL_FORECASTS = "http://ip/services/allforecasts/get?address=";
+    public static final String GET_ALL_ADVERTS = "http://ip/services/advertisements/getall?addressid=";
+    public static final String GET_ALL_POOLS = "http://ip/services/polls/getall?addressid=";
+    public static final String ADD_NEW_USER = "http://ip/services/registration/adduser";
+    public static final String AUTHORIZATION_URL = "http://ip/services/registration/login";
+    public static final String REGISTRATION_URL = "http://ip/services/registration/register";
+    public static final String FORGOT_PASSWORD_URL = "http://ip/services/forgot/reset?email=";
+    public static final String UPDATE_USER_URL = "http://ip/services/users/updateuser";
+    public static final String USER_REPORT_SHUTDOWN = "http://ip/services/peoplereport/add";
     public static final String API_KEY_URL = "&key=AIzaSyCvCVjPsoJyCifJNO9EtlJuBW53eQHPHpY&language=ru";
     public static final String ADDRESS_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
     public static final String COORDINATE_URL_START = "http://maps.googleapis.com/maps/api/geocode/json?latlng=";
     public static final String COORDINATE_URL_END = "&sensor=true\\";
-    public static final String USER_UPLOAD_URL = "test:8080/services/users/upload";
-    public static final String GET_USERDATA_URL = "test:8080/services/users/";
-    public static final String ADD_NEW_ADVERTS_URL = "test:8080/services/advertisements/admin/addadvertisement";
-    public static final String ADD_NEW_POLLS_URL = "test:8080/services/polls/admin/addpoll";
+    public static final String USER_UPLOAD_URL = "http://ip/services/users/upload";
+    public static final String GET_USERDATA_URL = "http://ip/services/users/";
+    public static final String ADD_NEW_ADVERTS_URL = "http://ip/services/advertisements/admin/addadvertisement";
+    public static final String ADD_NEW_POLLS_URL = "http://ip/services/polls/admin/addpoll";
+    public static final String NEW_VOICE_URL = "http://ip/services/voting/voice";
   }
 
   public class Actions {
@@ -72,6 +74,7 @@ public class Constants {
     public static final String WATER = "Water";
     public static final String GAS = "Gas";
     public static final String ELECTRICITY = "Electricity";
+    public static final String POLL_ID = "pollId";
 
     public static final int MAX_ADDRESS_QUANTITY = 4;
   }
